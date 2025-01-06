@@ -82,7 +82,7 @@ def _pre_process_corpus(corp: pl.DataFrame) -> pl.DataFrame:
 
 def get_text_paths(directory: str, recursive=False) -> List:
     """
-    Gets a list of full paths for all files
+    Gets a list of full paths for all files \
     and directories in the given directory.
     """
     full_paths = []
@@ -126,96 +126,6 @@ def corpus_from_folder(directory: str) -> pl.DataFrame:
     return df
 
 
-def biber_weight(biber_counts: pl.DataFrame,
-                 doc_totals: pl.DataFrame,
-                 scheme="prop"):
-
-    if (
-        not all(
-            x == pl.UInt32 for x in biber_counts.collect_schema().dtypes()[1:]
-            ) and
-        biber_counts.columns[0] != "doc_id"
-    ):
-        raise ValueError("""
-                         Invalid DataFrame.
-                         Expected a DataFrame produced by biber.
-                         """)
-
-    scheme_types = ['prop', 'scale', 'tfidf']
-    if scheme not in scheme_types:
-        raise ValueError("""scheme_types
-                         Invalid count_by type. Expected one of: %s
-                         """ % scheme_types)
-
-    dtm = biber_counts.join(doc_totals, on="doc_id")
-
-    weighted_df = (
-        dtm
-        .with_columns(
-            pl.selectors.numeric().exclude(
-                ['f_43_type_token',
-                 'f_44_mean_word_length',
-                 'doc_total']
-                 ).truediv(
-                     pl.col("doc_total")
-                 ).mul(1000)
-        )
-        .drop("doc_total")
-    )
-
-    if scheme == "prop":
-        print("""
-              all features normalized per 1000 tokens except \
-              f_43_type_token and f_44_mean_word_length
-              """)
-        return weighted_df
-
-    elif scheme == "scale":
-        weighted_df = (
-            weighted_df
-            .with_columns(
-                pl.selectors.numeric()
-                .sub(
-                    pl.selectors.numeric().mean()
-                    )
-                .truediv(
-                    pl.selectors.numeric().std()
-                    )
-                )
-        )
-        return weighted_df
-
-    else:
-        weighted_df = (
-            weighted_df
-            .drop(['f_43_type_token', 'f_44_mean_word_length'])
-            .transpose(include_header=True,
-                       header_name="Tag",
-                       column_names="doc_id")
-            # log(1 + N/(1+df)) = log((1+df+N)/(1+df)) =
-            # log(1+df+N) - log(1+df) = log1p(df+N) - log1p(df)
-            .with_columns(
-                pl.sum_horizontal(pl.selectors.numeric().ge(0))
-                .add(pl.sum_horizontal(pl.selectors.numeric().gt(0))).log1p()
-                .sub(pl.sum_horizontal(pl.selectors.numeric().gt(0)).log1p())
-                .alias("IDF")
-            )
-            # multiply normalized frequencies by IDF
-            .with_columns(
-                pl.selectors.numeric().exclude("IDF").mul(pl.col("IDF"))
-            )
-            .drop("IDF")
-            .transpose(include_header=True,
-                       header_name="doc_id",
-                       column_names="Tag")
-            )
-        print("""
-              f_43_type_token and f_44_mean_word_length \
-              exluded from tf-idf matrix
-              """)
-        return weighted_df
-
-
 def spacy_parse(corp: pl.DataFrame,
                 nlp_model: Language,
                 n_process=1,
@@ -233,7 +143,7 @@ def spacy_parse(corp: pl.DataFrame,
                                                       'lemmatizer']
             )):
         raise ValueError("""
-                         Invalid spaCy model. Expected a pipeline with
+                         Invalid spaCy model. Expected a pipeline with \
                          tagger, parser and lemmatizer like 'en_core_web_sm'.
                          For information and instructions see:
                          https://spacy.io/models/en

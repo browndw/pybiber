@@ -5,15 +5,118 @@ Functions for analyzing corpus data tagged with DocuScope and CLAWS7.
 
 import re
 from typing import Optional
-from itertools import chain
+from textwrap import dedent
 
 import polars as pl
 
 from .biber_dict import FEATURES, WORDLISTS
 
 
+def _biber_weight(biber_counts: pl.DataFrame,
+                  totals: pl.DataFrame,
+                  scheme="prop"):
+
+    if (
+        not all(
+            x == pl.UInt32 for x in biber_counts.collect_schema().dtypes()[1:]
+            ) and
+        biber_counts.columns[0] != "doc_id"
+    ):
+        raise ValueError("""
+                         Invalid DataFrame.
+                         Expected a DataFrame produced by biber.
+                         """)
+
+    scheme_types = ['prop', 'scale', 'tfidf']
+    if scheme not in scheme_types:
+        raise ValueError("""scheme_types
+                         Invalid count_by type. Expected one of: %s
+                         """ % scheme_types)
+
+    dtm = biber_counts.join(totals, on="doc_id")
+
+    weighted_df = (
+        dtm
+        .with_columns(
+            pl.selectors.numeric().exclude(
+                ['f_43_type_token',
+                 'f_44_mean_word_length',
+                 'doc_total']
+                 ).truediv(
+                     pl.col("doc_total")
+                 ).mul(1000)
+        )
+        .drop("doc_total")
+    )
+
+    if scheme == "prop":
+        print(dedent(
+            """
+            all features normalized per 1000 tokens except:
+            f_43_type_token and f_44_mean_word_length
+            """
+            ))
+        return weighted_df
+
+    elif scheme == "scale":
+        weighted_df = (
+            weighted_df
+            .with_columns(
+                pl.selectors.numeric()
+                .sub(
+                    pl.selectors.numeric().mean()
+                    )
+                .truediv(
+                    pl.selectors.numeric().std()
+                    )
+                )
+        )
+        return weighted_df
+
+    else:
+        weighted_df = (
+            weighted_df
+            .drop(['f_43_type_token', 'f_44_mean_word_length'])
+            .transpose(include_header=True,
+                       header_name="Tag",
+                       column_names="doc_id")
+            # log(1 + N/(1+df)) = log((1+df+N)/(1+df)) =
+            # log(1+df+N) - log(1+df) = log1p(df+N) - log1p(df)
+            .with_columns(
+                pl.sum_horizontal(pl.selectors.numeric().ge(0))
+                .add(pl.sum_horizontal(pl.selectors.numeric().gt(0))).log1p()
+                .sub(pl.sum_horizontal(pl.selectors.numeric().gt(0)).log1p())
+                .alias("IDF")
+            )
+            # multiply normalized frequencies by IDF
+            .with_columns(
+                pl.selectors.numeric().exclude("IDF").mul(pl.col("IDF"))
+            )
+            .drop("IDF")
+            .transpose(include_header=True,
+                       header_name="doc_id",
+                       column_names="Tag")
+            )
+        print(dedent(
+            """
+            exluded from tf-idf matrix:
+            f_43_type_token and f_44_mean_word_length
+            """))
+        return weighted_df
+
+
 def biber(tokens: pl.DataFrame,
+          normalize: Optional[bool] = True,
           force_ttr: Optional[bool] = False) -> pl.DataFrame:
+
+    doc_totals = (
+        tokens
+        .filter(
+            ~(pl.col("token").str.contains("^[[:punct:]]+$"))
+            )
+        .group_by("doc_id", maintain_order=True)
+        .len(name="doc_total")
+        )
 
     doc_len_min = (
         tokens
@@ -81,12 +184,11 @@ def biber(tokens: pl.DataFrame,
 
     counts = []
     for row in biber_tkns.iter_rows(named=True):
-        feature_counts = {key: sum(
-            1 for match in chain.from_iterable(
-                re.finditer(pattern, row['tokens']) for pattern in value
-                )
-            )
-                          for key, value in FEATURES.items()}
+        feature_counts = {}
+        for key in FEATURES.keys():
+            pattern = re.compile('|'.join(FEATURES[key]))
+            count = len(pattern.findall(row['tokens']))
+            feature_counts[key] = count
         df = pl.from_dict(feature_counts)
         s = pl.Series("doc_id", [row['doc_id']])
         df.insert_column(0, s)
@@ -862,6 +964,26 @@ def biber(tokens: pl.DataFrame,
         .select("f_60_that_deletion")
     )
 
+    f_61_stranded_preposition = (
+        tokens
+        .filter(
+            (pl.col("tag") == "IN"),
+            (
+                (pl.col("dep_rel") == "prep") &
+                (pl.col("tag_lag_-1").str.contains("^[[:punct:]]$"))
+            )
+            )
+        .group_by(
+            "doc_id", maintain_order=True
+            ).len(name="f_61_stranded_preposition")
+        .join(ids, on="doc_id", how="right", coalesce=True)
+        .with_columns(
+            pl.col("f_61_stranded_preposition").fill_null(strategy="zero")
+            )
+        .sort("doc_id", descending=False)
+        .select("f_61_stranded_preposition")
+    )
+
     f_62_split_infinitive = (
         tokens
         .filter(
@@ -978,10 +1100,17 @@ def biber(tokens: pl.DataFrame,
         f_35_because, f_38_other_adv_sub, f_39_prepositions,
         f_40_adj_attr, f_41_adj_pred, f_43_type_token,
         f_44_mean_word_length, f_51_demonstratives, f_60_that_deletion,
-        f_62_split_infinitive, f_63_split_auxiliary, f_64_phrasal_coordination,
-        f_65_clausal_coordination
+        f_61_stranded_preposition, f_62_split_infinitive, f_63_split_auxiliary,
+        f_64_phrasal_coordination, f_65_clausal_coordination
         ], how="horizontal")
 
     biber_counts = biber_counts.select(sorted(biber_counts.columns))
 
-    return biber_counts
+    if normalize is False:
+        return biber_counts
+
+    if normalize is True:
+        biber_counts = _biber_weight(biber_counts,
+                                     totals=doc_totals,
+                                     scheme="prop")
+        return biber_counts
