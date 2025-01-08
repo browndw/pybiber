@@ -1,0 +1,51 @@
+[project]
+name = "pybiber"
+description = "Extract Biber features from a document parsed and annotated by spaCy."
+readme.content-type = "text/markdown"
+readme.file = "README.md"
+urls.Documentation = "https://browndw.github.io/pybiber"
+urls.Homepage = "https://github.com/browndw/pybiber"
+authors = [{ name = "David Brown", email = "dwb2@andrew.cmu.edu" }]
+maintainers = [{ name = "David Brown", email = "dwb2@andrew.cmu.edu" }]
+keywords = ["nlp", "language"]
+classifiers = [
+    "Programming Language :: Python :: 3 :: Only",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "License :: OSI Approved :: MIT License",
+]
+requires-python = ">=3.9"
+dynamic = ["version"]
+dependencies = [
+	"adjustText>=1.1"
+	"factor_analyzer>=0.5"
+	"polars>=1.17",
+    "spacy>=3.7",
+    "humanize>=1",
+    "importlib-metadata>=4.4",
+    "importlib-resources>=1.3",
+    "jinja2>=2.10",
+    "joblib>=0.12",
+    "pandas>=0.23",
+    "pyyaml>=3.13",
+    "requests",
+    "xxhash>=1",
+]
+
+[build-system]
+requires = ["setuptools>=45", "setuptools-scm>=6.2", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools]
+include-package-data = true
+
+[tool.setuptools.packages]
+find = { namespaces = false }
+
+[tool.setuptools_scm]
+
+[tool.distutils.bdist_wheel]
+universal = 1
