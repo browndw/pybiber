@@ -23,7 +23,7 @@ dependencies = [
     "adjustText>=1.1",
     "factor-analyzer>=0.5",
     "polars>=1.17",
-    "spacy>=3.7"
+    "spacy>=3.7",
 ]
 
 [build-system]
