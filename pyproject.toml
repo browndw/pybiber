@@ -21,9 +21,9 @@ requires-python = ">=3.9"
 version = "0.0.1"
 dependencies = [
     "adjustText>=1.1",
+    "factor_analyzer>=0.5",
     "polars>=1.17",
     "spacy>=3.7",
-    "factor_analyzer>=0.5"
 ]
 
 [build-system]
