@@ -24,6 +24,7 @@ dependencies = [
     "factor_analyzer>=0.5",
     "polars>=1.17",
     "spacy>=3.7",
+    "statsmodels>=0.14"
 ]
 
 [build-system]
