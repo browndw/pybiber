@@ -1,5 +1,5 @@
 """
-Functions for analyzing corpus data tagged with DocuScope and CLAWS7.
+Utilities for processessing text data using a spaCy instance.
 .. codeauthor:: David Brown <dwb2d@andrew.cmu.edu>
 """
 
@@ -18,12 +18,36 @@ from spacy.util import filter_spans
 
 
 def _str_squish(text: str) -> str:
+    """Remove extra spaces, returns, etc. from a string.
+
+    Parameters
+    ----------
+    text:
+        A string.
+
+    Returns
+    -------
+    str
+        A string.
+
+    """
     return " ".join(text.split())
 
 
 def _replace_curly_quotes(text: str) -> str:
-    """Replaces curly quotes with straight quotes."""
+    """Replaces curly quotes with straight quotes.
 
+    Parameters
+    ----------
+    text:
+        A string.ß
+
+    Returns
+    -------
+    str
+        A string.
+
+    """
     text = text.replace(u'\u2018', "'")  # Left single quote
     text = text.replace(u'\u2019', "'")  # Right single quote
     text = text.replace(u'\u201C', '"')  # Left double quote
@@ -32,7 +56,22 @@ def _replace_curly_quotes(text: str) -> str:
 
 
 def _split_docs(doc_txt: str,
-                n_chunks: float) -> str:
+                n_chunks: float) -> List:
+    """Split documents that will exhaust spaCy's memory into smaller chunks.
+
+    Parameters
+    ----------
+    doc_txt:
+        A string.
+    n_chunks:
+        The number of chunks for splitting.
+
+    Returns
+    -------
+    List
+        A list of strings.
+
+    """
     sent_boundary = re.compile(r'(?<!\w\.\w.)(?<![A-Z][a-z]\.)(?<=\.|\?|\!)\s')
     doc_len = len(doc_txt)
     chunk_idx = [math.ceil(i/n_chunks*doc_len) for i in range(1, n_chunks)]
@@ -57,7 +96,19 @@ def _split_docs(doc_txt: str,
 
 
 def _pre_process_corpus(corp: pl.DataFrame) -> pl.DataFrame:
+    """Format texts to increase spaCy tagging accuracy.
 
+    Parameters
+    ----------
+    corp:
+        A polars DataFrame with 'doc_id' and 'text' columns.
+
+    Returns
+    -------
+    pl.DataFrame
+        A polars DataFrame.
+
+    """
     df = (
         corp
         .with_columns(
@@ -81,9 +132,20 @@ def _pre_process_corpus(corp: pl.DataFrame) -> pl.DataFrame:
 
 
 def get_text_paths(directory: str, recursive=False) -> List:
-    """
-    Gets a list of full paths for all files \
-    and directories in the given directory.
+    """Get a list of full paths for all text files.
+
+    Parameters
+    ----------
+    directory:
+        A string indictating a path to a directory.
+    recursive:
+        Whether to search subdirectories.
+
+    Returns
+    -------
+    List
+        A list of full paths.
+
     """
     full_paths = []
     if recursive is True:
@@ -98,6 +160,26 @@ def get_text_paths(directory: str, recursive=False) -> List:
 
 
 def readtext(paths: List) -> pl.DataFrame:
+    """Import all text files from a list of paths.
+
+    Parameters
+    ----------
+    directory:
+        A string indictating a path to a directory.
+    recursive:
+        Whether to search subdirectories.
+
+    Returns
+    -------
+    List
+        A list of full paths.
+
+    Notes
+    -----
+        Modeled on the R function \
+        [readtext](https://readtext.quanteda.io/articles/readtext_vignette.html).
+
+    """
     # Get a list of the file basenames
     doc_ids = [os.path.basename(path) for path in paths]
     # Create a list collapsing each text file into one element in a string
@@ -130,6 +212,29 @@ def spacy_parse(corp: pl.DataFrame,
                 nlp_model: Language,
                 n_process=1,
                 batch_size=25) -> pl.DataFrame:
+    """Parse a corpus using the 'en_core_web_sm' model.
+
+    Parameters
+    ----------
+    corp:
+        A polars DataFrame
+        conataining a 'doc_id' column and a 'text' column.
+    nlp_model:
+        An 'en_core_web_sm' instance.
+    n_process:
+        The number of parallel processes
+        to use during parsing.
+    batch_size:
+        The batch size to use during parsing.
+
+    Returns
+    -------
+    pl.DataFrame
+        A polars DataFrame with,
+        token sequencies identified by part-of-speech tags
+        and dependency parses.
+
+    """
     validation = OrderedDict([('doc_id', pl.String),
                               ('text', pl.String)])
     if corp.collect_schema() != validation:
@@ -246,6 +351,39 @@ def get_noun_phrases(corp: pl.DataFrame,
                      nlp_model: Language,
                      n_process=1,
                      batch_size=25) -> pl.DataFrame:
+    """
+    Extract expanded noun phrases using the 'en_core_web_sm' model.
+
+    Parameters
+    ----------
+    corp:
+        A polars DataFrame
+        conataining a 'doc_id' column and a 'text' column.
+    nlp_model:
+        An 'en_core_web_sm' instance.
+    n_process:
+        The number of parallel processes
+        to use during parsing.
+    batch_size:
+        The batch size to use during parsing.
+
+    Returns
+    -------
+    pl.DataFrame
+        a polars DataFrame with,
+        noun phrases and their assocated part-of-speech tags.
+
+    Notes
+    -----
+        Noun phrases can be extracted directly from the \
+        [noun_chunks](https://spacy.io/api/doc#noun_chunks) \
+        attribute. However, per spaCy's documentation \
+        the attribute does not permit nested noun phrases, \
+        for example when a prepositional phrases modifies \
+        a preceding noun phrase. This function extracts \
+        elatorated noun phrases in their complete form.
+
+    """
     validation = OrderedDict([('doc_id', pl.String),
                               ('text', pl.String)])
     if corp.collect_schema() != validation:

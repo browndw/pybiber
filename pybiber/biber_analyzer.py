@@ -1,3 +1,8 @@
+"""
+Carry our specific implemations of exploratory factor analysis
+from a parsed corpus.
+.. codeauthor:: David Brown <dwb2d@andrew.cmu.edu>
+"""
 
 import warnings
 import numpy as np
@@ -120,6 +125,26 @@ class BiberAnalyzer:
                          height=3,
                          dpi=150,
                          mda=True) -> Figure:
+        """Generate a scree plot for determining factors.
+
+        Parameters
+        ----------
+        width:
+            The width of the plot.
+        height:
+            The height of the plot.
+        dpi:
+            The resolution of the plot.
+        mda:
+            Whether or not non-colinear features should be
+            filter out per Biber's multi-dimensional analysis procedure.
+
+        Returns
+        -------
+        Figure
+            A matplotlib figure.
+
+        """
         if mda is True:
             x = self.eigenvalues['ev_mda']
         else:
@@ -144,6 +169,25 @@ class BiberAnalyzer:
                           width=3,
                           height=7,
                           dpi=150) -> Figure:
+        """Generate a stick plot of the group means for a factor.
+
+        Parameters
+        ----------
+        factor:
+            The factor or dimension to plot.
+        width:
+            The width of the plot.
+        height:
+            The height of the plot.
+        dpi:
+            The resolution of the plot.
+
+        Returns
+        -------
+        Figure
+            A matplotlib figure.
+
+        """
         factor_col = "factor_" + str(factor)
         if self.mda_group_means is None:
             return print(dedent(
@@ -205,7 +249,25 @@ class BiberAnalyzer:
                           width=8,
                           height=4,
                           dpi=150) -> Figure:
+        """Generate a scatter plot of the group means along 2 components.
 
+        Parameters
+        ----------
+        pc:
+            The principal component for the x-axis.
+        width:
+            The width of the plot.
+        height:
+            The height of the plot.
+        dpi:
+            The resolution of the plot.
+
+        Returns
+        -------
+        Figure
+            A matplotlib figure.
+
+        """
         if self.pca_coordinates is None:
             return print(dedent(
                 """
@@ -288,6 +350,30 @@ class BiberAnalyzer:
                        width=8,
                        height=4,
                        dpi=150) -> Figure:
+        """Generate a bar plot of variable contributions to a component.
+
+        Parameters
+        ----------
+        pc:
+            The principal component.
+        width:
+            The width of the plot.
+        height:
+            The height of the plot.
+        dpi:
+            The resolution of the plot.
+
+        Returns
+        -------
+        Figure
+            A matplotlib figure.
+
+        Notes
+        -----
+            Modeled on the R function \
+            [fviz_contrib](https://search.r-project.org/CRAN/refmans/factoextra/html/fviz_contrib.html).
+
+        """
         pc_col = "PC_" + str(pc)
 
         if self.pca_variable_contribution is None:
@@ -358,6 +444,19 @@ class BiberAnalyzer:
             cor_min: float = 0.2,
             threshold: float = 0.35):
 
+        """Execute Biber's multi-dimensional anlaysis.
+
+        Parameters
+        ----------
+        n_factors:
+            The number of factors to extract.
+        cor_min:
+            The minimum correlation at which to drop variables.
+        threshold:
+            The factor loading threshold (in absolute value)
+            used to calculate dimension scores.
+
+        """
         # filter out non-correlating variables
         m_cor = np.corrcoef(self.variables.to_numpy().T)
         np.fill_diagonal(m_cor, 0)
@@ -482,7 +581,16 @@ class BiberAnalyzer:
         self.mda_group_means = group_means
 
     def pca(self):
+        """Execute principal component analysis.
 
+        Notes
+        -----
+            This is largely a convenience function as most of its outputs \
+            are procuduced by wrappers for sklearn. However, \
+            variable contribution is adapted from the FactoMineR function \
+            [fviz_contrib](https://search.r-project.org/CRAN/refmans/factoextra/html/fviz_contrib.html).
+
+        """
         # scale variables
         x = self.variables.to_numpy()
         df = (x - np.mean(x, axis=0)) / np.std(x, axis=0, ddof=1)

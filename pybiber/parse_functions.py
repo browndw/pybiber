@@ -1,5 +1,5 @@
 """
-Functions for analyzing corpus data tagged with DocuScope and CLAWS7.
+Extract Biber features from a corpus parsed and annotated by spaCy.
 .. codeauthor:: David Brown <dwb2d@andrew.cmu.edu>
 """
 
@@ -108,7 +108,35 @@ def _biber_weight(biber_counts: pl.DataFrame,
 def biber(tokens: pl.DataFrame,
           normalize: Optional[bool] = True,
           force_ttr: Optional[bool] = False) -> pl.DataFrame:
+    """Extract Biber features from a parsed corpus.
 
+    Parameters
+    ----------
+    tokens:
+        A polars DataFrame
+        with the output of the spacy_parse function.
+    normalize:
+        Normalize counts per 1000 tokens.
+    force_ttr:
+        Force the calcuation of type-to-token ratio
+        rather than moving average type-to-token ratio.
+
+    Returns
+    -------
+    pl.DataFrame
+        A polars DataFrame with,
+        counts of feature frequencies.
+
+    Notes
+    -----
+        MATTR is the default as it is less sensitive than TTR  \
+        to variations in text lenghth. However, the \
+        function will automatically use TTR if any of the \
+        corpus texts are less than 200 words. \
+        Thus, forcing TTR can be necessary when processing multiple \
+        corpora that you want to be consistent.
+
+    """
     doc_totals = (
         tokens
         .filter(
