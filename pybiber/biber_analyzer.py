@@ -586,7 +586,7 @@ class BiberAnalyzer:
         Notes
         -----
             This is largely a convenience function as most of its outputs \
-            are procuduced by wrappers for sklearn. However, \
+            are produced by wrappers for sklearn. However, \
             variable contribution is adapted from the FactoMineR function \
             [fviz_contrib](https://search.r-project.org/CRAN/refmans/factoextra/html/fviz_contrib.html).
 
