@@ -3,7 +3,7 @@ name: Test distribution
 on:
   push:
     tags:
-      - "workflow-test.*"
+      - "v*.*.*"
 
 jobs:
   build:
