@@ -9,6 +9,10 @@ The package uses `spaCy <https://spacy.io/models>`_ part-of-speech tagging and d
 
 Because feature extraction builds from the outputs of probabilistic taggers, the accuracy of the resulting counts are reliant on the accuracy of those models. Thus, texts with irregular spellings, non-normative punctuation, etc. will likely produce unreliable outputs, unless taggers are tuned specifically for those purposes.
 
+See `the documentation <https://browndw.github.io/pybiber>`_ for description of the package's full functionality.
+
+See `pseudobibeR <https://cran.r-project.org/web/packages/pseudobibeR/index.html>`_ for the R implementation.
+
 Installation
 ------------
 
@@ -35,7 +39,7 @@ To use the pybiber package, you must first import `spaCy <https://spacy.io/model
     import pybiber as pb
     from pybiber.data import micusp_mini
 
-The pybiber package requires a model that will carry out part-of-speech tagging and `dependency parsing <https://spacy.io/usage/linguistic-features>`_ .
+The pybiber package requires a model that will carry out part-of-speech tagging and `dependency parsing <https://spacy.io/usage/linguistic-features>`_.
 
 .. code-block:: import
 
@@ -46,6 +50,12 @@ To process the corpus, use :code:`spacy_parse`. Processing the :code:`micusp_min
 .. code-block:: import
 
     df_spacy = pb.spacy_parse(micusp_mini, nlp)
+
+After parsing the corpus, features can then be aggregated using :code:`biber`.
+
+.. code-block:: import
+
+    df_biber = pb.biber(df_spacy)
 
 License
 -------
