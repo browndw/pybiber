@@ -1,6 +1,7 @@
 
 pybiber: Aggregate counts of linguistic features retrieved from spaCy parsing based on Biber's taxonomy
 =======================================================================================================
+|pypi| |pypi_downloads|
 
 The pybiber package aggregates the lexicogrammatical and functional features described by `Biber (1991) <https://books.google.com/books?id=CVTPaSSYEroC&dq=variation+across+speech+and+writing&lr=&source=gbs_navlinks_s>`_ and widely used for text-type, register, and genre classification tasks.
 
@@ -11,7 +12,7 @@ Because feature extraction builds from the outputs of probabilistic taggers, the
 Installation
 ------------
 
-The package can be installed with the :bash:`en_core_web_sm` base model:
+The package can be installed with the :code:`en_core_web_sm` base model:
 
 .. code-block:: with-model
 
@@ -29,5 +30,11 @@ License
 Code licensed under `Apache License 2.0 <https://www.apache.org/licenses/LICENSE-2.0>`_.
 See `LICENSE <https://github.com/browndw/docuscospacy/blob/master/LICENSE>`_ file.
 
-.. role:: bash(code)
-   :language: bash
+.. |pypi| image:: https://badge.fury.io/py/pybiber.svg
+    :target: https://badge.fury.io/py/pybiber
+    :alt: PyPI Version
+
+.. |pypi_downloads| image:: https://img.shields.io/pypi/dm/pybiber
+    :target: https://pypi.org/project/pybiber/
+    :alt: Downloads from PyPI
+
