@@ -24,6 +24,12 @@ Or without a model:
 
     pip install pybiber
 
+Usage
+-----
+
+To use the pybiber package, you must first import `spaCy <https://spacy.io/models>`_ and initiate an instance. You will also need to create a corpus. The :code:`biber` function expects a `polars DataFrame <https://docs.pola.rs/api/python/stable/reference/dataframe/index.html>`_ with a :code:`doc_id` column and a :code:`text` column. This follows the convention for `readtext <https://readtext.quanteda.io/articles/readtext_vignette.html>`_ and corpus processing using `quanteda <https://quanteda.io/>`_ in R.
+
+
 License
 -------
 
