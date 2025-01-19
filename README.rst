@@ -35,6 +35,18 @@ To use the pybiber package, you must first import `spaCy <https://spacy.io/model
     import pybiber as pb
     from pybiber.data import micusp_mini
 
+The pybiber package requires a model that will carry out part-of-speech tagging and `dependency parsing <https://spacy.io/usage/linguistic-features>`_ .
+
+.. code-block:: import
+
+    nlp = spacy.load("en_core_web_sm", disable=["ner"])
+
+To process the corpus, use :code:`spacy_parse`. Processing the :code:`micusp_mini` corpus should take between 20-30 seconds.
+
+.. code-block:: import
+
+    df_spacy = pb.spacy_parse(micusp_mini, nlp)
+
 License
 -------
 
