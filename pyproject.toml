@@ -1,8 +1,8 @@
 [project]
 name = "pybiber"
 description = "Extract Biber features from a document parsed and annotated by spaCy."
-readme.content-type = "text/markdown"
-readme.file = "README.md"
+readme.content-type = "text/x-rst"
+readme.file = "README.rst"
 urls.Documentation = "https://browndw.github.io/pybiber"
 urls.Homepage = "https://github.com/browndw/pybiber"
 authors = [{ name = "David Brown", email = "dwb2@andrew.cmu.edu" }]
@@ -15,17 +15,21 @@ classifiers = [
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
     "Programming Language :: Python :: 3.13",
-    "License :: OSI Approved :: MIT License",
+    "License :: OSI Approved :: Apache-2.0 License",
 ]
 requires-python = ">=3.9"
 version = "0.0.1"
 dependencies = [
     "adjustText>=1.1",
+    "importlib-resources>=6.5",
     "factor_analyzer>=0.5",
     "polars>=1.17",
     "spacy>=3.7",
-    "statsmodels>=0.14"
+    "statsmodels>=0.14",
 ]
+
+[project.optional-dependencies]
+model = ["en-core-web-sm @ https://github.com/explosion/spacy-models/releases/download/en_core_web_sm-3.8.0/en_core_web_sm-3.8.0-py3-none-any.whl"]
 
 [build-system]
 requires = ["setuptools>=45", "setuptools-scm>=6.2", "wheel"]
