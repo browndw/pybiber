@@ -22,7 +22,7 @@ You can install the released version of pybiber from `PyPI <https://pypi.org/pro
 
     pip install pybiber
 
-Install a spaCY model:
+Install a `spaCY model <https://spacy.io/usage/models#download>`_:
 
 .. code-block:: install-model
 
