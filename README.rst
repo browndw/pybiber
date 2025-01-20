@@ -3,7 +3,7 @@ pybiber: Aggregate counts of linguistic features retrieved from spaCy parsing ba
 =======================================================================================================
 |pypi| |pypi_downloads|
 
-The pybiber package aggregates the lexicogrammatical and functional features described by `Biber (1991) <https://books.google.com/books?id=CVTPaSSYEroC&dq=variation+across+speech+and+writing&lr=&source=gbs_navlinks_s>`_ and widely used for text-type, register, and genre classification tasks.
+The pybiber package aggregates the lexicogrammatical and functional features described by `Biber (1988) <https://books.google.com/books?id=CVTPaSSYEroC&dq=variation+across+speech+and+writing&lr=&source=gbs_navlinks_s>`_ and widely used for text-type, register, and genre classification tasks.
 
 The package uses `spaCy <https://spacy.io/models>`_ part-of-speech tagging and dependency parsing to summarize and aggregate patterns.
 
