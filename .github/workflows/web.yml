@@ -16,4 +16,4 @@ jobs:
         if: github.ref == 'refs/heads/main'
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./docs/_site # deploy _site folder
+          publish_dir: docs/_site # deploy _site folder
