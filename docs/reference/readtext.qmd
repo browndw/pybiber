@@ -1,0 +1,24 @@
+# readtext { #pybiber.parse_utils.readtext }
+
+```python
+parse_utils.readtext(paths)
+```
+
+Import all text files from a list of paths.
+
+## Parameters {.doc-section .doc-section-parameters}
+
+| Name   | Type   | Description                                               | Default    |
+|--------|--------|-----------------------------------------------------------|------------|
+| paths  | List   | A list of paths of text files returned by get_text_paths. | _required_ |
+
+## Returns {.doc-section .doc-section-returns}
+
+| Name   | Type   | Description           |
+|--------|--------|-----------------------|
+|        | List   | A list of full paths. |
+
+## Notes {.doc-section .doc-section-notes}
+
+Modeled on the R function
+[readtext](https://readtext.quanteda.io/articles/readtext_vignette.html).

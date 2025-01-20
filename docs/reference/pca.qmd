@@ -1,0 +1,14 @@
+# pca { #pybiber.BiberAnalyzer.pca }
+
+```python
+BiberAnalyzer.pca()
+```
+
+Execute principal component analysis.
+
+## Notes {.doc-section .doc-section-notes}
+
+This is largely a convenience function as most of its outputs
+are produced by wrappers for sklearn. However,
+variable contribution is adapted from the FactoMineR function
+[fviz_contrib](https://search.r-project.org/CRAN/refmans/factoextra/html/fviz_contrib.html).

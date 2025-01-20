@@ -1,0 +1,15 @@
+# mda { #pybiber.BiberAnalyzer.mda }
+
+```python
+BiberAnalyzer.mda(n_factors=3, cor_min=0.2, threshold=0.35)
+```
+
+Execute Biber's multi-dimensional anlaysis.
+
+## Parameters {.doc-section .doc-section-parameters}
+
+| Name      | Type   | Description                                                                          | Default   |
+|-----------|--------|--------------------------------------------------------------------------------------|-----------|
+| n_factors | int    | The number of factors to extract.                                                    | `3`       |
+| cor_min   | float  | The minimum correlation at which to drop variables.                                  | `0.2`     |
+| threshold | float  | The factor loading threshold (in absolute value) used to calculate dimension scores. | `0.35`    |

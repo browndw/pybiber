@@ -1,0 +1,53 @@
+{
+  "index.qmd": {
+    "index.html": "0c979521"
+  },
+  "feature-categories.qmd": {
+    "feature-categories.html": "1c082956"
+  },
+  "reference/get_noun_phrases.qmd": {
+    "get_noun_phrases.html": "998a806b"
+  },
+  "reference/readtext.qmd": {
+    "readtext.html": "8ab4338b"
+  },
+  "reference/get_text_paths.qmd": {
+    "get_text_paths.html": "36fc9618"
+  },
+  "reference/biber.qmd": {
+    "biber.html": "21a6c9df"
+  },
+  "reference/pcaviz_groupmeans.qmd": {
+    "pcaviz_groupmeans.html": "955a54cc"
+  },
+  "reference/index.qmd": {
+    "index.html": "ab13a4b5"
+  },
+  "reference/mda.qmd": {
+    "mda.html": "cbaec34b"
+  },
+  "reference/mdaviz_screeplot.qmd": {
+    "mdaviz_screeplot.html": "280936c7"
+  },
+  "reference/pca.qmd": {
+    "pca.html": "d5dc0b33"
+  },
+  "reference/mdaviz_groupmeans.qmd": {
+    "mdaviz_groupmeans.html": "6cdb5314"
+  },
+  "reference/corpus_from_folder.qmd": {
+    "corpus_from_folder.html": "85307ce0"
+  },
+  "reference/pcaviz_contrib.qmd": {
+    "pcaviz_contrib.html": "209b13d3"
+  },
+  "reference/spacy_parse.qmd": {
+    "spacy_parse.html": "c52c52ab"
+  },
+  "get-started.qmd": {
+    "get-started.html": "5d03e83b"
+  },
+  "biber-analyzer.qmd": {
+    "biber-analyzer.html": "b20b8147"
+  }
+}

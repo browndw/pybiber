@@ -1,0 +1,19 @@
+# corpus_from_folder { #pybiber.parse_utils.corpus_from_folder }
+
+```python
+parse_utils.corpus_from_folder(directory)
+```
+
+Import all text files from a directory.
+
+## Parameters {.doc-section .doc-section-parameters}
+
+| Name      | Type   | Description                        | Default    |
+|-----------|--------|------------------------------------|------------|
+| directory | str    | A directory containing text files. | _required_ |
+
+## Returns {.doc-section .doc-section-returns}
+
+| Name   | Type         | Description         |
+|--------|--------------|---------------------|
+|        | pl.DataFrame | A polars DataFrame. |

@@ -1,0 +1,104 @@
+project:
+  type: website
+  output-dir: _site
+
+website:
+  title: "pybiber"
+  description: "Aggregate Counts of Linguistic Features"
+  page-navigation: true
+  favicon: "favicon.ico"
+  navbar:
+    background: light
+    pinned: true
+    logo: logo.png
+    left:
+      - text: "Get started"
+        file: get-started.qmd
+      - text: "Biber analyzer"
+        file: biber-analyzer.qmd
+      - text: "Reference"
+        file: reference/index.qmd
+      - text: Learn more
+        menu:
+          - text: "Biber features"
+            file: feature-categories.qmd
+          - text: "psuedobibeR for R"
+            href: https://cran.r-project.org/web/packages/pseudobibeR/index.html
+            target: _blank
+    right:
+      - icon: github
+        href: https://github.com/browndw/pybiber
+        aria-label: pybiber on GitHub
+  sidebar:
+    style: "floating"
+    collapse-level: 1
+    contents:
+      - section: Parsing Data
+        contents:
+          - text: "`biber`"
+            href: reference/biber.qmd
+          - text: "`corpus_from_folder`"
+            href: reference/corpus_from_folder.qmd
+          - text: "`get_noun_phrases`"
+            href: reference/get_noun_phrases.qmd
+          - text: "`get_text_paths`"
+            href: reference/get_text_paths.qmd
+          - text: "`readtext`"
+            href: reference/readtext.qmd
+          - text: "`spacy_parse`"
+            href: reference/spacy_parse.qmd
+      - section: Analyzing Data
+        contents:
+          - text: "`mda`"
+            href: reference/mda.qmd
+          - text: "`pca`"
+            href: reference/pca.qmd
+          - text: "`mdaviz_screeplot`"
+            href: reference/mdaviz_screeplot.qmd
+          - text: "`mdaviz_groupmeans`"
+            href: reference/mdaviz_groupmeans.qmd
+          - text: "`pcaviz_groupmeans`"
+            href: reference/pcaviz_groupmeans.qmd
+          - text: "`pcaviz_contrib`"
+            href: reference/pcaviz_contrib.qmd
+
+bibliography: references.bib
+
+format:
+  html:
+    sidebar: false
+
+quartodoc:
+  title: Reference
+  package: pybiber
+  sections:
+    - title: pybiber utility functions
+      desc: "Read in and prepare data"
+      package: pybiber.parse_utils
+      contents:
+        - corpus_from_folder
+        - get_text_paths
+        - readtext
+        - spacy_parse
+        - get_noun_phrases
+    - title: pybiber parse
+      desc: "Generate a biber document-feature matrix"
+      package: pybiber.parse_functions
+      contents:
+        - biber
+    - title: pybiber methods
+      desc: "Analyze a biber document-feature matrix"
+      package: pybiber.BiberAnalyzer
+      contents:
+        - mda
+        - pca
+        - mdaviz_screeplot
+        - mdaviz_groupmeans
+        - pcaviz_groupmeans
+        - pcaviz_contrib
+
+filters:
+  - interlinks
+
+interlinks:
+  sources: {}

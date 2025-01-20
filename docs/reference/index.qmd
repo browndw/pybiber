@@ -1,0 +1,34 @@
+# Reference {.doc .doc-index}
+
+## pybiber utility functions
+
+Read in and prepare data
+
+| | |
+| --- | --- |
+| [corpus_from_folder](corpus_from_folder.qmd#pybiber.parse_utils.corpus_from_folder) | Import all text files from a directory. |
+| [get_text_paths](get_text_paths.qmd#pybiber.parse_utils.get_text_paths) | Get a list of full paths for all text files. |
+| [readtext](readtext.qmd#pybiber.parse_utils.readtext) | Import all text files from a list of paths. |
+| [spacy_parse](spacy_parse.qmd#pybiber.parse_utils.spacy_parse) | Parse a corpus using the 'en_core_web_sm' model. |
+| [get_noun_phrases](get_noun_phrases.qmd#pybiber.parse_utils.get_noun_phrases) | Extract expanded noun phrases using the 'en_core_web_sm' model. |
+
+## pybiber parse
+
+Generate a biber document-feature matrix
+
+| | |
+| --- | --- |
+| [biber](biber.qmd#pybiber.parse_functions.biber) | Extract Biber features from a parsed corpus. |
+
+## pybiber methods
+
+Analyze a biber document-feature matrix
+
+| | |
+| --- | --- |
+| [mda](mda.qmd#pybiber.BiberAnalyzer.mda) | Execute Biber's multi-dimensional anlaysis. |
+| [pca](pca.qmd#pybiber.BiberAnalyzer.pca) | Execute principal component analysis. |
+| [mdaviz_screeplot](mdaviz_screeplot.qmd#pybiber.BiberAnalyzer.mdaviz_screeplot) | Generate a scree plot for determining factors. |
+| [mdaviz_groupmeans](mdaviz_groupmeans.qmd#pybiber.BiberAnalyzer.mdaviz_groupmeans) | Generate a stick plot of the group means for a factor. |
+| [pcaviz_groupmeans](pcaviz_groupmeans.qmd#pybiber.BiberAnalyzer.pcaviz_groupmeans) | Generate a scatter plot of the group means along 2 components. |
+| [pcaviz_contrib](pcaviz_contrib.qmd#pybiber.BiberAnalyzer.pcaviz_contrib) | Generate a bar plot of variable contributions to a component. |

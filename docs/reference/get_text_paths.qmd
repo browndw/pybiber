@@ -1,0 +1,20 @@
+# get_text_paths { #pybiber.parse_utils.get_text_paths }
+
+```python
+parse_utils.get_text_paths(directory, recursive=False)
+```
+
+Get a list of full paths for all text files.
+
+## Parameters {.doc-section .doc-section-parameters}
+
+| Name      | Type   | Description                                 | Default    |
+|-----------|--------|---------------------------------------------|------------|
+| directory | str    | A string indictating a path to a directory. | _required_ |
+| recursive |        | Whether to search subdirectories.           | `False`    |
+
+## Returns {.doc-section .doc-section-returns}
+
+| Name   | Type   | Description           |
+|--------|--------|-----------------------|
+|        | List   | A list of full paths. |

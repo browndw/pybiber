@@ -1,0 +1,612 @@
+[
+  {
+    "objectID": "reference/pcaviz_contrib.html",
+    "href": "reference/pcaviz_contrib.html",
+    "title": "pcaviz_contrib",
+    "section": "",
+    "text": "BiberAnalyzer.pcaviz_contrib(pc=1, width=8, height=4, dpi=150)\nGenerate a bar plot of variable contributions to a component.\n\n\n\n\n\nName\nType\nDescription\nDefault\n\n\n\n\npc\n\nThe principal component.\n1\n\n\nwidth\n\nThe width of the plot.\n8\n\n\nheight\n\nThe height of the plot.\n4\n\n\ndpi\n\nThe resolution of the plot.\n150\n\n\n\n\n\n\n\n\n\nName\nType\nDescription\n\n\n\n\n\nFigure\nA matplotlib figure.\n\n\n\n\n\n\nModeled on the R function fviz_contrib.",
+    "crumbs": [
+      "Get started",
+      "Analyzing Data",
+      "`pcaviz_contrib`"
+    ]
+  },
+  {
+    "objectID": "reference/pcaviz_contrib.html#parameters",
+    "href": "reference/pcaviz_contrib.html#parameters",
+    "title": "pcaviz_contrib",
+    "section": "",
+    "text": "Name\nType\nDescription\nDefault\n\n\n\n\npc\n\nThe principal component.\n1\n\n\nwidth\n\nThe width of the plot.\n8\n\n\nheight\n\nThe height of the plot.\n4\n\n\ndpi\n\nThe resolution of the plot.\n150",
+    "crumbs": [
+      "Get started",
+      "Analyzing Data",
+      "`pcaviz_contrib`"
+    ]
+  },
+  {
+    "objectID": "reference/pcaviz_contrib.html#returns",
+    "href": "reference/pcaviz_contrib.html#returns",
+    "title": "pcaviz_contrib",
+    "section": "",
+    "text": "Name\nType\nDescription\n\n\n\n\n\nFigure\nA matplotlib figure.",
+    "crumbs": [
+      "Get started",
+      "Analyzing Data",
+      "`pcaviz_contrib`"
+    ]
+  },
+  {
+    "objectID": "reference/pcaviz_contrib.html#notes",
+    "href": "reference/pcaviz_contrib.html#notes",
+    "title": "pcaviz_contrib",
+    "section": "",
+    "text": "Modeled on the R function fviz_contrib.",
+    "crumbs": [
+      "Get started",
+      "Analyzing Data",
+      "`pcaviz_contrib`"
+    ]
+  },
+  {
+    "objectID": "reference/mdaviz_groupmeans.html",
+    "href": "reference/mdaviz_groupmeans.html",
+    "title": "mdaviz_groupmeans",
+    "section": "",
+    "text": "BiberAnalyzer.mdaviz_groupmeans(factor=1, width=3, height=7, dpi=150)\nGenerate a stick plot of the group means for a factor.\n\n\n\n\n\nName\nType\nDescription\nDefault\n\n\n\n\nfactor\n\nThe factor or dimension to plot.\n1\n\n\nwidth\n\nThe width of the plot.\n3\n\n\nheight\n\nThe height of the plot.\n7\n\n\ndpi\n\nThe resolution of the plot.\n150\n\n\n\n\n\n\n\n\n\nName\nType\nDescription\n\n\n\n\n\nFigure\nA matplotlib figure.",
+    "crumbs": [
+      "Get started",
+      "Analyzing Data",
+      "`mdaviz_groupmeans`"
+    ]
+  },
+  {
+    "objectID": "reference/mdaviz_groupmeans.html#parameters",
+    "href": "reference/mdaviz_groupmeans.html#parameters",
+    "title": "mdaviz_groupmeans",
+    "section": "",
+    "text": "Name\nType\nDescription\nDefault\n\n\n\n\nfactor\n\nThe factor or dimension to plot.\n1\n\n\nwidth\n\nThe width of the plot.\n3\n\n\nheight\n\nThe height of the plot.\n7\n\n\ndpi\n\nThe resolution of the plot.\n150",
+    "crumbs": [
+      "Get started",
+      "Analyzing Data",
+      "`mdaviz_groupmeans`"
+    ]
+  },
+  {
+    "objectID": "reference/mdaviz_groupmeans.html#returns",
+    "href": "reference/mdaviz_groupmeans.html#returns",
+    "title": "mdaviz_groupmeans",
+    "section": "",
+    "text": "Name\nType\nDescription\n\n\n\n\n\nFigure\nA matplotlib figure.",
+    "crumbs": [
+      "Get started",
+      "Analyzing Data",
+      "`mdaviz_groupmeans`"
+    ]
+  },
+  {
+    "objectID": "reference/spacy_parse.html",
+    "href": "reference/spacy_parse.html",
+    "title": "spacy_parse",
+    "section": "",
+    "text": "parse_utils.spacy_parse(corp, nlp_model, n_process=1, batch_size=25)\nParse a corpus using the ‘en_core_web_sm’ model.\n\n\n\n\n\n\n\n\n\n\n\nName\nType\nDescription\nDefault\n\n\n\n\ncorp\npl.DataFrame\nA polars DataFrame conataining a ‘doc_id’ column and a ‘text’ column.\nrequired\n\n\nnlp_model\nLanguage\nAn ‘en_core_web_sm’ instance.\nrequired\n\n\nn_process\n\nThe number of parallel processes to use during parsing.\n1\n\n\nbatch_size\n\nThe batch size to use during parsing.\n25\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nName\nType\nDescription\n\n\n\n\n\npl.DataFrame\nA polars DataFrame with, token sequencies identified by part-of-speech tags and dependency parses.",
+    "crumbs": [
+      "Get started",
+      "Parsing Data",
+      "`spacy_parse`"
+    ]
+  },
+  {
+    "objectID": "reference/spacy_parse.html#parameters",
+    "href": "reference/spacy_parse.html#parameters",
+    "title": "spacy_parse",
+    "section": "",
+    "text": "Name\nType\nDescription\nDefault\n\n\n\n\ncorp\npl.DataFrame\nA polars DataFrame conataining a ‘doc_id’ column and a ‘text’ column.\nrequired\n\n\nnlp_model\nLanguage\nAn ‘en_core_web_sm’ instance.\nrequired\n\n\nn_process\n\nThe number of parallel processes to use during parsing.\n1\n\n\nbatch_size\n\nThe batch size to use during parsing.\n25",
+    "crumbs": [
+      "Get started",
+      "Parsing Data",
+      "`spacy_parse`"
+    ]
+  },
+  {
+    "objectID": "reference/spacy_parse.html#returns",
+    "href": "reference/spacy_parse.html#returns",
+    "title": "spacy_parse",
+    "section": "",
+    "text": "Name\nType\nDescription\n\n\n\n\n\npl.DataFrame\nA polars DataFrame with, token sequencies identified by part-of-speech tags and dependency parses.",
+    "crumbs": [
+      "Get started",
+      "Parsing Data",
+      "`spacy_parse`"
+    ]
+  },
+  {
+    "objectID": "reference/mda.html",
+    "href": "reference/mda.html",
+    "title": "mda",
+    "section": "",
+    "text": "BiberAnalyzer.mda(n_factors=3, cor_min=0.2, threshold=0.35)\nExecute Biber’s multi-dimensional anlaysis.\n\n\n\n\n\n\n\n\n\n\n\nName\nType\nDescription\nDefault\n\n\n\n\nn_factors\nint\nThe number of factors to extract.\n3\n\n\ncor_min\nfloat\nThe minimum correlation at which to drop variables.\n0.2\n\n\nthreshold\nfloat\nThe factor loading threshold (in absolute value) used to calculate dimension scores.\n0.35",
+    "crumbs": [
+      "Get started",
+      "Analyzing Data",
+      "`mda`"
+    ]
+  },
+  {
+    "objectID": "reference/mda.html#parameters",
+    "href": "reference/mda.html#parameters",
+    "title": "mda",
+    "section": "",
+    "text": "Name\nType\nDescription\nDefault\n\n\n\n\nn_factors\nint\nThe number of factors to extract.\n3\n\n\ncor_min\nfloat\nThe minimum correlation at which to drop variables.\n0.2\n\n\nthreshold\nfloat\nThe factor loading threshold (in absolute value) used to calculate dimension scores.\n0.35",
+    "crumbs": [
+      "Get started",
+      "Analyzing Data",
+      "`mda`"
+    ]
+  },
+  {
+    "objectID": "reference/pcaviz_groupmeans.html",
+    "href": "reference/pcaviz_groupmeans.html",
+    "title": "pcaviz_groupmeans",
+    "section": "",
+    "text": "BiberAnalyzer.pcaviz_groupmeans(pc=1, width=8, height=4, dpi=150)\nGenerate a scatter plot of the group means along 2 components.\n\n\n\n\n\n\n\n\n\n\n\nName\nType\nDescription\nDefault\n\n\n\n\npc\n\nThe principal component for the x-axis.\n1\n\n\nwidth\n\nThe width of the plot.\n8\n\n\nheight\n\nThe height of the plot.\n4\n\n\ndpi\n\nThe resolution of the plot.\n150\n\n\n\n\n\n\n\n\n\nName\nType\nDescription\n\n\n\n\n\nFigure\nA matplotlib figure.",
+    "crumbs": [
+      "Get started",
+      "Analyzing Data",
+      "`pcaviz_groupmeans`"
+    ]
+  },
+  {
+    "objectID": "reference/pcaviz_groupmeans.html#parameters",
+    "href": "reference/pcaviz_groupmeans.html#parameters",
+    "title": "pcaviz_groupmeans",
+    "section": "",
+    "text": "Name\nType\nDescription\nDefault\n\n\n\n\npc\n\nThe principal component for the x-axis.\n1\n\n\nwidth\n\nThe width of the plot.\n8\n\n\nheight\n\nThe height of the plot.\n4\n\n\ndpi\n\nThe resolution of the plot.\n150",
+    "crumbs": [
+      "Get started",
+      "Analyzing Data",
+      "`pcaviz_groupmeans`"
+    ]
+  },
+  {
+    "objectID": "reference/pcaviz_groupmeans.html#returns",
+    "href": "reference/pcaviz_groupmeans.html#returns",
+    "title": "pcaviz_groupmeans",
+    "section": "",
+    "text": "Name\nType\nDescription\n\n\n\n\n\nFigure\nA matplotlib figure.",
+    "crumbs": [
+      "Get started",
+      "Analyzing Data",
+      "`pcaviz_groupmeans`"
+    ]
+  },
+  {
+    "objectID": "reference/get_text_paths.html",
+    "href": "reference/get_text_paths.html",
+    "title": "get_text_paths",
+    "section": "",
+    "text": "parse_utils.get_text_paths(directory, recursive=False)\nGet a list of full paths for all text files.\n\n\n\n\n\n\n\n\n\n\n\nName\nType\nDescription\nDefault\n\n\n\n\ndirectory\nstr\nA string indictating a path to a directory.\nrequired\n\n\nrecursive\n\nWhether to search subdirectories.\nFalse\n\n\n\n\n\n\n\n\n\nName\nType\nDescription\n\n\n\n\n\nList\nA list of full paths.",
+    "crumbs": [
+      "Get started",
+      "Parsing Data",
+      "`get_text_paths`"
+    ]
+  },
+  {
+    "objectID": "reference/get_text_paths.html#parameters",
+    "href": "reference/get_text_paths.html#parameters",
+    "title": "get_text_paths",
+    "section": "",
+    "text": "Name\nType\nDescription\nDefault\n\n\n\n\ndirectory\nstr\nA string indictating a path to a directory.\nrequired\n\n\nrecursive\n\nWhether to search subdirectories.\nFalse",
+    "crumbs": [
+      "Get started",
+      "Parsing Data",
+      "`get_text_paths`"
+    ]
+  },
+  {
+    "objectID": "reference/get_text_paths.html#returns",
+    "href": "reference/get_text_paths.html#returns",
+    "title": "get_text_paths",
+    "section": "",
+    "text": "Name\nType\nDescription\n\n\n\n\n\nList\nA list of full paths.",
+    "crumbs": [
+      "Get started",
+      "Parsing Data",
+      "`get_text_paths`"
+    ]
+  },
+  {
+    "objectID": "reference/get_noun_phrases.html",
+    "href": "reference/get_noun_phrases.html",
+    "title": "get_noun_phrases",
+    "section": "",
+    "text": "parse_utils.get_noun_phrases(corp, nlp_model, n_process=1, batch_size=25)\nExtract expanded noun phrases using the ‘en_core_web_sm’ model.\n\n\n\n\n\n\n\n\n\n\n\nName\nType\nDescription\nDefault\n\n\n\n\ncorp\npl.DataFrame\nA polars DataFrame conataining a ‘doc_id’ column and a ‘text’ column.\nrequired\n\n\nnlp_model\nLanguage\nAn ‘en_core_web_sm’ instance.\nrequired\n\n\nn_process\n\nThe number of parallel processes to use during parsing.\n1\n\n\nbatch_size\n\nThe batch size to use during parsing.\n25\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nName\nType\nDescription\n\n\n\n\n\npl.DataFrame\na polars DataFrame with, noun phrases and their assocated part-of-speech tags.\n\n\n\n\n\n\nNoun phrases can be extracted directly from the noun_chunks attribute. However, per spaCy’s documentation the attribute does not permit nested noun phrases, for example when a prepositional phrases modifies a preceding noun phrase. This function extracts elatorated noun phrases in their complete form.",
+    "crumbs": [
+      "Get started",
+      "Parsing Data",
+      "`get_noun_phrases`"
+    ]
+  },
+  {
+    "objectID": "reference/get_noun_phrases.html#parameters",
+    "href": "reference/get_noun_phrases.html#parameters",
+    "title": "get_noun_phrases",
+    "section": "",
+    "text": "Name\nType\nDescription\nDefault\n\n\n\n\ncorp\npl.DataFrame\nA polars DataFrame conataining a ‘doc_id’ column and a ‘text’ column.\nrequired\n\n\nnlp_model\nLanguage\nAn ‘en_core_web_sm’ instance.\nrequired\n\n\nn_process\n\nThe number of parallel processes to use during parsing.\n1\n\n\nbatch_size\n\nThe batch size to use during parsing.\n25",
+    "crumbs": [
+      "Get started",
+      "Parsing Data",
+      "`get_noun_phrases`"
+    ]
+  },
+  {
+    "objectID": "reference/get_noun_phrases.html#returns",
+    "href": "reference/get_noun_phrases.html#returns",
+    "title": "get_noun_phrases",
+    "section": "",
+    "text": "Name\nType\nDescription\n\n\n\n\n\npl.DataFrame\na polars DataFrame with, noun phrases and their assocated part-of-speech tags.",
+    "crumbs": [
+      "Get started",
+      "Parsing Data",
+      "`get_noun_phrases`"
+    ]
+  },
+  {
+    "objectID": "reference/get_noun_phrases.html#notes",
+    "href": "reference/get_noun_phrases.html#notes",
+    "title": "get_noun_phrases",
+    "section": "",
+    "text": "Noun phrases can be extracted directly from the noun_chunks attribute. However, per spaCy’s documentation the attribute does not permit nested noun phrases, for example when a prepositional phrases modifies a preceding noun phrase. This function extracts elatorated noun phrases in their complete form.",
+    "crumbs": [
+      "Get started",
+      "Parsing Data",
+      "`get_noun_phrases`"
+    ]
+  },
+  {
+    "objectID": "index.html",
+    "href": "index.html",
+    "title": "pybiber",
+    "section": "",
+    "text": "The pybiber package aggregates the lexicogrammatical and functional features described by Biber (1988) and widely used for text-type, register, and genre classification tasks.\nThe package uses spaCy part-of-speech tagging and dependency parsing to summarize and aggregate patterns.\nBecause feature extraction builds from the outputs of probabilistic taggers, the accuracy of the resulting counts are reliant on the accuracy of those models. Thus, texts with irregular spellings, non-normative punctuation, etc. will likely produce unreliable outputs, unless taggers are tuned specifically for those purposes.\nAll DataFrames are rendered using polars. If you prefer to conduct any post-processing using pandas, please refer to the documentation for converting polars to pandas. Note that conversion requires both pandas and pyarrow to be installed into your working environment.\nSee pseudobibeR for the R implementation."
+  },
+  {
+    "objectID": "index.html#installation",
+    "href": "index.html#installation",
+    "title": "pybiber",
+    "section": "Installation",
+    "text": "Installation\nYou can install the released version of pybiber from PyPI:\npip install pybiber\nInstall a spaCy model:\npython -m spacy download en_core_web_sm\n\n# models can also be installed using pip\n# pip install https://github.com/explosion/spacy-models/releases/download/en_core_web_sm-3.8.0/en_core_web_sm-3.8.0-py3-none-any.whl"
+  },
+  {
+    "objectID": "index.html#usage",
+    "href": "index.html#usage",
+    "title": "pybiber",
+    "section": "Usage",
+    "text": "Usage\nTo use the pybiber package, you must first import spaCy and initiate an instance. You will also need to create a corpus. The biber function expects a polars DataFrame with a doc_id column and a text column. This follows the convention for readtext and corpus processing using quanteda in R.\n\nimport spacy\nimport pybiber as pb\nfrom pybiber.data import micusp_mini\n\nYou can see the simple data structure of a corpus:\n\nmicusp_mini.head()\n\n\nshape: (5, 2)\n\n\n\ndoc_id\ntext\n\n\nstr\nstr\n\n\n\n\n\"BIO_G0_02_1\"\n\"Ernst Mayr once wrote, \"sympat…\n\n\n\"BIO_G0_03_1\"\n\"The ability of a species to co…\n\n\n\"BIO_G0_06_1\"\n\"Generally, females make a larg…\n\n\n\"BIO_G0_12_1\"\n\"In the field of plant biology,…\n\n\n\"BIO_G0_21_1\"\n\"Parasites in nonhuman animals …\n\n\n\n\n\n\n\n\n\n\n\n\nBuilding your own corpus\n\n\n\nTo build your own corpus, a good place to start is corpus_from_folder, which reads in all of the text files from a directory.\n\n\n\nInitiate an instance\nThe pybiber package requires a model that will carry out part-of-speech tagging and dependency parsing, like one of spaCy’s en_core models.\n\nnlp = spacy.load(\"en_core_web_sm\", disable=[\"ner\"])\n\n\n\n\n\n\n\nNote\n\n\n\nHere we are disabling ner or “Named Entity Recognition” from the pipeline to increase processing speed, but doing so is not necessary.\n\n\n\n\nProcess the corpus\nTo process the corpus, use spacy_parse. Processing the micusp_mini corpus should take between 20-30 seconds.\n\ndf_spacy = pb.spacy_parse(micusp_mini, nlp)\n\nThe function returns a DataFrame, which is structured like a spacyr output.\n\ndf_spacy.head()\n\n\nshape: (5, 9)\n\n\n\ndoc_id\nsentence_id\ntoken_id\ntoken\nlemma\npos\ntag\nhead_token_id\ndep_rel\n\n\nstr\nu32\ni64\nstr\nstr\nstr\nstr\ni64\nstr\n\n\n\n\n\"BIO_G0_02_1\"\n1\n0\n\"Ernst\"\n\"Ernst\"\n\"PROPN\"\n\"NNP\"\n1\n\"compound\"\n\n\n\"BIO_G0_02_1\"\n1\n1\n\"Mayr\"\n\"Mayr\"\n\"PROPN\"\n\"NNP\"\n3\n\"nsubj\"\n\n\n\"BIO_G0_02_1\"\n1\n2\n\"once\"\n\"once\"\n\"ADV\"\n\"RB\"\n3\n\"advmod\"\n\n\n\"BIO_G0_02_1\"\n1\n3\n\"wrote\"\n\"write\"\n\"VERB\"\n\"VBD\"\n3\n\"ROOT\"\n\n\n\"BIO_G0_02_1\"\n1\n4\n\",\"\n\",\"\n\"PUNCT\"\n\",\"\n8\n\"punct\"\n\n\n\n\n\n\n\n\nAggregate features\nAfter parsing the corpus, features can then be aggregated using biber.\n\ndf_biber = pb.biber(df_spacy)\n\nUsing MATTR for f_43_type_token\n\nAll features normalized per 1000 tokens except:\nf_43_type_token and f_44_mean_word_length\n\n\n\n\n\n\n\n\n\nFeature counts\n\n\n\nIn the documentation, note the difference beween type-token ratio (TTR) and moving average type-token ration (MATTR). For most use-cases, forcing TTR is unnecessary, but when comparing multiple corpora that haven’t been processed together, it is important to make sure the same measure is being used.\nAlso, the default is to normalize frequencies per 1000 tokens. However, absolute frequencies can be returned by setting normalize=False.\n\n\nThe resulting document-feature matrix has 67 variables and a column of document ids.\n\ndf_biber.shape\n\n(170, 68)\n\n\n\n\n\n\n\n\nTip\n\n\n\nEncoding metadata into your document id’s (i.e., file names) is key to further processing and analysis. In the micusp_mini data, for example, the first three letters before the underscore represent an academic discipline (e.g., BIO for biology, ENG for English, etc.).\n\n\n\ndf_biber.head()\n\n\nshape: (5, 68)\n\n\n\ndoc_id\nf_01_past_tense\nf_02_perfect_aspect\nf_03_present_tense\nf_04_place_adverbials\nf_05_time_adverbials\nf_06_first_person_pronouns\nf_07_second_person_pronouns\nf_08_third_person_pronouns\nf_09_pronoun_it\nf_10_demonstrative_pronoun\nf_11_indefinite_pronouns\nf_12_proverb_do\nf_13_wh_question\nf_14_nominalizations\nf_15_gerunds\nf_16_other_nouns\nf_17_agentless_passives\nf_18_by_passives\nf_19_be_main_verb\nf_20_existential_there\nf_21_that_verb_comp\nf_22_that_adj_comp\nf_23_wh_clause\nf_24_infinitives\nf_25_present_participle\nf_26_past_participle\nf_27_past_participle_whiz\nf_28_present_participle_whiz\nf_29_that_subj\nf_30_that_obj\nf_31_wh_subj\nf_32_wh_obj\nf_33_pied_piping\nf_34_sentence_relatives\nf_35_because\nf_36_though\nf_37_if\nf_38_other_adv_sub\nf_39_prepositions\nf_40_adj_attr\nf_41_adj_pred\nf_42_adverbs\nf_43_type_token\nf_44_mean_word_length\nf_45_conjuncts\nf_46_downtoners\nf_47_hedges\nf_48_amplifiers\nf_49_emphatics\nf_50_discourse_particles\nf_51_demonstratives\nf_52_modal_possibility\nf_53_modal_necessity\nf_54_modal_predictive\nf_55_verb_public\nf_56_verb_private\nf_57_verb_suasive\nf_58_verb_seem\nf_59_contractions\nf_60_that_deletion\nf_61_stranded_preposition\nf_62_split_infinitive\nf_63_split_auxiliary\nf_64_phrasal_coordination\nf_65_clausal_coordination\nf_66_neg_synthetic\nf_67_neg_analytic\n\n\nstr\nf64\nf64\nf64\nf64\nf64\nf64\nf64\nf64\nf64\nf64\nf64\nf64\nf64\nf64\nf64\nf64\nf64\nf64\nf64\nf64\nf64\nf64\nf64\nf64\nf64\nf64\nf64\nf64\nf64\nf64\nf64\nf64\nf64\nf64\nf64\nf64\nf64\nf64\nf64\nf64\nf64\nf64\nf64\nf64\nf64\nf64\nf64\nf64\nf64\nf64\nf64\nf64\nf64\nf64\nf64\nf64\nf64\nf64\nf64\nf64\nf64\nf64\nf64\nf64\nf64\nf64\nf64\n\n\n\n\n\"BIO_G0_02_1\"\n11.574886\n9.821115\n61.381971\n2.104525\n6.313574\n2.104525\n0.701508\n17.537706\n7.716591\n2.806033\n0.0\n1.753771\n0.350754\n37.881445\n6.313574\n284.110838\n9.821115\n3.156787\n16.485444\n0.701508\n10.17187\n0.0\n0.701508\n13.328657\n4.209049\n0.0\n5.96282\n2.104525\n1.753771\n0.350754\n1.052262\n0.0\n0.350754\n0.701508\n0.0\n0.701508\n0.350754\n4.209049\n99.263416\n86.285514\n6.664328\n62.434234\n0.742811\n5.3012\n9.821115\n3.507541\n0.0\n2.455279\n5.261312\n0.0\n19.291477\n7.015082\n0.350754\n4.209049\n6.664328\n22.448264\n4.559804\n2.806033\n0.350754\n0.0\n0.0\n0.701508\n4.910558\n6.664328\n4.209049\n1.403016\n2.806033\n\n\n\"BIO_G0_03_1\"\n20.300088\n3.53045\n59.13504\n1.765225\n0.882613\n18.534863\n0.0\n3.53045\n16.769638\n4.413063\n0.0\n1.765225\n0.0\n43.248014\n0.882613\n235.657546\n2.647838\n1.765225\n44.130627\n3.53045\n7.0609\n3.53045\n1.765225\n20.300088\n0.882613\n0.0\n0.882613\n0.882613\n2.647838\n0.0\n5.295675\n0.882613\n2.647838\n4.413063\n1.765225\n1.765225\n3.53045\n4.413063\n120.917917\n85.613416\n13.239188\n47.661077\n0.700499\n5.152406\n3.53045\n1.765225\n0.0\n0.882613\n6.178288\n0.0\n7.0609\n7.0609\n0.0\n8.826125\n1.765225\n8.826125\n3.53045\n1.765225\n0.0\n0.0\n0.882613\n0.0\n0.882613\n7.943513\n2.647838\n0.882613\n7.0609\n\n\n\"BIO_G0_06_1\"\n9.480034\n2.585464\n52.5711\n0.861821\n0.287274\n0.0\n0.0\n14.076415\n5.745475\n0.287274\n0.287274\n0.287274\n1.149095\n20.970985\n1.436369\n288.997415\n11.490951\n2.872738\n37.920138\n2.010916\n4.883654\n0.574548\n0.574548\n16.374605\n3.160011\n0.287274\n0.574548\n2.010916\n2.872738\n0.0\n1.149095\n0.0\n0.287274\n3.734559\n3.734559\n1.149095\n5.745475\n2.585464\n106.291296\n81.873025\n15.512784\n67.79661\n0.665338\n5.156845\n8.618213\n2.29819\n0.574548\n2.29819\n6.894571\n0.0\n4.883654\n16.949153\n1.723643\n7.181844\n4.021833\n8.330939\n4.309107\n2.29819\n0.0\n0.0\n0.287274\n1.723643\n6.320023\n10.054582\n5.458202\n0.574548\n8.905487\n\n\n\"BIO_G0_12_1\"\n36.900369\n2.767528\n23.98524\n1.845018\n1.845018\n0.0\n0.0\n3.690037\n11.99262\n0.922509\n0.0\n0.922509\n0.0\n21.217712\n0.0\n298.892989\n31.365314\n5.535055\n20.295203\n2.767528\n4.612546\n3.690037\n0.922509\n11.99262\n1.845018\n0.0\n12.915129\n2.767528\n4.612546\n0.0\n0.0\n0.0\n0.0\n0.922509\n0.0\n0.922509\n0.0\n10.147601\n154.059041\n51.660517\n9.225092\n33.210332\n0.625839\n5.160681\n6.457565\n0.0\n0.0\n0.0\n5.535055\n0.0\n14.760148\n10.147601\n0.0\n8.302583\n1.845018\n15.682657\n4.612546\n0.0\n0.0\n0.0\n0.0\n0.922509\n2.767528\n0.922509\n1.845018\n1.845018\n5.535055\n\n\n\"BIO_G0_21_1\"\n40.050858\n2.542912\n26.700572\n2.542912\n0.635728\n0.635728\n0.0\n7.628735\n2.542912\n4.450095\n0.0\n1.271456\n0.0\n26.064844\n3.17864\n336.300064\n21.614749\n2.542912\n27.3363\n3.17864\n2.542912\n0.635728\n0.0\n9.535919\n0.635728\n0.0\n5.085823\n1.907184\n3.814367\n0.0\n1.271456\n0.0\n0.0\n3.17864\n0.635728\n0.0\n0.635728\n3.17864\n147.488875\n52.765416\n8.900191\n40.050858\n0.665966\n5.129435\n5.085823\n1.907184\n0.0\n0.635728\n8.264463\n0.0\n5.721551\n3.814367\n2.542912\n1.907184\n2.542912\n10.807374\n5.721551\n0.0\n0.0\n0.0\n0.0\n0.0\n3.17864\n7.628735\n6.993007\n2.542912\n2.542912"
+  },
+  {
+    "objectID": "get-started.html",
+    "href": "get-started.html",
+    "title": "Get started",
+    "section": "",
+    "text": "Processing a corpus using the pybiber package involves the following steps:\nAfter the document-feature matrix has been produced, it can be used for further analysis like classification tasks (e.g., Reinhart et al. 2024). Additionally, the pybiber package contains functions for carrying Biber’s Mulit-Dimensional Analysis (Biber 1985), which is a specific implementation of exploratory factor analysis. Refer to the Biber analyzer documentation."
+  },
+  {
+    "objectID": "get-started.html#preparing-a-corpus",
+    "href": "get-started.html#preparing-a-corpus",
+    "title": "Get started",
+    "section": "Preparing a corpus",
+    "text": "Preparing a corpus\nFirst we will import our libraries:\n\nimport spacy\nimport pybiber as pb\nimport polars as pl\n\nThere are a variety of ways of preparing and reading in a corpus for processing. The spacy_parse function requires polars DataFrame with a doc_id and a text column. Such a DataFrame can be prepared ahead of time and read in using one of polars input functions. For example, the Human-AI Parallel corpus mini can be read directly from huggingface:\n\ndf = pl.read_parquet('hf://datasets/browndw/human-ai-parallel-corpus-mini/hape_mini-text.parquet')\ndf.head()\n\n\nshape: (5, 2)\n\n\n\ndoc_id\ntext\n\n\nstr\nstr\n\n\n\n\n\"gpt4_acad_0005\"\n\"This inherent fascination with…\n\n\n\"gpt4_acad_0031\"\n\"This approach allows us to not…\n\n\n\"gpt4_acad_0036\"\n\"Moreover, while turn-final cue…\n\n\n\"gpt4_acad_0038\"\n\"In doing so, we aimed to unrav…\n\n\n\"gpt4_acad_0045\"\n\"In exploring the domain of com…\n\n\n\n\n\n\nAlternatively, a corpus of plain text files can be stored in a directory. All of the files can, then, be read into a DataFrame using corpus_from_folder\nHere, we will use the MICUSP mini data:\n\nfrom pybiber.data import micusp_mini"
+  },
+  {
+    "objectID": "get-started.html#initiate-a-spacy-instance",
+    "href": "get-started.html#initiate-a-spacy-instance",
+    "title": "Get started",
+    "section": "Initiate a spaCy instance",
+    "text": "Initiate a spaCy instance\nInitiate a model instance:\n\nnlp = spacy.load(\"en_core_web_sm\", disable=[\"ner\"])\n\n\n\n\n\n\n\nModel requirements\n\n\n\nA spaCy model must be installed in your working enviroment using python -m spacy download en_core_web_sm or an alternative. See information about spaCy models. Also, the pybiber package requires a model that will execute both part-of-speech tagging and dependency parsing."
+  },
+  {
+    "objectID": "get-started.html#parse-the-text-data",
+    "href": "get-started.html#parse-the-text-data",
+    "title": "Get started",
+    "section": "Parse the text data",
+    "text": "Parse the text data\nTo process the corpus, use spacy_parse. Processing the micusp_mini corpus should take between 20-30 seconds.\n\ndf_spacy = pb.spacy_parse(corp=micusp_mini, nlp_model=nlp)\n\n\n\n\n\n\n\nNote\n\n\n\nThe number of cores assigned can be specified using n_process, which can increase processing speed. The batch size can also be adjusted with batch_size. However, larger batch sizes may actually slow down processessing."
+  },
+  {
+    "objectID": "get-started.html#extract-the-features",
+    "href": "get-started.html#extract-the-features",
+    "title": "Get started",
+    "section": "Extract the features",
+    "text": "Extract the features\nAfter parsing the corpus, features can then be aggregated using biber.\n\ndf_biber = pb.biber(df_spacy)\n\nUsing MATTR for f_43_type_token\n\nAll features normalized per 1000 tokens except:\nf_43_type_token and f_44_mean_word_length\n\n\n\nTo return absolute frequencies set normalize=False.\n\ndf_biber.head()\n\n\nshape: (5, 68)\n\n\n\ndoc_id\nf_01_past_tense\nf_02_perfect_aspect\nf_03_present_tense\nf_04_place_adverbials\nf_05_time_adverbials\nf_06_first_person_pronouns\nf_07_second_person_pronouns\nf_08_third_person_pronouns\nf_09_pronoun_it\nf_10_demonstrative_pronoun\nf_11_indefinite_pronouns\nf_12_proverb_do\nf_13_wh_question\nf_14_nominalizations\nf_15_gerunds\nf_16_other_nouns\nf_17_agentless_passives\nf_18_by_passives\nf_19_be_main_verb\nf_20_existential_there\nf_21_that_verb_comp\nf_22_that_adj_comp\nf_23_wh_clause\nf_24_infinitives\nf_25_present_participle\nf_26_past_participle\nf_27_past_participle_whiz\nf_28_present_participle_whiz\nf_29_that_subj\nf_30_that_obj\nf_31_wh_subj\nf_32_wh_obj\nf_33_pied_piping\nf_34_sentence_relatives\nf_35_because\nf_36_though\nf_37_if\nf_38_other_adv_sub\nf_39_prepositions\nf_40_adj_attr\nf_41_adj_pred\nf_42_adverbs\nf_43_type_token\nf_44_mean_word_length\nf_45_conjuncts\nf_46_downtoners\nf_47_hedges\nf_48_amplifiers\nf_49_emphatics\nf_50_discourse_particles\nf_51_demonstratives\nf_52_modal_possibility\nf_53_modal_necessity\nf_54_modal_predictive\nf_55_verb_public\nf_56_verb_private\nf_57_verb_suasive\nf_58_verb_seem\nf_59_contractions\nf_60_that_deletion\nf_61_stranded_preposition\nf_62_split_infinitive\nf_63_split_auxiliary\nf_64_phrasal_coordination\nf_65_clausal_coordination\nf_66_neg_synthetic\nf_67_neg_analytic\n\n\nstr\nf64\nf64\nf64\nf64\nf64\nf64\nf64\nf64\nf64\nf64\nf64\nf64\nf64\nf64\nf64\nf64\nf64\nf64\nf64\nf64\nf64\nf64\nf64\nf64\nf64\nf64\nf64\nf64\nf64\nf64\nf64\nf64\nf64\nf64\nf64\nf64\nf64\nf64\nf64\nf64\nf64\nf64\nf64\nf64\nf64\nf64\nf64\nf64\nf64\nf64\nf64\nf64\nf64\nf64\nf64\nf64\nf64\nf64\nf64\nf64\nf64\nf64\nf64\nf64\nf64\nf64\nf64\n\n\n\n\n\"BIO_G0_02_1\"\n11.574886\n9.821115\n61.381971\n2.104525\n6.313574\n2.104525\n0.701508\n17.537706\n7.716591\n2.806033\n0.0\n1.753771\n0.350754\n37.881445\n6.313574\n284.110838\n9.821115\n3.156787\n16.485444\n0.701508\n10.17187\n0.0\n0.701508\n13.328657\n4.209049\n0.0\n5.96282\n2.104525\n1.753771\n0.350754\n1.052262\n0.0\n0.350754\n0.701508\n0.0\n0.701508\n0.350754\n4.209049\n99.263416\n86.285514\n6.664328\n62.434234\n0.742811\n5.3012\n9.821115\n3.507541\n0.0\n2.455279\n5.261312\n0.0\n19.291477\n7.015082\n0.350754\n4.209049\n6.664328\n22.448264\n4.559804\n2.806033\n0.350754\n0.0\n0.0\n0.701508\n4.910558\n6.664328\n4.209049\n1.403016\n2.806033\n\n\n\"BIO_G0_03_1\"\n20.300088\n3.53045\n59.13504\n1.765225\n0.882613\n18.534863\n0.0\n3.53045\n16.769638\n4.413063\n0.0\n1.765225\n0.0\n43.248014\n0.882613\n235.657546\n2.647838\n1.765225\n44.130627\n3.53045\n7.0609\n3.53045\n1.765225\n20.300088\n0.882613\n0.0\n0.882613\n0.882613\n2.647838\n0.0\n5.295675\n0.882613\n2.647838\n4.413063\n1.765225\n1.765225\n3.53045\n4.413063\n120.917917\n85.613416\n13.239188\n47.661077\n0.700499\n5.152406\n3.53045\n1.765225\n0.0\n0.882613\n6.178288\n0.0\n7.0609\n7.0609\n0.0\n8.826125\n1.765225\n8.826125\n3.53045\n1.765225\n0.0\n0.0\n0.882613\n0.0\n0.882613\n7.943513\n2.647838\n0.882613\n7.0609\n\n\n\"BIO_G0_06_1\"\n9.480034\n2.585464\n52.5711\n0.861821\n0.287274\n0.0\n0.0\n14.076415\n5.745475\n0.287274\n0.287274\n0.287274\n1.149095\n20.970985\n1.436369\n288.997415\n11.490951\n2.872738\n37.920138\n2.010916\n4.883654\n0.574548\n0.574548\n16.374605\n3.160011\n0.287274\n0.574548\n2.010916\n2.872738\n0.0\n1.149095\n0.0\n0.287274\n3.734559\n3.734559\n1.149095\n5.745475\n2.585464\n106.291296\n81.873025\n15.512784\n67.79661\n0.665338\n5.156845\n8.618213\n2.29819\n0.574548\n2.29819\n6.894571\n0.0\n4.883654\n16.949153\n1.723643\n7.181844\n4.021833\n8.330939\n4.309107\n2.29819\n0.0\n0.0\n0.287274\n1.723643\n6.320023\n10.054582\n5.458202\n0.574548\n8.905487\n\n\n\"BIO_G0_12_1\"\n36.900369\n2.767528\n23.98524\n1.845018\n1.845018\n0.0\n0.0\n3.690037\n11.99262\n0.922509\n0.0\n0.922509\n0.0\n21.217712\n0.0\n298.892989\n31.365314\n5.535055\n20.295203\n2.767528\n4.612546\n3.690037\n0.922509\n11.99262\n1.845018\n0.0\n12.915129\n2.767528\n4.612546\n0.0\n0.0\n0.0\n0.0\n0.922509\n0.0\n0.922509\n0.0\n10.147601\n154.059041\n51.660517\n9.225092\n33.210332\n0.625839\n5.160681\n6.457565\n0.0\n0.0\n0.0\n5.535055\n0.0\n14.760148\n10.147601\n0.0\n8.302583\n1.845018\n15.682657\n4.612546\n0.0\n0.0\n0.0\n0.0\n0.922509\n2.767528\n0.922509\n1.845018\n1.845018\n5.535055\n\n\n\"BIO_G0_21_1\"\n40.050858\n2.542912\n26.700572\n2.542912\n0.635728\n0.635728\n0.0\n7.628735\n2.542912\n4.450095\n0.0\n1.271456\n0.0\n26.064844\n3.17864\n336.300064\n21.614749\n2.542912\n27.3363\n3.17864\n2.542912\n0.635728\n0.0\n9.535919\n0.635728\n0.0\n5.085823\n1.907184\n3.814367\n0.0\n1.271456\n0.0\n0.0\n3.17864\n0.635728\n0.0\n0.635728\n3.17864\n147.488875\n52.765416\n8.900191\n40.050858\n0.665966\n5.129435\n5.085823\n1.907184\n0.0\n0.635728\n8.264463\n0.0\n5.721551\n3.814367\n2.542912\n1.907184\n2.542912\n10.807374\n5.721551\n0.0\n0.0\n0.0\n0.0\n0.0\n3.17864\n7.628735\n6.993007\n2.542912\n2.542912"
+  },
+  {
+    "objectID": "biber-analyzer.html",
+    "href": "biber-analyzer.html",
+    "title": "Biber analyzer",
+    "section": "",
+    "text": "Biber’s Mulit-Dimensional Analysis (Biber 1985) is a specific implementation of exploratory factor analysis and has been used in a wide variety of studies. A representative sample of such studies can be seen in the table of contents of a tribute volume.\nMulti-Dimensional Analysis (MDA) is a process made up of 4 main steps:\nA description of the procedure can be found here."
+  },
+  {
+    "objectID": "biber-analyzer.html#create-a-biber-document-feature-matrix",
+    "href": "biber-analyzer.html#create-a-biber-document-feature-matrix",
+    "title": "Biber analyzer",
+    "section": "Create a biber document-feature matrix",
+    "text": "Create a biber document-feature matrix\nFirst we will import our libraries and some data:\n\nimport spacy\nimport pybiber as pb\nimport polars as pl\nfrom pybiber.data import micusp_mini\n\nThen process that data:\n\nnlp = spacy.load(\"en_core_web_sm\", disable=[\"ner\"])\ndf_spacy = pb.spacy_parse(micusp_mini, nlp_model=nlp)\ndf_biber = pb.biber(df_spacy)\n\nUsing MATTR for f_43_type_token\n\nAll features normalized per 1000 tokens except:\nf_43_type_token and f_44_mean_word_length"
+  },
+  {
+    "objectID": "biber-analyzer.html#format-categories",
+    "href": "biber-analyzer.html#format-categories",
+    "title": "Biber analyzer",
+    "section": "Format categories",
+    "text": "Format categories\nThe MDA procedure requires a categorical variable.\nThe data that we’re using for this demonstration have the names of disciplines encoded into the doc_id. The first three letters before the underscore represent an academic discipline (e.g., BIO for biology, ENG for English, etc.).\n\ndf_biber.head()\n\n\nshape: (5, 68)\n\n\n\ndoc_id\nf_01_past_tense\nf_02_perfect_aspect\nf_03_present_tense\nf_04_place_adverbials\nf_05_time_adverbials\nf_06_first_person_pronouns\nf_07_second_person_pronouns\nf_08_third_person_pronouns\nf_09_pronoun_it\nf_10_demonstrative_pronoun\nf_11_indefinite_pronouns\nf_12_proverb_do\nf_13_wh_question\nf_14_nominalizations\nf_15_gerunds\nf_16_other_nouns\nf_17_agentless_passives\nf_18_by_passives\nf_19_be_main_verb\nf_20_existential_there\nf_21_that_verb_comp\nf_22_that_adj_comp\nf_23_wh_clause\nf_24_infinitives\nf_25_present_participle\nf_26_past_participle\nf_27_past_participle_whiz\nf_28_present_participle_whiz\nf_29_that_subj\nf_30_that_obj\nf_31_wh_subj\nf_32_wh_obj\nf_33_pied_piping\nf_34_sentence_relatives\nf_35_because\nf_36_though\nf_37_if\nf_38_other_adv_sub\nf_39_prepositions\nf_40_adj_attr\nf_41_adj_pred\nf_42_adverbs\nf_43_type_token\nf_44_mean_word_length\nf_45_conjuncts\nf_46_downtoners\nf_47_hedges\nf_48_amplifiers\nf_49_emphatics\nf_50_discourse_particles\nf_51_demonstratives\nf_52_modal_possibility\nf_53_modal_necessity\nf_54_modal_predictive\nf_55_verb_public\nf_56_verb_private\nf_57_verb_suasive\nf_58_verb_seem\nf_59_contractions\nf_60_that_deletion\nf_61_stranded_preposition\nf_62_split_infinitive\nf_63_split_auxiliary\nf_64_phrasal_coordination\nf_65_clausal_coordination\nf_66_neg_synthetic\nf_67_neg_analytic\n\n\nstr\nf64\nf64\nf64\nf64\nf64\nf64\nf64\nf64\nf64\nf64\nf64\nf64\nf64\nf64\nf64\nf64\nf64\nf64\nf64\nf64\nf64\nf64\nf64\nf64\nf64\nf64\nf64\nf64\nf64\nf64\nf64\nf64\nf64\nf64\nf64\nf64\nf64\nf64\nf64\nf64\nf64\nf64\nf64\nf64\nf64\nf64\nf64\nf64\nf64\nf64\nf64\nf64\nf64\nf64\nf64\nf64\nf64\nf64\nf64\nf64\nf64\nf64\nf64\nf64\nf64\nf64\nf64\n\n\n\n\n\"BIO_G0_02_1\"\n11.574886\n9.821115\n61.381971\n2.104525\n6.313574\n2.104525\n0.701508\n17.537706\n7.716591\n2.806033\n0.0\n1.753771\n0.350754\n37.881445\n6.313574\n284.110838\n9.821115\n3.156787\n16.485444\n0.701508\n10.17187\n0.0\n0.701508\n13.328657\n4.209049\n0.0\n5.96282\n2.104525\n1.753771\n0.350754\n1.052262\n0.0\n0.350754\n0.701508\n0.0\n0.701508\n0.350754\n4.209049\n99.263416\n86.285514\n6.664328\n62.434234\n0.742811\n5.3012\n9.821115\n3.507541\n0.0\n2.455279\n5.261312\n0.0\n19.291477\n7.015082\n0.350754\n4.209049\n6.664328\n22.448264\n4.559804\n2.806033\n0.350754\n0.0\n0.0\n0.701508\n4.910558\n6.664328\n4.209049\n1.403016\n2.806033\n\n\n\"BIO_G0_03_1\"\n20.300088\n3.53045\n59.13504\n1.765225\n0.882613\n18.534863\n0.0\n3.53045\n16.769638\n4.413063\n0.0\n1.765225\n0.0\n43.248014\n0.882613\n235.657546\n2.647838\n1.765225\n44.130627\n3.53045\n7.0609\n3.53045\n1.765225\n20.300088\n0.882613\n0.0\n0.882613\n0.882613\n2.647838\n0.0\n5.295675\n0.882613\n2.647838\n4.413063\n1.765225\n1.765225\n3.53045\n4.413063\n120.917917\n85.613416\n13.239188\n47.661077\n0.700499\n5.152406\n3.53045\n1.765225\n0.0\n0.882613\n6.178288\n0.0\n7.0609\n7.0609\n0.0\n8.826125\n1.765225\n8.826125\n3.53045\n1.765225\n0.0\n0.0\n0.882613\n0.0\n0.882613\n7.943513\n2.647838\n0.882613\n7.0609\n\n\n\"BIO_G0_06_1\"\n9.480034\n2.585464\n52.5711\n0.861821\n0.287274\n0.0\n0.0\n14.076415\n5.745475\n0.287274\n0.287274\n0.287274\n1.149095\n20.970985\n1.436369\n288.997415\n11.490951\n2.872738\n37.920138\n2.010916\n4.883654\n0.574548\n0.574548\n16.374605\n3.160011\n0.287274\n0.574548\n2.010916\n2.872738\n0.0\n1.149095\n0.0\n0.287274\n3.734559\n3.734559\n1.149095\n5.745475\n2.585464\n106.291296\n81.873025\n15.512784\n67.79661\n0.665338\n5.156845\n8.618213\n2.29819\n0.574548\n2.29819\n6.894571\n0.0\n4.883654\n16.949153\n1.723643\n7.181844\n4.021833\n8.330939\n4.309107\n2.29819\n0.0\n0.0\n0.287274\n1.723643\n6.320023\n10.054582\n5.458202\n0.574548\n8.905487\n\n\n\"BIO_G0_12_1\"\n36.900369\n2.767528\n23.98524\n1.845018\n1.845018\n0.0\n0.0\n3.690037\n11.99262\n0.922509\n0.0\n0.922509\n0.0\n21.217712\n0.0\n298.892989\n31.365314\n5.535055\n20.295203\n2.767528\n4.612546\n3.690037\n0.922509\n11.99262\n1.845018\n0.0\n12.915129\n2.767528\n4.612546\n0.0\n0.0\n0.0\n0.0\n0.922509\n0.0\n0.922509\n0.0\n10.147601\n154.059041\n51.660517\n9.225092\n33.210332\n0.625839\n5.160681\n6.457565\n0.0\n0.0\n0.0\n5.535055\n0.0\n14.760148\n10.147601\n0.0\n8.302583\n1.845018\n15.682657\n4.612546\n0.0\n0.0\n0.0\n0.0\n0.922509\n2.767528\n0.922509\n1.845018\n1.845018\n5.535055\n\n\n\"BIO_G0_21_1\"\n40.050858\n2.542912\n26.700572\n2.542912\n0.635728\n0.635728\n0.0\n7.628735\n2.542912\n4.450095\n0.0\n1.271456\n0.0\n26.064844\n3.17864\n336.300064\n21.614749\n2.542912\n27.3363\n3.17864\n2.542912\n0.635728\n0.0\n9.535919\n0.635728\n0.0\n5.085823\n1.907184\n3.814367\n0.0\n1.271456\n0.0\n0.0\n3.17864\n0.635728\n0.0\n0.635728\n3.17864\n147.488875\n52.765416\n8.900191\n40.050858\n0.665966\n5.129435\n5.085823\n1.907184\n0.0\n0.635728\n8.264463\n0.0\n5.721551\n3.814367\n2.542912\n1.907184\n2.542912\n10.807374\n5.721551\n0.0\n0.0\n0.0\n0.0\n0.0\n3.17864\n7.628735\n6.993007\n2.542912\n2.542912\n\n\n\n\n\n\n\n\n\n\n\n\nNote\n\n\n\nThe data are down-sampled from the Michigan Corpus of Upper-Level Student Papers.\n\n\nWe can extract that string and place it into a new column called discipline\n\ndf_biber = (\n    df_biber\n    .with_columns(\n        pl.col(\"doc_id\").str.extract(r\"^([A-Z])+\", 0)\n        .alias(\"discipline\")\n      )\n      )\n\ndf_biber.head()\n\n\nshape: (5, 69)\n\n\n\ndoc_id\nf_01_past_tense\nf_02_perfect_aspect\nf_03_present_tense\nf_04_place_adverbials\nf_05_time_adverbials\nf_06_first_person_pronouns\nf_07_second_person_pronouns\nf_08_third_person_pronouns\nf_09_pronoun_it\nf_10_demonstrative_pronoun\nf_11_indefinite_pronouns\nf_12_proverb_do\nf_13_wh_question\nf_14_nominalizations\nf_15_gerunds\nf_16_other_nouns\nf_17_agentless_passives\nf_18_by_passives\nf_19_be_main_verb\nf_20_existential_there\nf_21_that_verb_comp\nf_22_that_adj_comp\nf_23_wh_clause\nf_24_infinitives\nf_25_present_participle\nf_26_past_participle\nf_27_past_participle_whiz\nf_28_present_participle_whiz\nf_29_that_subj\nf_30_that_obj\nf_31_wh_subj\nf_32_wh_obj\nf_33_pied_piping\nf_34_sentence_relatives\nf_35_because\nf_36_though\nf_37_if\nf_38_other_adv_sub\nf_39_prepositions\nf_40_adj_attr\nf_41_adj_pred\nf_42_adverbs\nf_43_type_token\nf_44_mean_word_length\nf_45_conjuncts\nf_46_downtoners\nf_47_hedges\nf_48_amplifiers\nf_49_emphatics\nf_50_discourse_particles\nf_51_demonstratives\nf_52_modal_possibility\nf_53_modal_necessity\nf_54_modal_predictive\nf_55_verb_public\nf_56_verb_private\nf_57_verb_suasive\nf_58_verb_seem\nf_59_contractions\nf_60_that_deletion\nf_61_stranded_preposition\nf_62_split_infinitive\nf_63_split_auxiliary\nf_64_phrasal_coordination\nf_65_clausal_coordination\nf_66_neg_synthetic\nf_67_neg_analytic\ndiscipline\n\n\nstr\nf64\nf64\nf64\nf64\nf64\nf64\nf64\nf64\nf64\nf64\nf64\nf64\nf64\nf64\nf64\nf64\nf64\nf64\nf64\nf64\nf64\nf64\nf64\nf64\nf64\nf64\nf64\nf64\nf64\nf64\nf64\nf64\nf64\nf64\nf64\nf64\nf64\nf64\nf64\nf64\nf64\nf64\nf64\nf64\nf64\nf64\nf64\nf64\nf64\nf64\nf64\nf64\nf64\nf64\nf64\nf64\nf64\nf64\nf64\nf64\nf64\nf64\nf64\nf64\nf64\nf64\nf64\nstr\n\n\n\n\n\"BIO_G0_02_1\"\n11.574886\n9.821115\n61.381971\n2.104525\n6.313574\n2.104525\n0.701508\n17.537706\n7.716591\n2.806033\n0.0\n1.753771\n0.350754\n37.881445\n6.313574\n284.110838\n9.821115\n3.156787\n16.485444\n0.701508\n10.17187\n0.0\n0.701508\n13.328657\n4.209049\n0.0\n5.96282\n2.104525\n1.753771\n0.350754\n1.052262\n0.0\n0.350754\n0.701508\n0.0\n0.701508\n0.350754\n4.209049\n99.263416\n86.285514\n6.664328\n62.434234\n0.742811\n5.3012\n9.821115\n3.507541\n0.0\n2.455279\n5.261312\n0.0\n19.291477\n7.015082\n0.350754\n4.209049\n6.664328\n22.448264\n4.559804\n2.806033\n0.350754\n0.0\n0.0\n0.701508\n4.910558\n6.664328\n4.209049\n1.403016\n2.806033\n\"BIO\"\n\n\n\"BIO_G0_03_1\"\n20.300088\n3.53045\n59.13504\n1.765225\n0.882613\n18.534863\n0.0\n3.53045\n16.769638\n4.413063\n0.0\n1.765225\n0.0\n43.248014\n0.882613\n235.657546\n2.647838\n1.765225\n44.130627\n3.53045\n7.0609\n3.53045\n1.765225\n20.300088\n0.882613\n0.0\n0.882613\n0.882613\n2.647838\n0.0\n5.295675\n0.882613\n2.647838\n4.413063\n1.765225\n1.765225\n3.53045\n4.413063\n120.917917\n85.613416\n13.239188\n47.661077\n0.700499\n5.152406\n3.53045\n1.765225\n0.0\n0.882613\n6.178288\n0.0\n7.0609\n7.0609\n0.0\n8.826125\n1.765225\n8.826125\n3.53045\n1.765225\n0.0\n0.0\n0.882613\n0.0\n0.882613\n7.943513\n2.647838\n0.882613\n7.0609\n\"BIO\"\n\n\n\"BIO_G0_06_1\"\n9.480034\n2.585464\n52.5711\n0.861821\n0.287274\n0.0\n0.0\n14.076415\n5.745475\n0.287274\n0.287274\n0.287274\n1.149095\n20.970985\n1.436369\n288.997415\n11.490951\n2.872738\n37.920138\n2.010916\n4.883654\n0.574548\n0.574548\n16.374605\n3.160011\n0.287274\n0.574548\n2.010916\n2.872738\n0.0\n1.149095\n0.0\n0.287274\n3.734559\n3.734559\n1.149095\n5.745475\n2.585464\n106.291296\n81.873025\n15.512784\n67.79661\n0.665338\n5.156845\n8.618213\n2.29819\n0.574548\n2.29819\n6.894571\n0.0\n4.883654\n16.949153\n1.723643\n7.181844\n4.021833\n8.330939\n4.309107\n2.29819\n0.0\n0.0\n0.287274\n1.723643\n6.320023\n10.054582\n5.458202\n0.574548\n8.905487\n\"BIO\"\n\n\n\"BIO_G0_12_1\"\n36.900369\n2.767528\n23.98524\n1.845018\n1.845018\n0.0\n0.0\n3.690037\n11.99262\n0.922509\n0.0\n0.922509\n0.0\n21.217712\n0.0\n298.892989\n31.365314\n5.535055\n20.295203\n2.767528\n4.612546\n3.690037\n0.922509\n11.99262\n1.845018\n0.0\n12.915129\n2.767528\n4.612546\n0.0\n0.0\n0.0\n0.0\n0.922509\n0.0\n0.922509\n0.0\n10.147601\n154.059041\n51.660517\n9.225092\n33.210332\n0.625839\n5.160681\n6.457565\n0.0\n0.0\n0.0\n5.535055\n0.0\n14.760148\n10.147601\n0.0\n8.302583\n1.845018\n15.682657\n4.612546\n0.0\n0.0\n0.0\n0.0\n0.922509\n2.767528\n0.922509\n1.845018\n1.845018\n5.535055\n\"BIO\"\n\n\n\"BIO_G0_21_1\"\n40.050858\n2.542912\n26.700572\n2.542912\n0.635728\n0.635728\n0.0\n7.628735\n2.542912\n4.450095\n0.0\n1.271456\n0.0\n26.064844\n3.17864\n336.300064\n21.614749\n2.542912\n27.3363\n3.17864\n2.542912\n0.635728\n0.0\n9.535919\n0.635728\n0.0\n5.085823\n1.907184\n3.814367\n0.0\n1.271456\n0.0\n0.0\n3.17864\n0.635728\n0.0\n0.635728\n3.17864\n147.488875\n52.765416\n8.900191\n40.050858\n0.665966\n5.129435\n5.085823\n1.907184\n0.0\n0.635728\n8.264463\n0.0\n5.721551\n3.814367\n2.542912\n1.907184\n2.542912\n10.807374\n5.721551\n0.0\n0.0\n0.0\n0.0\n0.0\n3.17864\n7.628735\n6.993007\n2.542912\n2.542912\n\"BIO\""
+  },
+  {
+    "objectID": "biber-analyzer.html#process-the-data-with-biberanalyzer",
+    "href": "biber-analyzer.html#process-the-data-with-biberanalyzer",
+    "title": "Biber analyzer",
+    "section": "Process the data with BiberAnalyzer",
+    "text": "Process the data with BiberAnalyzer\nNow the data can be processed using BiberAnalyzer\n\ndf = pb.BiberAnalyzer(df_biber, id_column=True)"
+  },
+  {
+    "objectID": "biber-analyzer.html#determine-the-number-of-factors-to-extract",
+    "href": "biber-analyzer.html#determine-the-number-of-factors-to-extract",
+    "title": "Biber analyzer",
+    "section": "Determine the number of factors to extract",
+    "text": "Determine the number of factors to extract\n\ndf.mdaviz_screeplot();"
+  },
+  {
+    "objectID": "biber-analyzer.html#extract-factors",
+    "href": "biber-analyzer.html#extract-factors",
+    "title": "Biber analyzer",
+    "section": "Extract factors",
+    "text": "Extract factors\n\ndf.mda(n_factors=3)"
+  },
+  {
+    "objectID": "biber-analyzer.html#check-the-summary",
+    "href": "biber-analyzer.html#check-the-summary",
+    "title": "Biber analyzer",
+    "section": "Check the summary",
+    "text": "Check the summary\n\ndf.mda_summary\n\n\nshape: (3, 6)\n\n\n\nFactor\nF\ndf\nPR(&gt;F)\nSignif\nR2\n\n\nstr\nf64\nlist[u32]\nf64\nstr\nf64\n\n\n\n\n\"factor_1\"\n4.391505\n[16, 153]\n4.5532e-7\n\"*** p &lt; 0.001\"\n0.314713\n\n\n\"factor_2\"\n10.722254\n[16, 153]\n5.6263e-18\n\"*** p &lt; 0.001\"\n0.528587\n\n\n\"factor_3\"\n2.900087\n[16, 153]\n0.000353\n\"*** p &lt; 0.001\"\n0.232703"
+  },
+  {
+    "objectID": "biber-analyzer.html#plot-factors",
+    "href": "biber-analyzer.html#plot-factors",
+    "title": "Biber analyzer",
+    "section": "Plot factors",
+    "text": "Plot factors\n\ndf.mdaviz_groupmeans(factor=2);"
+  },
+  {
+    "objectID": "biber-analyzer.html#check-the-dimension-scores",
+    "href": "biber-analyzer.html#check-the-dimension-scores",
+    "title": "Biber analyzer",
+    "section": "Check the dimension scores",
+    "text": "Check the dimension scores\n\ndf.mda_dim_scores\n\n\nshape: (170, 5)\n\n\n\ndoc_id\ndoc_cat\nfactor_1\nfactor_2\nfactor_3\n\n\nstr\nstr\nf64\nf64\nf64\n\n\n\n\n\"BIO_G0_02_1\"\n\"BIO\"\n-3.548914\n3.836948\n1.190002\n\n\n\"BIO_G0_03_1\"\n\"BIO\"\n8.772727\n5.071433\n0.551095\n\n\n\"BIO_G0_06_1\"\n\"BIO\"\n3.248852\n1.24173\n0.843617\n\n\n\"BIO_G0_12_1\"\n\"BIO\"\n-4.632679\n-18.348749\n-2.314747\n\n\n\"BIO_G0_21_1\"\n\"BIO\"\n-6.692054\n-11.105658\n-2.356941\n\n\n…\n…\n…\n…\n…\n\n\n\"SOC_G1_08_1\"\n\"SOC\"\n-8.789114\n-6.140515\n-1.741352\n\n\n\"SOC_G1_09_1\"\n\"SOC\"\n4.709334\n-3.577475\n1.785393\n\n\n\"SOC_G2_03_1\"\n\"SOC\"\n1.381486\n2.315045\n0.945825\n\n\n\"SOC_G3_07_1\"\n\"SOC\"\n-7.862552\n-1.629578\n-0.290192\n\n\n\"SOC_G3_08_1\"\n\"SOC\"\n-1.221231\n5.593183\n-0.677241"
+  },
+  {
+    "objectID": "feature-categories.html",
+    "href": "feature-categories.html",
+    "title": "Feature categories",
+    "section": "",
+    "text": "Feature\nDescription\n\n\n\n\n-\nA. Tense and aspect markers\n\n\nf_01_past_tense\nPast tense\n\n\nf_02_perfect_aspect\nPerfect aspect\n\n\nf_03_present_tense\nPresent tense\n\n\n-\nB. Place and time adverbials\n\n\nf_04_place_adverbials\nPlace adverbials (e.g., above, beside, outdoors)\n\n\nf_05_time_adverbials\nTime adverbials (e.g., early, instantly, soon)\n\n\n-\nC. Pronouns and pro-verbs\n\n\nf_06_first_person_pronouns\nFirst-person pronouns\n\n\nf_07_second_person_pronouns\nSecond-person pronouns\n\n\nf_08_third_person_pronouns\nThird-person personal pronouns (excluding it)\n\n\nf_09_pronoun_it\nPronoun it\n\n\nf_10_demonstrative_pronoun\nDemonstrative pronouns (that, this, these, those as pronouns)\n\n\nf_11_indefinite_pronoun\nIndefinite pronounes (e.g., anybody, nothing, someone)\n\n\nf_12_proverb_do\nPro-verb do\n\n\n-\nD. Questions\n\n\nf_13_wh_question\nDirect wh-questions\n\n\n-\nE. Nominal forms\n\n\nf_14_nominalization\nNominalizations (ending in -tion, -ment, -ness, -ity)\n\n\nf_15_gerunds\nGerunds (participial forms functioning as nouns)\n\n\nf_16_other_nouns\nTotal other nouns\n\n\n-\nF. Passives\n\n\nf_17_agentless_passives\nAgentless passives\n\n\nf_18_by_passives\nby-passives\n\n\n-\nG. Stative forms\n\n\nf_19_be_main_verb\nbe as main verb\n\n\nf_20_existential_there\nExistential there\n\n\n-\nH. Subordination features\n\n\nf_21_that_verb_comp\nthat verb complements (e.g., I said [that he went].)\n\n\nf_22_that_adj_comp\nthat adjective complements (e.g., I’m glad [that you like it].)\n\n\nf_23_wh_clause\nwh-clauses (e.g., I believed [what he told me].)\n\n\nf_24_infinitives\nInfinitives\n\n\nf_25_present_participle\nPresent participial adverbial clauses (e.g., [Stuffing his mouth with cookies], Joe ran out the door.)\n\n\nf_26_past_participle\nPast participial adverbial clauses (e.g., [Built in a single week], the house would stand for fifty years.)\n\n\nf_27_past_participle_whiz\nPast participial postnominal (reduced relative) clauses (e.g., the solution [produced by this process])\n\n\nf_28_present_participle_whiz\nPresent participial postnominal (reduced relative) clauses (e.g., the event [causing this decline[)\n\n\nf_29_that_subj\nthat relative clauses on subject position (e.g., the dog [that bit me])\n\n\nf_30_that_obj\nthat relative clauses on object position (e.g., the dog [that I saw])\n\n\nf_31_wh_subj\nwh- relatives on subject position (e.g., the man [who likes popcorn])\n\n\nf_32_wh_obj\nwh- relatives on object position (e.g., the man [who Sally likes])\n\n\nf_33_pied_piping\nPied-piping relative clauses (e.g., the manner [in which he was told])\n\n\nf_34_sentence_relatives\nSentence relatives (e.g., Bob likes fried mangoes, [which is the most disgusting thing I’ve ever heard of].)\n\n\nf_35_because\nCausative adverbial subordinator (because)\n\n\nf_36_though\nConcessive adverbial subordinators (although, though)\n\n\nf_37_if\nConditional adverbial subordinators (if, unless)\n\n\nf_38_other_adv_sub\nOther adverbial subordinators (e.g., since, while, whereas)\n\n\n-\nI. Prepositional phrases, adjectives and adverbs\n\n\nf_39_prepositions\nTotal prepositional phrases\n\n\nf_40_adj_attr\nAttributive adjectives (e.g., the [big] horse)\n\n\nf_41_adj_pred\nPredicative adjectives (e.g., The horse is [big].)\n\n\nf_42_adverbs\nTotal adverbs\n\n\n-\nJ. Lexical specificity\n\n\nf_43_type_token\nType-token ratio (including punctuation)\n\n\nf_44_mean_word_length\nAverage word length (across tokens, excluding punctuation)\n\n\n-\nK. Lexical classes\n\n\nf_45_conjuncts\nConjuncts (e.g., consequently, furthermore, however)\n\n\nf_46_downtoners\nDowntoners (e.g., barely, nearly, slightly)\n\n\nf_47_hedges\nHedges (e.g., at about, something like, almost)\n\n\nf_48_amplifiers\nAmplifiers (e.g., absolutely, extremely, perfectly)\n\n\nf_49_emphatics\nEmphatics (e.g., a lot, for sure, really)\n\n\nf_50_discourse_particles\nDiscourse particles (e.g., sentence-initial well, now, anyway)\n\n\nf_51_demonstratives\nDemonstratives\n\n\n-\nL. Modals\n\n\nf_52_modal_possibility\nPossibility modals (can, may, might, could)\n\n\nf_53_modal_necessity\nNecessity modals (ought, should, must)\n\n\nf_54_modal_predictive\nPredictive modals (will, would, shall)\n\n\n-\nM. Specialized verb classes\n\n\nf_55_verb_public\nPublic verbs (e.g., assert, declare, mention)\n\n\nf_56_verb_private\nPrivate verbs (e.g., assume, believe, doubt, know)\n\n\nf_57_verb_suasive\nSuasive verbs (e.g., command, insist, propose)\n\n\nf_58_verb_seem\nseem and appear\n\n\n-\nN. Reduced forms and dispreferred structures\n\n\nf_59_contractions\nContractions\n\n\nf_60_that_deletion\nSubordinator that deletion (e.g., I think [he went].)\n\n\nf_61_stranded_preposition\nStranded prepositions (e.g., the candidate that I was thinking [of])\n\n\nf_62_split_infinitve\nSplit infinitives (e.g., He wants [to convincingly prove] that …)\n\n\nf_63_split_auxiliary\nSplit auxiliaries (e.g., They [were apparently shown] to …)\n\n\n-\nO. Co-ordination\n\n\nf_64_phrasal_coordination\nPhrasal co-ordination (N and N; Adj and Adj; V and V; Adv and Adv)\n\n\nf_65_clausal_coordination\nIndependent clause co-ordination (clause-initial and)\n\n\n-\nP. Negation\n\n\nf_66_neg_synthetic\nSynthetic negation (e.g., No answer is good enough for Jones.)\n\n\nf_67_neg_analytic\nAnalytic negation (e.g., That isn’t good enough.)"
+  },
+  {
+    "objectID": "reference/readtext.html",
+    "href": "reference/readtext.html",
+    "title": "readtext",
+    "section": "",
+    "text": "parse_utils.readtext(paths)\nImport all text files from a list of paths.\n\n\n\n\n\n\n\n\n\n\n\nName\nType\nDescription\nDefault\n\n\n\n\npaths\nList\nA list of paths of text files returned by get_text_paths.\nrequired\n\n\n\n\n\n\n\n\n\nName\nType\nDescription\n\n\n\n\n\nList\nA list of full paths.\n\n\n\n\n\n\nModeled on the R function readtext.",
+    "crumbs": [
+      "Get started",
+      "Parsing Data",
+      "`readtext`"
+    ]
+  },
+  {
+    "objectID": "reference/readtext.html#parameters",
+    "href": "reference/readtext.html#parameters",
+    "title": "readtext",
+    "section": "",
+    "text": "Name\nType\nDescription\nDefault\n\n\n\n\npaths\nList\nA list of paths of text files returned by get_text_paths.\nrequired",
+    "crumbs": [
+      "Get started",
+      "Parsing Data",
+      "`readtext`"
+    ]
+  },
+  {
+    "objectID": "reference/readtext.html#returns",
+    "href": "reference/readtext.html#returns",
+    "title": "readtext",
+    "section": "",
+    "text": "Name\nType\nDescription\n\n\n\n\n\nList\nA list of full paths.",
+    "crumbs": [
+      "Get started",
+      "Parsing Data",
+      "`readtext`"
+    ]
+  },
+  {
+    "objectID": "reference/readtext.html#notes",
+    "href": "reference/readtext.html#notes",
+    "title": "readtext",
+    "section": "",
+    "text": "Modeled on the R function readtext.",
+    "crumbs": [
+      "Get started",
+      "Parsing Data",
+      "`readtext`"
+    ]
+  },
+  {
+    "objectID": "reference/biber.html",
+    "href": "reference/biber.html",
+    "title": "biber",
+    "section": "",
+    "text": "parse_functions.biber(tokens, normalize=True, force_ttr=False)\nExtract Biber features from a parsed corpus.\n\n\n\n\n\n\n\n\n\n\n\nName\nType\nDescription\nDefault\n\n\n\n\ntokens\npl.DataFrame\nA polars DataFrame with the output of the spacy_parse function.\nrequired\n\n\nnormalize\nOptional[bool]\nNormalize counts per 1000 tokens.\nTrue\n\n\nforce_ttr\nOptional[bool]\nForce the calcuation of type-token ratio rather than moving average type-token ratio.\nFalse\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nName\nType\nDescription\n\n\n\n\n\npl.DataFrame\nA polars DataFrame with, counts of feature frequencies.\n\n\n\n\n\n\nMATTR is the default as it is less sensitive than TTR to variations in text lenghth. However, the function will automatically use TTR if any of the corpus texts are less than 200 words. Thus, forcing TTR can be necessary when processing multiple corpora that you want to be consistent.",
+    "crumbs": [
+      "Get started",
+      "Parsing Data",
+      "`biber`"
+    ]
+  },
+  {
+    "objectID": "reference/biber.html#parameters",
+    "href": "reference/biber.html#parameters",
+    "title": "biber",
+    "section": "",
+    "text": "Name\nType\nDescription\nDefault\n\n\n\n\ntokens\npl.DataFrame\nA polars DataFrame with the output of the spacy_parse function.\nrequired\n\n\nnormalize\nOptional[bool]\nNormalize counts per 1000 tokens.\nTrue\n\n\nforce_ttr\nOptional[bool]\nForce the calcuation of type-token ratio rather than moving average type-token ratio.\nFalse",
+    "crumbs": [
+      "Get started",
+      "Parsing Data",
+      "`biber`"
+    ]
+  },
+  {
+    "objectID": "reference/biber.html#returns",
+    "href": "reference/biber.html#returns",
+    "title": "biber",
+    "section": "",
+    "text": "Name\nType\nDescription\n\n\n\n\n\npl.DataFrame\nA polars DataFrame with, counts of feature frequencies.",
+    "crumbs": [
+      "Get started",
+      "Parsing Data",
+      "`biber`"
+    ]
+  },
+  {
+    "objectID": "reference/biber.html#notes",
+    "href": "reference/biber.html#notes",
+    "title": "biber",
+    "section": "",
+    "text": "MATTR is the default as it is less sensitive than TTR to variations in text lenghth. However, the function will automatically use TTR if any of the corpus texts are less than 200 words. Thus, forcing TTR can be necessary when processing multiple corpora that you want to be consistent.",
+    "crumbs": [
+      "Get started",
+      "Parsing Data",
+      "`biber`"
+    ]
+  },
+  {
+    "objectID": "reference/index.html",
+    "href": "reference/index.html",
+    "title": "Reference",
+    "section": "",
+    "text": "Read in and prepare data\n\n\n\ncorpus_from_folder\nImport all text files from a directory.\n\n\nget_text_paths\nGet a list of full paths for all text files.\n\n\nreadtext\nImport all text files from a list of paths.\n\n\nspacy_parse\nParse a corpus using the ‘en_core_web_sm’ model.\n\n\nget_noun_phrases\nExtract expanded noun phrases using the ‘en_core_web_sm’ model.\n\n\n\n\n\n\nGenerate a biber document-feature matrix\n\n\n\nbiber\nExtract Biber features from a parsed corpus.\n\n\n\n\n\n\nAnalyze a biber document-feature matrix\n\n\n\nmda\nExecute Biber’s multi-dimensional anlaysis.\n\n\npca\nExecute principal component analysis.\n\n\nmdaviz_screeplot\nGenerate a scree plot for determining factors.\n\n\nmdaviz_groupmeans\nGenerate a stick plot of the group means for a factor.\n\n\npcaviz_groupmeans\nGenerate a scatter plot of the group means along 2 components.\n\n\npcaviz_contrib\nGenerate a bar plot of variable contributions to a component."
+  },
+  {
+    "objectID": "reference/index.html#pybiber-utility-functions",
+    "href": "reference/index.html#pybiber-utility-functions",
+    "title": "Reference",
+    "section": "",
+    "text": "Read in and prepare data\n\n\n\ncorpus_from_folder\nImport all text files from a directory.\n\n\nget_text_paths\nGet a list of full paths for all text files.\n\n\nreadtext\nImport all text files from a list of paths.\n\n\nspacy_parse\nParse a corpus using the ‘en_core_web_sm’ model.\n\n\nget_noun_phrases\nExtract expanded noun phrases using the ‘en_core_web_sm’ model."
+  },
+  {
+    "objectID": "reference/index.html#pybiber-parse",
+    "href": "reference/index.html#pybiber-parse",
+    "title": "Reference",
+    "section": "",
+    "text": "Generate a biber document-feature matrix\n\n\n\nbiber\nExtract Biber features from a parsed corpus."
+  },
+  {
+    "objectID": "reference/index.html#pybiber-methods",
+    "href": "reference/index.html#pybiber-methods",
+    "title": "Reference",
+    "section": "",
+    "text": "Analyze a biber document-feature matrix\n\n\n\nmda\nExecute Biber’s multi-dimensional anlaysis.\n\n\npca\nExecute principal component analysis.\n\n\nmdaviz_screeplot\nGenerate a scree plot for determining factors.\n\n\nmdaviz_groupmeans\nGenerate a stick plot of the group means for a factor.\n\n\npcaviz_groupmeans\nGenerate a scatter plot of the group means along 2 components.\n\n\npcaviz_contrib\nGenerate a bar plot of variable contributions to a component."
+  },
+  {
+    "objectID": "reference/mdaviz_screeplot.html",
+    "href": "reference/mdaviz_screeplot.html",
+    "title": "mdaviz_screeplot",
+    "section": "",
+    "text": "BiberAnalyzer.mdaviz_screeplot(width=6, height=3, dpi=150, mda=True)\nGenerate a scree plot for determining factors.\n\n\n\n\n\n\n\n\n\n\n\nName\nType\nDescription\nDefault\n\n\n\n\nwidth\n\nThe width of the plot.\n6\n\n\nheight\n\nThe height of the plot.\n3\n\n\ndpi\n\nThe resolution of the plot.\n150\n\n\nmda\n\nWhether or not non-colinear features should be filter out per Biber’s multi-dimensional analysis procedure.\nTrue\n\n\n\n\n\n\n\n\n\nName\nType\nDescription\n\n\n\n\n\nFigure\nA matplotlib figure.",
+    "crumbs": [
+      "Get started",
+      "Analyzing Data",
+      "`mdaviz_screeplot`"
+    ]
+  },
+  {
+    "objectID": "reference/mdaviz_screeplot.html#parameters",
+    "href": "reference/mdaviz_screeplot.html#parameters",
+    "title": "mdaviz_screeplot",
+    "section": "",
+    "text": "Name\nType\nDescription\nDefault\n\n\n\n\nwidth\n\nThe width of the plot.\n6\n\n\nheight\n\nThe height of the plot.\n3\n\n\ndpi\n\nThe resolution of the plot.\n150\n\n\nmda\n\nWhether or not non-colinear features should be filter out per Biber’s multi-dimensional analysis procedure.\nTrue",
+    "crumbs": [
+      "Get started",
+      "Analyzing Data",
+      "`mdaviz_screeplot`"
+    ]
+  },
+  {
+    "objectID": "reference/mdaviz_screeplot.html#returns",
+    "href": "reference/mdaviz_screeplot.html#returns",
+    "title": "mdaviz_screeplot",
+    "section": "",
+    "text": "Name\nType\nDescription\n\n\n\n\n\nFigure\nA matplotlib figure.",
+    "crumbs": [
+      "Get started",
+      "Analyzing Data",
+      "`mdaviz_screeplot`"
+    ]
+  },
+  {
+    "objectID": "reference/pca.html",
+    "href": "reference/pca.html",
+    "title": "pca",
+    "section": "",
+    "text": "BiberAnalyzer.pca()\nExecute principal component analysis.\n\n\nThis is largely a convenience function as most of its outputs are produced by wrappers for sklearn. However, variable contribution is adapted from the FactoMineR function fviz_contrib.",
+    "crumbs": [
+      "Get started",
+      "Analyzing Data",
+      "`pca`"
+    ]
+  },
+  {
+    "objectID": "reference/pca.html#notes",
+    "href": "reference/pca.html#notes",
+    "title": "pca",
+    "section": "",
+    "text": "This is largely a convenience function as most of its outputs are produced by wrappers for sklearn. However, variable contribution is adapted from the FactoMineR function fviz_contrib.",
+    "crumbs": [
+      "Get started",
+      "Analyzing Data",
+      "`pca`"
+    ]
+  },
+  {
+    "objectID": "reference/corpus_from_folder.html",
+    "href": "reference/corpus_from_folder.html",
+    "title": "corpus_from_folder",
+    "section": "",
+    "text": "parse_utils.corpus_from_folder(directory)\nImport all text files from a directory.\n\n\n\n\n\nName\nType\nDescription\nDefault\n\n\n\n\ndirectory\nstr\nA directory containing text files.\nrequired\n\n\n\n\n\n\n\n\n\nName\nType\nDescription\n\n\n\n\n\npl.DataFrame\nA polars DataFrame.",
+    "crumbs": [
+      "Get started",
+      "Parsing Data",
+      "`corpus_from_folder`"
+    ]
+  },
+  {
+    "objectID": "reference/corpus_from_folder.html#parameters",
+    "href": "reference/corpus_from_folder.html#parameters",
+    "title": "corpus_from_folder",
+    "section": "",
+    "text": "Name\nType\nDescription\nDefault\n\n\n\n\ndirectory\nstr\nA directory containing text files.\nrequired",
+    "crumbs": [
+      "Get started",
+      "Parsing Data",
+      "`corpus_from_folder`"
+    ]
+  },
+  {
+    "objectID": "reference/corpus_from_folder.html#returns",
+    "href": "reference/corpus_from_folder.html#returns",
+    "title": "corpus_from_folder",
+    "section": "",
+    "text": "Name\nType\nDescription\n\n\n\n\n\npl.DataFrame\nA polars DataFrame.",
+    "crumbs": [
+      "Get started",
+      "Parsing Data",
+      "`corpus_from_folder`"
+    ]
+  }
+]

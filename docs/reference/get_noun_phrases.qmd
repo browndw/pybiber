@@ -1,0 +1,32 @@
+# get_noun_phrases { #pybiber.parse_utils.get_noun_phrases }
+
+```python
+parse_utils.get_noun_phrases(corp, nlp_model, n_process=1, batch_size=25)
+```
+
+Extract expanded noun phrases using the 'en_core_web_sm' model.
+
+## Parameters {.doc-section .doc-section-parameters}
+
+| Name       | Type         | Description                                                           | Default    |
+|------------|--------------|-----------------------------------------------------------------------|------------|
+| corp       | pl.DataFrame | A polars DataFrame conataining a 'doc_id' column and a 'text' column. | _required_ |
+| nlp_model  | Language     | An 'en_core_web_sm' instance.                                         | _required_ |
+| n_process  |              | The number of parallel processes to use during parsing.               | `1`        |
+| batch_size |              | The batch size to use during parsing.                                 | `25`       |
+
+## Returns {.doc-section .doc-section-returns}
+
+| Name   | Type         | Description                                                                    |
+|--------|--------------|--------------------------------------------------------------------------------|
+|        | pl.DataFrame | a polars DataFrame with, noun phrases and their assocated part-of-speech tags. |
+
+## Notes {.doc-section .doc-section-notes}
+
+Noun phrases can be extracted directly from the
+[noun_chunks](https://spacy.io/api/doc#noun_chunks)
+attribute. However, per spaCy's documentation
+the attribute does not permit nested noun phrases,
+for example when a prepositional phrases modifies
+a preceding noun phrase. This function extracts
+elatorated noun phrases in their complete form.

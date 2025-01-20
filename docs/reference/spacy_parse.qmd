@@ -1,0 +1,22 @@
+# spacy_parse { #pybiber.parse_utils.spacy_parse }
+
+```python
+parse_utils.spacy_parse(corp, nlp_model, n_process=1, batch_size=25)
+```
+
+Parse a corpus using the 'en_core_web_sm' model.
+
+## Parameters {.doc-section .doc-section-parameters}
+
+| Name       | Type         | Description                                                           | Default    |
+|------------|--------------|-----------------------------------------------------------------------|------------|
+| corp       | pl.DataFrame | A polars DataFrame conataining a 'doc_id' column and a 'text' column. | _required_ |
+| nlp_model  | Language     | An 'en_core_web_sm' instance.                                         | _required_ |
+| n_process  |              | The number of parallel processes to use during parsing.               | `1`        |
+| batch_size |              | The batch size to use during parsing.                                 | `25`       |
+
+## Returns {.doc-section .doc-section-returns}
+
+| Name   | Type         | Description                                                                                        |
+|--------|--------------|----------------------------------------------------------------------------------------------------|
+|        | pl.DataFrame | A polars DataFrame with, token sequencies identified by part-of-speech tags and dependency parses. |

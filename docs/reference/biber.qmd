@@ -1,0 +1,30 @@
+# biber { #pybiber.parse_functions.biber }
+
+```python
+parse_functions.biber(tokens, normalize=True, force_ttr=False)
+```
+
+Extract Biber features from a parsed corpus.
+
+## Parameters {.doc-section .doc-section-parameters}
+
+| Name      | Type             | Description                                                                           | Default    |
+|-----------|------------------|---------------------------------------------------------------------------------------|------------|
+| tokens    | pl.DataFrame     | A polars DataFrame with the output of the spacy_parse function.                       | _required_ |
+| normalize | Optional\[bool\] | Normalize counts per 1000 tokens.                                                     | `True`     |
+| force_ttr | Optional\[bool\] | Force the calcuation of type-token ratio rather than moving average type-token ratio. | `False`    |
+
+## Returns {.doc-section .doc-section-returns}
+
+| Name   | Type         | Description                                             |
+|--------|--------------|---------------------------------------------------------|
+|        | pl.DataFrame | A polars DataFrame with, counts of feature frequencies. |
+
+## Notes {.doc-section .doc-section-notes}
+
+MATTR is the default as it is less sensitive than TTR
+to variations in text lenghth. However, the
+function will automatically use TTR if any of the
+corpus texts are less than 200 words.
+Thus, forcing TTR can be necessary when processing multiple
+corpora that you want to be consistent.

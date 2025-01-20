@@ -1,0 +1,79 @@
+---
+title: "Get started"
+jupyter: python3
+---
+
+Processing a corpus using the pybiber package involves the following steps:
+
+1. Preparing a corpus of text data.
+2. Initiating a model instance.
+3. Parsing the corpus data.
+4. Extracting the features into DataFrame.
+
+After the document-feature matrix has been produced, it can be used for further analysis like classification tasks [e.g., @reinhart2024llms]. Additionally, the pybiber package contains functions for carrying Biber's Mulit-Dimensional Analysis [@biber1985investigating], which is a specific implementation of exploratory factor analysis. Refer to the [Biber analyzer](biber-analyzer.qmd ) documentation.
+
+## Preparing a corpus
+
+First we will import our libraries:
+
+```{python}
+import spacy
+import pybiber as pb
+import polars as pl
+```
+
+There are a variety of ways of preparing and reading in a corpus for processing. The [](`~pybiber.parse_utils.spacy_parse`) function requires polars DataFrame with a `doc_id` and a `text` column. Such a DataFrame can be prepared ahead of time and read in using one of polars [input functions](https://docs.pola.rs/api/python/dev/reference/io.html). For example, the [Human-AI Parallel corpus mini](https://huggingface.co/datasets/browndw/human-ai-parallel-corpus-mini){.external target="_blank"} can be read directly from huggingface:
+
+```{python}
+df = pl.read_parquet('hf://datasets/browndw/human-ai-parallel-corpus-mini/hape_mini-text.parquet')
+df.head()
+```
+
+Alternatively, a corpus of plain text files can be stored in a directory. All of the files can, then, be read into a DataFrame using [](`~pybiber.parse_utils.corpus_from_folder`)
+
+Here, we will use the MICUSP mini data:
+
+```{python}
+from pybiber.data import micusp_mini
+```
+
+## Initiate a spaCy instance
+
+Initiate a model instance:
+
+```{python}
+nlp = spacy.load("en_core_web_sm", disable=["ner"])
+```
+
+::: {.callout-important}
+## Model requirements
+
+A spaCy model must be installed in your working enviroment using `python -m spacy download en_core_web_sm` or an alternative. See information about [spaCy models](https://spacy.io/usage){.external target="_blank"}. Also, the pybiber package requires a model that will execute both part-of-speech tagging and dependency parsing.
+:::
+
+## Parse the text data
+
+To process the corpus, use [](`~pybiber.parse_utils.spacy_parse`). Processing the `micusp_mini` corpus should take between 20-30 seconds.
+
+```{python}
+df_spacy = pb.spacy_parse(corp=micusp_mini, nlp_model=nlp)
+```
+
+::: {.callout-note}
+The number of cores assigned can be specified using `n_process`, which can increase processing speed. The batch size can also be adjusted with `batch_size`. However, larger batch sizes may actually slow down processessing.
+:::
+
+## Extract the features
+
+After parsing the corpus, features can then be aggregated using [](`~pybiber.parse_functions.biber`).
+
+```{python}
+df_biber = pb.biber(df_spacy)
+```
+
+To return absolute frequencies set `normalize=False`.
+
+```{python}
+df_biber.head()
+```
+

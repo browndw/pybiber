@@ -1,0 +1,22 @@
+# pcaviz_groupmeans { #pybiber.BiberAnalyzer.pcaviz_groupmeans }
+
+```python
+BiberAnalyzer.pcaviz_groupmeans(pc=1, width=8, height=4, dpi=150)
+```
+
+Generate a scatter plot of the group means along 2 components.
+
+## Parameters {.doc-section .doc-section-parameters}
+
+| Name   | Type   | Description                             | Default   |
+|--------|--------|-----------------------------------------|-----------|
+| pc     |        | The principal component for the x-axis. | `1`       |
+| width  |        | The width of the plot.                  | `8`       |
+| height |        | The height of the plot.                 | `4`       |
+| dpi    |        | The resolution of the plot.             | `150`     |
+
+## Returns {.doc-section .doc-section-returns}
+
+| Name   | Type   | Description          |
+|--------|--------|----------------------|
+|        | Figure | A matplotlib figure. |

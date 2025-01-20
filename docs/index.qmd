@@ -1,0 +1,119 @@
+---
+jupyter: python3
+---
+
+# pybiber
+
+The pybiber package aggregates [the lexicogrammatical and functional features](feature-categories.qmd) described by Biber [-@biber1988variation] and widely used for text-type, register, and genre classification tasks.
+
+The package uses [spaCy](https://spacy.io/models){.external target="_blank"} part-of-speech tagging and dependency parsing to summarize and aggregate patterns.
+
+Because feature extraction builds from the outputs of probabilistic taggers, the accuracy of the resulting counts are reliant on the accuracy of those models. Thus, texts with irregular spellings, non-normative punctuation, etc. will likely produce unreliable outputs, unless taggers are tuned specifically for those purposes.
+
+---
+
+All DataFrames are rendered using [polars](https://docs.pola.rs/api/python/stable/reference/index.html){.external target="_blank"}. If you prefer to conduct any post-processing using pandas, please refer to [the documentation](https://docs.pola.rs/api/python/stable/reference/dataframe/api/polars.DataFrame.to_pandas.html){.external target="_blank"} for converting polars to pandas. Note that conversion requires both pandas and pyarrow to be installed into your working environment.
+
+See [pseudobibeR](https://cran.r-project.org/web/packages/pseudobibeR/index.html){.external target="_blank"} for the R implementation.
+
+---
+
+## Installation
+
+You can install the released version of pybiber from [PyPI](https://pypi.org/project/pybiber/){.external target="_blank"}:
+
+```bash
+pip install pybiber
+```
+
+Install a [spaCy model](https://spacy.io/usage){.external target="_blank"}:
+
+```bash
+python -m spacy download en_core_web_sm
+
+# models can also be installed using pip
+# pip install https://github.com/explosion/spacy-models/releases/download/en_core_web_sm-3.8.0/en_core_web_sm-3.8.0-py3-none-any.whl
+```
+
+## Usage
+
+To use the pybiber package, you must first import [spaCy](https://spacy.io/models){.external target="_blank"} and initiate an instance. You will also need to create a corpus. The [](`~pybiber.biber`) function expects a [polars DataFrame](https://docs.pola.rs/api/python/stable/reference/dataframe/index.html){.external target="_blank"} with a `doc_id` column and a `text` column. This follows the convention for [`readtext`](https://readtext.quanteda.io/articles/readtext_vignette.html){.external target="_blank"} and corpus processing using [quanteda](https://quanteda.io/){.external target="_blank"} in R.
+
+
+```{python}
+import spacy
+import pybiber as pb
+from pybiber.data import micusp_mini
+```
+
+You can see the simple data structure of a corpus:
+
+```{python}
+micusp_mini.head()
+```
+
+::: {.callout-tip}
+## Building your own corpus
+
+To build your own corpus, a good place to start is [](`~pybiber.parse_utils.corpus_from_folder`), which reads in all of the text files from a directory.
+:::
+
+### Initiate an instance
+
+The pybiber package requires a model that will carry out part-of-speech tagging and [dependency parsing](https://spacy.io/usage/linguistic-features){.external target="_blank"}, like one of spaCy's `en_core` models.
+
+```{python}
+nlp = spacy.load("en_core_web_sm", disable=["ner"])
+```
+
+::: {.callout-note}
+Here we are disabling `ner` or "Named Entity Recognition" from the pipeline to increase processing speed, but doing so is not necessary.
+:::
+
+### Process the corpus
+
+To process the corpus, use [](`~pybiber.parse_utils.spacy_parse`). Processing the `micusp_mini` corpus should take between 20-30 seconds.
+
+```{python}
+df_spacy = pb.spacy_parse(micusp_mini, nlp)
+```
+
+The function returns a DataFrame, which is structured like a [spacyr](https://cran.r-project.org/web/packages/spacyr/vignettes/using_spacyr.html){.external target="_blank"} output.
+
+```{python}
+df_spacy.head()
+```
+
+### Aggregate features
+
+After parsing the corpus, features can then be aggregated using [](`~pybiber.parse_functions.biber`).
+
+```{python}
+df_biber = pb.biber(df_spacy)
+```
+
+
+::: {.callout-important}
+## Feature counts
+
+In the [documentation](`~pybiber.parse_functions.biber`), note the difference beween type-token ratio (TTR) and moving average type-token ration (MATTR). For most use-cases, forcing TTR is unnecessary, but when comparing multiple corpora that haven't been processed together, it is important to make sure the same measure is being used.
+
+Also, the default is to normalize frequencies per 1000 tokens. However, absolute frequencies can be returned by setting `normalize=False`.
+:::
+
+The resulting document-feature matrix has 67 variables and a column of document ids.
+
+```{python}
+df_biber.shape
+```
+
+::: {.callout-tip}
+
+Encoding metadata into your document id's (i.e., file names) is key to further processing and analysis. In the `micusp_mini` data, for example, the first three letters before the underscore represent an academic discipline (e.g., BIO for biology, ENG for English, etc.).
+:::
+
+```{python}
+df_biber.head()
+```
+
+
