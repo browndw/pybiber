@@ -370,8 +370,8 @@ class BiberAnalyzer:
 
         Notes
         -----
-            Modeled on the R function \
-            [fviz_contrib](https://search.r-project.org/CRAN/refmans/factoextra/html/fviz_contrib.html).
+        Modeled on the R function
+        [fviz_contrib](https://search.r-project.org/CRAN/refmans/factoextra/html/fviz_contrib.html).
 
         """
         pc_col = "PC_" + str(pc)
@@ -585,10 +585,10 @@ class BiberAnalyzer:
 
         Notes
         -----
-            This is largely a convenience function as most of its outputs \
-            are produced by wrappers for sklearn. However, \
-            variable contribution is adapted from the FactoMineR function \
-            [fviz_contrib](https://search.r-project.org/CRAN/refmans/factoextra/html/fviz_contrib.html).
+        This is largely a convenience function as most of its outputs
+        are produced by wrappers for sklearn. However,
+        variable contribution is adapted from the FactoMineR function
+        [fviz_contrib](https://search.r-project.org/CRAN/refmans/factoextra/html/fviz_contrib.html).
 
         """
         # scale variables

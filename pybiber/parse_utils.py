@@ -175,8 +175,8 @@ def readtext(paths: List) -> pl.DataFrame:
 
     Notes
     -----
-        Modeled on the R function \
-        [readtext](https://readtext.quanteda.io/articles/readtext_vignette.html).
+    Modeled on the R function
+    [readtext](https://readtext.quanteda.io/articles/readtext_vignette.html).
 
     """
     # Get a list of the file basenames
@@ -198,6 +198,19 @@ def readtext(paths: List) -> pl.DataFrame:
 
 
 def corpus_from_folder(directory: str) -> pl.DataFrame:
+    """Import all text files from a directory.
+
+    Parameters
+    ----------
+    directory:
+        A directory containing text files.
+
+    Returns
+    -------
+    pl.DataFrame
+        A polars DataFrame.
+
+    """
     text_files = get_text_paths(directory)
     if len(text_files) == 0:
         raise ValueError("""
@@ -374,13 +387,13 @@ def get_noun_phrases(corp: pl.DataFrame,
 
     Notes
     -----
-        Noun phrases can be extracted directly from the \
-        [noun_chunks](https://spacy.io/api/doc#noun_chunks) \
-        attribute. However, per spaCy's documentation \
-        the attribute does not permit nested noun phrases, \
-        for example when a prepositional phrases modifies \
-        a preceding noun phrase. This function extracts \
-        elatorated noun phrases in their complete form.
+    Noun phrases can be extracted directly from the
+    [noun_chunks](https://spacy.io/api/doc#noun_chunks)
+    attribute. However, per spaCy's documentation
+    the attribute does not permit nested noun phrases,
+    for example when a prepositional phrases modifies
+    a preceding noun phrase. This function extracts
+    elatorated noun phrases in their complete form.
 
     """
     validation = OrderedDict([('doc_id', pl.String),

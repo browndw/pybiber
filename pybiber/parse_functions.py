@@ -52,7 +52,7 @@ def _biber_weight(biber_counts: pl.DataFrame,
     if scheme == "prop":
         print(dedent(
             """
-            all features normalized per 1000 tokens except:
+            All features normalized per 1000 tokens except:
             f_43_type_token and f_44_mean_word_length
             """
             ))
@@ -99,7 +99,7 @@ def _biber_weight(biber_counts: pl.DataFrame,
             )
         print(dedent(
             """
-            exluded from tf-idf matrix:
+            Excluded from tf-idf matrix:
             f_43_type_token and f_44_mean_word_length
             """))
         return weighted_df
@@ -118,8 +118,8 @@ def biber(tokens: pl.DataFrame,
     normalize:
         Normalize counts per 1000 tokens.
     force_ttr:
-        Force the calcuation of type-to-token ratio
-        rather than moving average type-to-token ratio.
+        Force the calcuation of type-token ratio
+        rather than moving average type-token ratio.
 
     Returns
     -------
@@ -129,12 +129,12 @@ def biber(tokens: pl.DataFrame,
 
     Notes
     -----
-        MATTR is the default as it is less sensitive than TTR  \
-        to variations in text lenghth. However, the \
-        function will automatically use TTR if any of the \
-        corpus texts are less than 200 words. \
-        Thus, forcing TTR can be necessary when processing multiple \
-        corpora that you want to be consistent.
+    MATTR is the default as it is less sensitive than TTR
+    to variations in text lenghth. However, the
+    function will automatically use TTR if any of the
+    corpus texts are less than 200 words.
+    Thus, forcing TTR can be necessary when processing multiple
+    corpora that you want to be consistent.
 
     """
     doc_totals = (
