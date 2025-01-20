@@ -1,0 +1,1390 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.4.549">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>pybiber</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+/* CSS for citations */
+div.csl-bib-body { }
+div.csl-entry {
+  clear: both;
+  margin-bottom: 0em;
+}
+.hanging-indent div.csl-entry {
+  margin-left:2em;
+  text-indent:-2em;
+}
+div.csl-left-margin {
+  min-width:2em;
+  float:left;
+}
+div.csl-right-inline {
+  margin-left:2em;
+  padding-left:1em;
+}
+div.csl-indent {
+  margin-left: 2em;
+}</style>
+
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js" integrity="sha512-bLT0Qm9VnAYZDflyKcBaQ2gg0hSYNQrJ8RilYldYQ1FxQYoCLtUjuuRuZo+fjqhx/qtq/1itJ0C2ejDxltZVFg==" crossorigin="anonymous"></script><script src="site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="site_libs/clipboard/clipboard.min.js"></script>
+<script src="site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="site_libs/quarto-search/fuse.min.js"></script>
+<script src="site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="./">
+<link href="./favicon.ico" rel="icon">
+<script src="site_libs/quarto-html/quarto.js"></script>
+<script src="site_libs/quarto-html/popper.min.js"></script>
+<script src="site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="site_libs/quarto-html/anchor.min.js"></script>
+<link href="site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="site_libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="site_libs/bootstrap/bootstrap.min.css" rel="stylesheet" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js" integrity="sha512-c3Nl8+7g4LMSTdrm621y7kf9v3SDPnhxLNhcjFJbKECVnmZHTdo+IRO05sNLTH/D3vA6u1X32ehoLC7WFVdheg==" crossorigin="anonymous"></script>
+
+<script type="application/javascript">define('jquery', [],function() {return window.jQuery;})</script>
+
+
+</head>
+
+<body class="nav-fixed fullcontent">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container mx-auto">
+    <a href="./index.html" class="navbar-brand navbar-brand-logo">
+    <img src="./logo.png" alt="" class="navbar-logo">
+    </a>
+    <a class="navbar-brand" href="./index.html">
+    <span class="navbar-title">pybiber</span>
+    </a>
+  </div>
+            <div id="quarto-search" class="" title="Search"></div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll me-auto">
+  <li class="nav-item">
+    <a class="nav-link" href="./get-started.html"> 
+<span class="menu-text">Get started</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="./biber-analyzer.html"> 
+<span class="menu-text">Biber analyzer</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="./reference/index.html"> 
+<span class="menu-text">Reference</span></a>
+  </li>  
+  <li class="nav-item dropdown ">
+    <a class="nav-link dropdown-toggle" href="#" id="nav-menu-learn-more" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+ <span class="menu-text">Learn more</span>
+    </a>
+    <ul class="dropdown-menu" aria-labelledby="nav-menu-learn-more">    
+        <li>
+    <a class="dropdown-item" href="./feature-categories.html">
+ <span class="dropdown-text">Biber features</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="https://cran.r-project.org/web/packages/pseudobibeR/index.html" target="_blank">
+ <span class="dropdown-text">psuedobibeR for R</span></a>
+  </li>  
+    </ul>
+  </li>
+</ul>
+            <ul class="navbar-nav navbar-nav-scroll ms-auto">
+  <li class="nav-item compact">
+    <a class="nav-link" href="https://github.com/browndw/pybiber"> <i class="bi bi-github" role="img" aria-label="pybiber on GitHub">
+</i> 
+<span class="menu-text"></span></a>
+  </li>  
+</ul>
+          </div> <!-- /navcollapse -->
+          <div class="quarto-navbar-tools">
+</div>
+      </div> <!-- /container-fluid -->
+    </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+<!-- margin-sidebar -->
+    
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">pybiber</h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<p>The pybiber package aggregates <a href="./feature-categories.html">the lexicogrammatical and functional features</a> described by Biber <span class="citation" data-cites="biber1988variation">(<a href="#ref-biber1988variation" role="doc-biblioref">1988</a>)</span> and widely used for text-type, register, and genre classification tasks.</p>
+<p>The package uses <a href="https://spacy.io/models" class="external" target="_blank">spaCy</a> part-of-speech tagging and dependency parsing to summarize and aggregate patterns.</p>
+<p>Because feature extraction builds from the outputs of probabilistic taggers, the accuracy of the resulting counts are reliant on the accuracy of those models. Thus, texts with irregular spellings, non-normative punctuation, etc. will likely produce unreliable outputs, unless taggers are tuned specifically for those purposes.</p>
+<hr>
+<p>All DataFrames are rendered using <a href="https://docs.pola.rs/api/python/stable/reference/index.html" class="external" target="_blank">polars</a>. If you prefer to conduct any post-processing using pandas, please refer to <a href="https://docs.pola.rs/api/python/stable/reference/dataframe/api/polars.DataFrame.to_pandas.html" class="external" target="_blank">the documentation</a> for converting polars to pandas. Note that conversion requires both pandas and pyarrow to be installed into your working environment.</p>
+<p>See <a href="https://cran.r-project.org/web/packages/pseudobibeR/index.html" class="external" target="_blank">pseudobibeR</a> for the R implementation.</p>
+<hr>
+<section id="installation" class="level2">
+<h2 class="anchored" data-anchor-id="installation">Installation</h2>
+<p>You can install the released version of pybiber from <a href="https://pypi.org/project/pybiber/" class="external" target="_blank">PyPI</a>:</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="ex">pip</span> install pybiber</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>Install a <a href="https://spacy.io/usage" class="external" target="_blank">spaCy model</a>:</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="ex">python</span> <span class="at">-m</span> spacy download en_core_web_sm</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="co"># models can also be installed using pip</span></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a><span class="co"># pip install https://github.com/explosion/spacy-models/releases/download/en_core_web_sm-3.8.0/en_core_web_sm-3.8.0-py3-none-any.whl</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</section>
+<section id="usage" class="level2">
+<h2 class="anchored" data-anchor-id="usage">Usage</h2>
+<p>To use the pybiber package, you must first import <a href="https://spacy.io/models" class="external" target="_blank">spaCy</a> and initiate an instance. You will also need to create a corpus. The <code>biber</code> function expects a <a href="https://docs.pola.rs/api/python/stable/reference/dataframe/index.html" class="external" target="_blank">polars DataFrame</a> with a <code>doc_id</code> column and a <code>text</code> column. This follows the convention for <a href="https://readtext.quanteda.io/articles/readtext_vignette.html" class="external" target="_blank"><code>readtext</code></a> and corpus processing using <a href="https://quanteda.io/" class="external" target="_blank">quanteda</a> in R.</p>
+<div id="392dd12c" class="cell" data-execution_count="1">
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> spacy</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pybiber <span class="im">as</span> pb</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> pybiber.data <span class="im">import</span> micusp_mini</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>You can see the simple data structure of a corpus:</p>
+<div id="634890f8" class="cell" data-execution_count="2">
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>micusp_mini.head()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="2">
+<div><style>
+.dataframe > thead > tr,
+.dataframe > tbody > tr {
+  text-align: right;
+  white-space: pre-wrap;
+}
+</style>
+<small>shape: (5, 2)</small>
+<table class="dataframe table table-sm table-striped small" data-quarto-postprocess="true" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th">doc_id</th>
+<th data-quarto-table-cell-role="th">text</th>
+</tr>
+<tr class="odd">
+<th>str</th>
+<th>str</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>"BIO_G0_02_1"</td>
+<td>"Ernst Mayr once wrote, "sympat…</td>
+</tr>
+<tr class="even">
+<td>"BIO_G0_03_1"</td>
+<td>"The ability of a species to co…</td>
+</tr>
+<tr class="odd">
+<td>"BIO_G0_06_1"</td>
+<td>"Generally, females make a larg…</td>
+</tr>
+<tr class="even">
+<td>"BIO_G0_12_1"</td>
+<td>"In the field of plant biology,…</td>
+</tr>
+<tr class="odd">
+<td>"BIO_G0_21_1"</td>
+<td>"Parasites in nonhuman animals …</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+<div class="callout callout-style-default callout-tip callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Building your own corpus
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>To build your own corpus, a good place to start is <a href="./reference/corpus_from_folder.html#pybiber.parse_utils.corpus_from_folder"><code>corpus_from_folder</code></a>, which reads in all of the text files from a directory.</p>
+</div>
+</div>
+<section id="initiate-an-instance" class="level3">
+<h3 class="anchored" data-anchor-id="initiate-an-instance">Initiate an instance</h3>
+<p>The pybiber package requires a model that will carry out part-of-speech tagging and <a href="https://spacy.io/usage/linguistic-features" class="external" target="_blank">dependency parsing</a>, like one of spaCy’s <code>en_core</code> models.</p>
+<div id="d14ff83e" class="cell" data-execution_count="3">
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>nlp <span class="op">=</span> spacy.load(<span class="st">"en_core_web_sm"</span>, disable<span class="op">=</span>[<span class="st">"ner"</span>])</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Note
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Here we are disabling <code>ner</code> or “Named Entity Recognition” from the pipeline to increase processing speed, but doing so is not necessary.</p>
+</div>
+</div>
+</section>
+<section id="process-the-corpus" class="level3">
+<h3 class="anchored" data-anchor-id="process-the-corpus">Process the corpus</h3>
+<p>To process the corpus, use <a href="./reference/spacy_parse.html#pybiber.parse_utils.spacy_parse"><code>spacy_parse</code></a>. Processing the <code>micusp_mini</code> corpus should take between 20-30 seconds.</p>
+<div id="00ca33c4" class="cell" data-execution_count="4">
+<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>df_spacy <span class="op">=</span> pb.spacy_parse(micusp_mini, nlp)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>The function returns a DataFrame, which is structured like a <a href="https://cran.r-project.org/web/packages/spacyr/vignettes/using_spacyr.html" class="external" target="_blank">spacyr</a> output.</p>
+<div id="463d3cd7" class="cell" data-execution_count="5">
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>df_spacy.head()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="5">
+<div><style>
+.dataframe > thead > tr,
+.dataframe > tbody > tr {
+  text-align: right;
+  white-space: pre-wrap;
+}
+</style>
+<small>shape: (5, 9)</small>
+<table class="dataframe table table-sm table-striped small" data-quarto-postprocess="true" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th">doc_id</th>
+<th data-quarto-table-cell-role="th">sentence_id</th>
+<th data-quarto-table-cell-role="th">token_id</th>
+<th data-quarto-table-cell-role="th">token</th>
+<th data-quarto-table-cell-role="th">lemma</th>
+<th data-quarto-table-cell-role="th">pos</th>
+<th data-quarto-table-cell-role="th">tag</th>
+<th data-quarto-table-cell-role="th">head_token_id</th>
+<th data-quarto-table-cell-role="th">dep_rel</th>
+</tr>
+<tr class="odd">
+<th>str</th>
+<th>u32</th>
+<th>i64</th>
+<th>str</th>
+<th>str</th>
+<th>str</th>
+<th>str</th>
+<th>i64</th>
+<th>str</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>"BIO_G0_02_1"</td>
+<td>1</td>
+<td>0</td>
+<td>"Ernst"</td>
+<td>"Ernst"</td>
+<td>"PROPN"</td>
+<td>"NNP"</td>
+<td>1</td>
+<td>"compound"</td>
+</tr>
+<tr class="even">
+<td>"BIO_G0_02_1"</td>
+<td>1</td>
+<td>1</td>
+<td>"Mayr"</td>
+<td>"Mayr"</td>
+<td>"PROPN"</td>
+<td>"NNP"</td>
+<td>3</td>
+<td>"nsubj"</td>
+</tr>
+<tr class="odd">
+<td>"BIO_G0_02_1"</td>
+<td>1</td>
+<td>2</td>
+<td>"once"</td>
+<td>"once"</td>
+<td>"ADV"</td>
+<td>"RB"</td>
+<td>3</td>
+<td>"advmod"</td>
+</tr>
+<tr class="even">
+<td>"BIO_G0_02_1"</td>
+<td>1</td>
+<td>3</td>
+<td>"wrote"</td>
+<td>"write"</td>
+<td>"VERB"</td>
+<td>"VBD"</td>
+<td>3</td>
+<td>"ROOT"</td>
+</tr>
+<tr class="odd">
+<td>"BIO_G0_02_1"</td>
+<td>1</td>
+<td>4</td>
+<td>","</td>
+<td>","</td>
+<td>"PUNCT"</td>
+<td>","</td>
+<td>8</td>
+<td>"punct"</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+</section>
+<section id="aggregate-features" class="level3">
+<h3 class="anchored" data-anchor-id="aggregate-features">Aggregate features</h3>
+<p>After parsing the corpus, features can then be aggregated using <a href="./reference/biber.html#pybiber.parse_functions.biber"><code>biber</code></a>.</p>
+<div id="8d4c81b6" class="cell" data-execution_count="6">
+<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>df_biber <span class="op">=</span> pb.biber(df_spacy)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Using MATTR for f_43_type_token
+
+All features normalized per 1000 tokens except:
+f_43_type_token and f_44_mean_word_length
+</code></pre>
+</div>
+</div>
+<div class="callout callout-style-default callout-important callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Feature counts
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>In the <a href="./reference/biber.html#pybiber.parse_functions.biber">documentation</a>, note the difference beween type-token ratio (TTR) and moving average type-token ration (MATTR). For most use-cases, forcing TTR is unnecessary, but when comparing multiple corpora that haven’t been processed together, it is important to make sure the same measure is being used.</p>
+<p>Also, the default is to normalize frequencies per 1000 tokens. However, absolute frequencies can be returned by setting <code>normalize=False</code>.</p>
+</div>
+</div>
+<p>The resulting document-feature matrix has 67 variables and a column of document ids.</p>
+<div id="a0ee53c2" class="cell" data-execution_count="7">
+<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>df_biber.shape</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="7">
+<pre><code>(170, 68)</code></pre>
+</div>
+</div>
+<div class="callout callout-style-default callout-tip callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Tip
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Encoding metadata into your document id’s (i.e., file names) is key to further processing and analysis. In the <code>micusp_mini</code> data, for example, the first three letters before the underscore represent an academic discipline (e.g., BIO for biology, ENG for English, etc.).</p>
+</div>
+</div>
+<div id="e6b19f8f" class="cell" data-execution_count="8">
+<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>df_biber.head()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="8">
+<div><style>
+.dataframe > thead > tr,
+.dataframe > tbody > tr {
+  text-align: right;
+  white-space: pre-wrap;
+}
+</style>
+<small>shape: (5, 68)</small>
+<table class="dataframe table table-sm table-striped small" data-quarto-postprocess="true" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th">doc_id</th>
+<th data-quarto-table-cell-role="th">f_01_past_tense</th>
+<th data-quarto-table-cell-role="th">f_02_perfect_aspect</th>
+<th data-quarto-table-cell-role="th">f_03_present_tense</th>
+<th data-quarto-table-cell-role="th">f_04_place_adverbials</th>
+<th data-quarto-table-cell-role="th">f_05_time_adverbials</th>
+<th data-quarto-table-cell-role="th">f_06_first_person_pronouns</th>
+<th data-quarto-table-cell-role="th">f_07_second_person_pronouns</th>
+<th data-quarto-table-cell-role="th">f_08_third_person_pronouns</th>
+<th data-quarto-table-cell-role="th">f_09_pronoun_it</th>
+<th data-quarto-table-cell-role="th">f_10_demonstrative_pronoun</th>
+<th data-quarto-table-cell-role="th">f_11_indefinite_pronouns</th>
+<th data-quarto-table-cell-role="th">f_12_proverb_do</th>
+<th data-quarto-table-cell-role="th">f_13_wh_question</th>
+<th data-quarto-table-cell-role="th">f_14_nominalizations</th>
+<th data-quarto-table-cell-role="th">f_15_gerunds</th>
+<th data-quarto-table-cell-role="th">f_16_other_nouns</th>
+<th data-quarto-table-cell-role="th">f_17_agentless_passives</th>
+<th data-quarto-table-cell-role="th">f_18_by_passives</th>
+<th data-quarto-table-cell-role="th">f_19_be_main_verb</th>
+<th data-quarto-table-cell-role="th">f_20_existential_there</th>
+<th data-quarto-table-cell-role="th">f_21_that_verb_comp</th>
+<th data-quarto-table-cell-role="th">f_22_that_adj_comp</th>
+<th data-quarto-table-cell-role="th">f_23_wh_clause</th>
+<th data-quarto-table-cell-role="th">f_24_infinitives</th>
+<th data-quarto-table-cell-role="th">f_25_present_participle</th>
+<th data-quarto-table-cell-role="th">f_26_past_participle</th>
+<th data-quarto-table-cell-role="th">f_27_past_participle_whiz</th>
+<th data-quarto-table-cell-role="th">f_28_present_participle_whiz</th>
+<th data-quarto-table-cell-role="th">f_29_that_subj</th>
+<th data-quarto-table-cell-role="th">f_30_that_obj</th>
+<th data-quarto-table-cell-role="th">f_31_wh_subj</th>
+<th data-quarto-table-cell-role="th">f_32_wh_obj</th>
+<th data-quarto-table-cell-role="th">f_33_pied_piping</th>
+<th data-quarto-table-cell-role="th">f_34_sentence_relatives</th>
+<th data-quarto-table-cell-role="th">f_35_because</th>
+<th data-quarto-table-cell-role="th">f_36_though</th>
+<th data-quarto-table-cell-role="th">f_37_if</th>
+<th data-quarto-table-cell-role="th">f_38_other_adv_sub</th>
+<th data-quarto-table-cell-role="th">f_39_prepositions</th>
+<th data-quarto-table-cell-role="th">f_40_adj_attr</th>
+<th data-quarto-table-cell-role="th">f_41_adj_pred</th>
+<th data-quarto-table-cell-role="th">f_42_adverbs</th>
+<th data-quarto-table-cell-role="th">f_43_type_token</th>
+<th data-quarto-table-cell-role="th">f_44_mean_word_length</th>
+<th data-quarto-table-cell-role="th">f_45_conjuncts</th>
+<th data-quarto-table-cell-role="th">f_46_downtoners</th>
+<th data-quarto-table-cell-role="th">f_47_hedges</th>
+<th data-quarto-table-cell-role="th">f_48_amplifiers</th>
+<th data-quarto-table-cell-role="th">f_49_emphatics</th>
+<th data-quarto-table-cell-role="th">f_50_discourse_particles</th>
+<th data-quarto-table-cell-role="th">f_51_demonstratives</th>
+<th data-quarto-table-cell-role="th">f_52_modal_possibility</th>
+<th data-quarto-table-cell-role="th">f_53_modal_necessity</th>
+<th data-quarto-table-cell-role="th">f_54_modal_predictive</th>
+<th data-quarto-table-cell-role="th">f_55_verb_public</th>
+<th data-quarto-table-cell-role="th">f_56_verb_private</th>
+<th data-quarto-table-cell-role="th">f_57_verb_suasive</th>
+<th data-quarto-table-cell-role="th">f_58_verb_seem</th>
+<th data-quarto-table-cell-role="th">f_59_contractions</th>
+<th data-quarto-table-cell-role="th">f_60_that_deletion</th>
+<th data-quarto-table-cell-role="th">f_61_stranded_preposition</th>
+<th data-quarto-table-cell-role="th">f_62_split_infinitive</th>
+<th data-quarto-table-cell-role="th">f_63_split_auxiliary</th>
+<th data-quarto-table-cell-role="th">f_64_phrasal_coordination</th>
+<th data-quarto-table-cell-role="th">f_65_clausal_coordination</th>
+<th data-quarto-table-cell-role="th">f_66_neg_synthetic</th>
+<th data-quarto-table-cell-role="th">f_67_neg_analytic</th>
+</tr>
+<tr class="odd">
+<th>str</th>
+<th>f64</th>
+<th>f64</th>
+<th>f64</th>
+<th>f64</th>
+<th>f64</th>
+<th>f64</th>
+<th>f64</th>
+<th>f64</th>
+<th>f64</th>
+<th>f64</th>
+<th>f64</th>
+<th>f64</th>
+<th>f64</th>
+<th>f64</th>
+<th>f64</th>
+<th>f64</th>
+<th>f64</th>
+<th>f64</th>
+<th>f64</th>
+<th>f64</th>
+<th>f64</th>
+<th>f64</th>
+<th>f64</th>
+<th>f64</th>
+<th>f64</th>
+<th>f64</th>
+<th>f64</th>
+<th>f64</th>
+<th>f64</th>
+<th>f64</th>
+<th>f64</th>
+<th>f64</th>
+<th>f64</th>
+<th>f64</th>
+<th>f64</th>
+<th>f64</th>
+<th>f64</th>
+<th>f64</th>
+<th>f64</th>
+<th>f64</th>
+<th>f64</th>
+<th>f64</th>
+<th>f64</th>
+<th>f64</th>
+<th>f64</th>
+<th>f64</th>
+<th>f64</th>
+<th>f64</th>
+<th>f64</th>
+<th>f64</th>
+<th>f64</th>
+<th>f64</th>
+<th>f64</th>
+<th>f64</th>
+<th>f64</th>
+<th>f64</th>
+<th>f64</th>
+<th>f64</th>
+<th>f64</th>
+<th>f64</th>
+<th>f64</th>
+<th>f64</th>
+<th>f64</th>
+<th>f64</th>
+<th>f64</th>
+<th>f64</th>
+<th>f64</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>"BIO_G0_02_1"</td>
+<td>11.574886</td>
+<td>9.821115</td>
+<td>61.381971</td>
+<td>2.104525</td>
+<td>6.313574</td>
+<td>2.104525</td>
+<td>0.701508</td>
+<td>17.537706</td>
+<td>7.716591</td>
+<td>2.806033</td>
+<td>0.0</td>
+<td>1.753771</td>
+<td>0.350754</td>
+<td>37.881445</td>
+<td>6.313574</td>
+<td>284.110838</td>
+<td>9.821115</td>
+<td>3.156787</td>
+<td>16.485444</td>
+<td>0.701508</td>
+<td>10.17187</td>
+<td>0.0</td>
+<td>0.701508</td>
+<td>13.328657</td>
+<td>4.209049</td>
+<td>0.0</td>
+<td>5.96282</td>
+<td>2.104525</td>
+<td>1.753771</td>
+<td>0.350754</td>
+<td>1.052262</td>
+<td>0.0</td>
+<td>0.350754</td>
+<td>0.701508</td>
+<td>0.0</td>
+<td>0.701508</td>
+<td>0.350754</td>
+<td>4.209049</td>
+<td>99.263416</td>
+<td>86.285514</td>
+<td>6.664328</td>
+<td>62.434234</td>
+<td>0.742811</td>
+<td>5.3012</td>
+<td>9.821115</td>
+<td>3.507541</td>
+<td>0.0</td>
+<td>2.455279</td>
+<td>5.261312</td>
+<td>0.0</td>
+<td>19.291477</td>
+<td>7.015082</td>
+<td>0.350754</td>
+<td>4.209049</td>
+<td>6.664328</td>
+<td>22.448264</td>
+<td>4.559804</td>
+<td>2.806033</td>
+<td>0.350754</td>
+<td>0.0</td>
+<td>0.0</td>
+<td>0.701508</td>
+<td>4.910558</td>
+<td>6.664328</td>
+<td>4.209049</td>
+<td>1.403016</td>
+<td>2.806033</td>
+</tr>
+<tr class="even">
+<td>"BIO_G0_03_1"</td>
+<td>20.300088</td>
+<td>3.53045</td>
+<td>59.13504</td>
+<td>1.765225</td>
+<td>0.882613</td>
+<td>18.534863</td>
+<td>0.0</td>
+<td>3.53045</td>
+<td>16.769638</td>
+<td>4.413063</td>
+<td>0.0</td>
+<td>1.765225</td>
+<td>0.0</td>
+<td>43.248014</td>
+<td>0.882613</td>
+<td>235.657546</td>
+<td>2.647838</td>
+<td>1.765225</td>
+<td>44.130627</td>
+<td>3.53045</td>
+<td>7.0609</td>
+<td>3.53045</td>
+<td>1.765225</td>
+<td>20.300088</td>
+<td>0.882613</td>
+<td>0.0</td>
+<td>0.882613</td>
+<td>0.882613</td>
+<td>2.647838</td>
+<td>0.0</td>
+<td>5.295675</td>
+<td>0.882613</td>
+<td>2.647838</td>
+<td>4.413063</td>
+<td>1.765225</td>
+<td>1.765225</td>
+<td>3.53045</td>
+<td>4.413063</td>
+<td>120.917917</td>
+<td>85.613416</td>
+<td>13.239188</td>
+<td>47.661077</td>
+<td>0.700499</td>
+<td>5.152406</td>
+<td>3.53045</td>
+<td>1.765225</td>
+<td>0.0</td>
+<td>0.882613</td>
+<td>6.178288</td>
+<td>0.0</td>
+<td>7.0609</td>
+<td>7.0609</td>
+<td>0.0</td>
+<td>8.826125</td>
+<td>1.765225</td>
+<td>8.826125</td>
+<td>3.53045</td>
+<td>1.765225</td>
+<td>0.0</td>
+<td>0.0</td>
+<td>0.882613</td>
+<td>0.0</td>
+<td>0.882613</td>
+<td>7.943513</td>
+<td>2.647838</td>
+<td>0.882613</td>
+<td>7.0609</td>
+</tr>
+<tr class="odd">
+<td>"BIO_G0_06_1"</td>
+<td>9.480034</td>
+<td>2.585464</td>
+<td>52.5711</td>
+<td>0.861821</td>
+<td>0.287274</td>
+<td>0.0</td>
+<td>0.0</td>
+<td>14.076415</td>
+<td>5.745475</td>
+<td>0.287274</td>
+<td>0.287274</td>
+<td>0.287274</td>
+<td>1.149095</td>
+<td>20.970985</td>
+<td>1.436369</td>
+<td>288.997415</td>
+<td>11.490951</td>
+<td>2.872738</td>
+<td>37.920138</td>
+<td>2.010916</td>
+<td>4.883654</td>
+<td>0.574548</td>
+<td>0.574548</td>
+<td>16.374605</td>
+<td>3.160011</td>
+<td>0.287274</td>
+<td>0.574548</td>
+<td>2.010916</td>
+<td>2.872738</td>
+<td>0.0</td>
+<td>1.149095</td>
+<td>0.0</td>
+<td>0.287274</td>
+<td>3.734559</td>
+<td>3.734559</td>
+<td>1.149095</td>
+<td>5.745475</td>
+<td>2.585464</td>
+<td>106.291296</td>
+<td>81.873025</td>
+<td>15.512784</td>
+<td>67.79661</td>
+<td>0.665338</td>
+<td>5.156845</td>
+<td>8.618213</td>
+<td>2.29819</td>
+<td>0.574548</td>
+<td>2.29819</td>
+<td>6.894571</td>
+<td>0.0</td>
+<td>4.883654</td>
+<td>16.949153</td>
+<td>1.723643</td>
+<td>7.181844</td>
+<td>4.021833</td>
+<td>8.330939</td>
+<td>4.309107</td>
+<td>2.29819</td>
+<td>0.0</td>
+<td>0.0</td>
+<td>0.287274</td>
+<td>1.723643</td>
+<td>6.320023</td>
+<td>10.054582</td>
+<td>5.458202</td>
+<td>0.574548</td>
+<td>8.905487</td>
+</tr>
+<tr class="even">
+<td>"BIO_G0_12_1"</td>
+<td>36.900369</td>
+<td>2.767528</td>
+<td>23.98524</td>
+<td>1.845018</td>
+<td>1.845018</td>
+<td>0.0</td>
+<td>0.0</td>
+<td>3.690037</td>
+<td>11.99262</td>
+<td>0.922509</td>
+<td>0.0</td>
+<td>0.922509</td>
+<td>0.0</td>
+<td>21.217712</td>
+<td>0.0</td>
+<td>298.892989</td>
+<td>31.365314</td>
+<td>5.535055</td>
+<td>20.295203</td>
+<td>2.767528</td>
+<td>4.612546</td>
+<td>3.690037</td>
+<td>0.922509</td>
+<td>11.99262</td>
+<td>1.845018</td>
+<td>0.0</td>
+<td>12.915129</td>
+<td>2.767528</td>
+<td>4.612546</td>
+<td>0.0</td>
+<td>0.0</td>
+<td>0.0</td>
+<td>0.0</td>
+<td>0.922509</td>
+<td>0.0</td>
+<td>0.922509</td>
+<td>0.0</td>
+<td>10.147601</td>
+<td>154.059041</td>
+<td>51.660517</td>
+<td>9.225092</td>
+<td>33.210332</td>
+<td>0.625839</td>
+<td>5.160681</td>
+<td>6.457565</td>
+<td>0.0</td>
+<td>0.0</td>
+<td>0.0</td>
+<td>5.535055</td>
+<td>0.0</td>
+<td>14.760148</td>
+<td>10.147601</td>
+<td>0.0</td>
+<td>8.302583</td>
+<td>1.845018</td>
+<td>15.682657</td>
+<td>4.612546</td>
+<td>0.0</td>
+<td>0.0</td>
+<td>0.0</td>
+<td>0.0</td>
+<td>0.922509</td>
+<td>2.767528</td>
+<td>0.922509</td>
+<td>1.845018</td>
+<td>1.845018</td>
+<td>5.535055</td>
+</tr>
+<tr class="odd">
+<td>"BIO_G0_21_1"</td>
+<td>40.050858</td>
+<td>2.542912</td>
+<td>26.700572</td>
+<td>2.542912</td>
+<td>0.635728</td>
+<td>0.635728</td>
+<td>0.0</td>
+<td>7.628735</td>
+<td>2.542912</td>
+<td>4.450095</td>
+<td>0.0</td>
+<td>1.271456</td>
+<td>0.0</td>
+<td>26.064844</td>
+<td>3.17864</td>
+<td>336.300064</td>
+<td>21.614749</td>
+<td>2.542912</td>
+<td>27.3363</td>
+<td>3.17864</td>
+<td>2.542912</td>
+<td>0.635728</td>
+<td>0.0</td>
+<td>9.535919</td>
+<td>0.635728</td>
+<td>0.0</td>
+<td>5.085823</td>
+<td>1.907184</td>
+<td>3.814367</td>
+<td>0.0</td>
+<td>1.271456</td>
+<td>0.0</td>
+<td>0.0</td>
+<td>3.17864</td>
+<td>0.635728</td>
+<td>0.0</td>
+<td>0.635728</td>
+<td>3.17864</td>
+<td>147.488875</td>
+<td>52.765416</td>
+<td>8.900191</td>
+<td>40.050858</td>
+<td>0.665966</td>
+<td>5.129435</td>
+<td>5.085823</td>
+<td>1.907184</td>
+<td>0.0</td>
+<td>0.635728</td>
+<td>8.264463</td>
+<td>0.0</td>
+<td>5.721551</td>
+<td>3.814367</td>
+<td>2.542912</td>
+<td>1.907184</td>
+<td>2.542912</td>
+<td>10.807374</td>
+<td>5.721551</td>
+<td>0.0</td>
+<td>0.0</td>
+<td>0.0</td>
+<td>0.0</td>
+<td>0.0</td>
+<td>3.17864</td>
+<td>7.628735</td>
+<td>6.993007</td>
+<td>2.542912</td>
+<td>2.542912</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+
+
+
+</section>
+</section>
+
+<div id="quarto-appendix" class="default"><section class="quarto-appendix-contents" role="doc-bibliography" id="quarto-bibliography"><h2 class="anchored quarto-appendix-heading">References</h2><div id="refs" class="references csl-bib-body hanging-indent" data-entry-spacing="0" role="list">
+<div id="ref-biber1988variation" class="csl-entry" role="listitem">
+Biber, Douglas. 1988. <em>Variation Across Speech and Writing</em>. Cambridge University Press. <a href="https://doi.org/10.1017/CBO9780511621024">https://doi.org/10.1017/CBO9780511621024</a>.
+</div>
+</div></section></div></main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const isCodeAnnotation = (el) => {
+    for (const clz of el.classList) {
+      if (clz.startsWith('code-annotation-')) {                     
+        return true;
+      }
+    }
+    return false;
+  }
+  const clipboard = new window.ClipboardJS('.code-copy-button', {
+    text: function(trigger) {
+      const codeEl = trigger.previousElementSibling.cloneNode(true);
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+  });
+  clipboard.on('success', function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copied!");
+    let tooltip;
+    if (window.bootstrap) {
+      button.setAttribute("data-bs-toggle", "tooltip");
+      button.setAttribute("data-bs-placement", "left");
+      button.setAttribute("data-bs-title", "Copied!");
+      tooltip = new bootstrap.Tooltip(button, 
+        { trigger: "manual", 
+          customClass: "code-copy-button-tooltip",
+          offset: [0, -8]});
+      tooltip.show();    
+    }
+    setTimeout(function() {
+      if (tooltip) {
+        tooltip.hide();
+        button.removeAttribute("data-bs-title");
+        button.removeAttribute("data-bs-toggle");
+        button.removeAttribute("data-bs-placement");
+      }
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  });
+  function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+    const config = {
+      allowHTML: true,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start',
+    };
+    if (contentFn) {
+      config.content = contentFn;
+    }
+    if (onTriggerFn) {
+      config.onTrigger = onTriggerFn;
+    }
+    if (onUntriggerFn) {
+      config.onUntrigger = onUntriggerFn;
+    }
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      // use id or data attribute instead here
+      let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      return note.innerHTML;
+    });
+  }
+  const xrefs = window.document.querySelectorAll('a.quarto-xref');
+  const processXRef = (id, note) => {
+    // Strip column container classes
+    const stripColumnClz = (el) => {
+      el.classList.remove("page-full", "page-columns");
+      if (el.children) {
+        for (const child of el.children) {
+          stripColumnClz(child);
+        }
+      }
+    }
+    stripColumnClz(note)
+    if (id === null || id.startsWith('sec-')) {
+      // Special case sections, only their first couple elements
+      const container = document.createElement("div");
+      if (note.children && note.children.length > 2) {
+        container.appendChild(note.children[0].cloneNode(true));
+        for (let i = 1; i < note.children.length; i++) {
+          const child = note.children[i];
+          if (child.tagName === "P" && child.innerText === "") {
+            continue;
+          } else {
+            container.appendChild(child.cloneNode(true));
+            break;
+          }
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(container);
+        }
+        return container.innerHTML
+      } else {
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        return note.innerHTML;
+      }
+    } else {
+      // Remove any anchor links if they are present
+      const anchorLink = note.querySelector('a.anchorjs-link');
+      if (anchorLink) {
+        anchorLink.remove();
+      }
+      if (window.Quarto?.typesetMath) {
+        window.Quarto.typesetMath(note);
+      }
+      // TODO in 1.5, we should make sure this works without a callout special case
+      if (note.classList.contains("callout")) {
+        return note.outerHTML;
+      } else {
+        return note.innerHTML;
+      }
+    }
+  }
+  for (var i=0; i<xrefs.length; i++) {
+    const xref = xrefs[i];
+    tippyHover(xref, undefined, function(instance) {
+      instance.disable();
+      let url = xref.getAttribute('href');
+      let hash = undefined; 
+      if (url.startsWith('#')) {
+        hash = url;
+      } else {
+        try { hash = new URL(url).hash; } catch {}
+      }
+      if (hash) {
+        const id = hash.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note !== null) {
+          try {
+            const html = processXRef(id, note.cloneNode(true));
+            instance.setContent(html);
+          } finally {
+            instance.enable();
+            instance.show();
+          }
+        } else {
+          // See if we can fetch this
+          fetch(url.split('#')[0])
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.getElementById(id);
+            if (note !== null) {
+              const html = processXRef(id, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      } else {
+        // See if we can fetch a full url (with no hash to target)
+        // This is a special case and we should probably do some content thinning / targeting
+        fetch(url)
+        .then(res => res.text())
+        .then(html => {
+          const parser = new DOMParser();
+          const htmlDoc = parser.parseFromString(html, "text/html");
+          const note = htmlDoc.querySelector('main.content');
+          if (note !== null) {
+            // This should only happen for chapter cross references
+            // (since there is no id in the URL)
+            // remove the first header
+            if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+              note.children[0].remove();
+            }
+            const html = processXRef(null, note);
+            instance.setContent(html);
+          } 
+        }).finally(() => {
+          instance.enable();
+          instance.show();
+        });
+      }
+    }, function(instance) {
+    });
+  }
+      let selectedAnnoteEl;
+      const selectorForAnnotation = ( cell, annotation) => {
+        let cellAttr = 'data-code-cell="' + cell + '"';
+        let lineAttr = 'data-code-annotation="' +  annotation + '"';
+        const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+        return selector;
+      }
+      const selectCodeLines = (annoteEl) => {
+        const doc = window.document;
+        const targetCell = annoteEl.getAttribute("data-target-cell");
+        const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+        const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+        const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+        const lineIds = lines.map((line) => {
+          return targetCell + "-" + line;
+        })
+        let top = null;
+        let height = null;
+        let parent = null;
+        if (lineIds.length > 0) {
+            //compute the position of the single el (top and bottom and make a div)
+            const el = window.document.getElementById(lineIds[0]);
+            top = el.offsetTop;
+            height = el.offsetHeight;
+            parent = el.parentElement.parentElement;
+          if (lineIds.length > 1) {
+            const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+            const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+            height = bottom - top;
+          }
+          if (top !== null && height !== null && parent !== null) {
+            // cook up a div (if necessary) and position it 
+            let div = window.document.getElementById("code-annotation-line-highlight");
+            if (div === null) {
+              div = window.document.createElement("div");
+              div.setAttribute("id", "code-annotation-line-highlight");
+              div.style.position = 'absolute';
+              parent.appendChild(div);
+            }
+            div.style.top = top - 2 + "px";
+            div.style.height = height + 4 + "px";
+            div.style.left = 0;
+            let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+            if (gutterDiv === null) {
+              gutterDiv = window.document.createElement("div");
+              gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+              gutterDiv.style.position = 'absolute';
+              const codeCell = window.document.getElementById(targetCell);
+              const gutter = codeCell.querySelector('.code-annotation-gutter');
+              gutter.appendChild(gutterDiv);
+            }
+            gutterDiv.style.top = top - 2 + "px";
+            gutterDiv.style.height = height + 4 + "px";
+          }
+          selectedAnnoteEl = annoteEl;
+        }
+      };
+      const unselectCodeLines = () => {
+        const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+        elementsIds.forEach((elId) => {
+          const div = window.document.getElementById(elId);
+          if (div) {
+            div.remove();
+          }
+        });
+        selectedAnnoteEl = undefined;
+      };
+        // Handle positioning of the toggle
+    window.addEventListener(
+      "resize",
+      throttle(() => {
+        elRect = undefined;
+        if (selectedAnnoteEl) {
+          selectCodeLines(selectedAnnoteEl);
+        }
+      }, 10)
+    );
+    function throttle(fn, ms) {
+    let throttle = false;
+    let timer;
+      return (...args) => {
+        if(!throttle) { // first call gets through
+            fn.apply(this, args);
+            throttle = true;
+        } else { // all the others get throttled
+            if(timer) clearTimeout(timer); // cancel #2
+            timer = setTimeout(() => {
+              fn.apply(this, args);
+              timer = throttle = false;
+            }, ms);
+        }
+      };
+    }
+      // Attach click handler to the DT
+      const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+      for (const annoteDlNode of annoteDls) {
+        annoteDlNode.addEventListener('click', (event) => {
+          const clickedEl = event.target;
+          if (clickedEl !== selectedAnnoteEl) {
+            unselectCodeLines();
+            const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+            if (activeEl) {
+              activeEl.classList.remove('code-annotation-active');
+            }
+            selectCodeLines(clickedEl);
+            clickedEl.classList.add('code-annotation-active');
+          } else {
+            // Unselect the line
+            unselectCodeLines();
+            clickedEl.classList.remove('code-annotation-active');
+          }
+        });
+      }
+  const findCites = (el) => {
+    const parentEl = el.parentElement;
+    if (parentEl) {
+      const cites = parentEl.dataset.cites;
+      if (cites) {
+        return {
+          el,
+          cites: cites.split(' ')
+        };
+      } else {
+        return findCites(el.parentElement)
+      }
+    } else {
+      return undefined;
+    }
+  };
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const citeInfo = findCites(ref);
+    if (citeInfo) {
+      tippyHover(citeInfo.el, function() {
+        var popup = window.document.createElement('div');
+        citeInfo.cites.forEach(function(cite) {
+          var citeDiv = window.document.createElement('div');
+          citeDiv.classList.add('hanging-indent');
+          citeDiv.classList.add('csl-entry');
+          var biblioDiv = window.document.getElementById('ref-' + cite);
+          if (biblioDiv) {
+            citeDiv.innerHTML = biblioDiv.innerHTML;
+          }
+          popup.appendChild(citeDiv);
+        });
+        return popup.innerHTML;
+      });
+    }
+  }
+});
+</script>
+</div> <!-- /content -->
+
+
+
+
+</body></html>
