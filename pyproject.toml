@@ -8,7 +8,6 @@ urls.Homepage = "https://github.com/browndw/pybiber"
 authors = [{ name = "David Brown", email = "dwb2@andrew.cmu.edu" }]
 maintainers = [{ name = "David Brown", email = "dwb2@andrew.cmu.edu" }]
 keywords = ["nlp", "language"]
-license = {file = "LICENSE.md"}
 classifiers = [
     "Programming Language :: Python :: 3 :: Only",
     "Programming Language :: Python :: 3.9",
