@@ -16,17 +16,17 @@ See `pseudobibeR <https://cran.r-project.org/web/packages/pseudobibeR/index.html
 Installation
 ------------
 
-The package can be installed with the :code:`en_core_web_sm` base model:
+You can install the released version of pybiber from `PyPI <https://pypi.org/project/pybiber/>`_:
 
-.. code-block:: with-model
-
-    pip install pybiber[model]
-
-Or without a model:
-
-.. code-block:: without-model
+.. code-block:: install-pybiber
 
     pip install pybiber
+
+Install a spaCY model:
+
+.. code-block:: install-model
+
+    python -m spacy download en_core_web_sm
 
 Usage
 -----
