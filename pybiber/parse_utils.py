@@ -131,7 +131,8 @@ def _pre_process_corpus(corp: pl.DataFrame) -> pl.DataFrame:
     return df
 
 
-def get_text_paths(directory: str, recursive=False) -> List:
+def get_text_paths(directory: str,
+                   recursive=False) -> List:
     """Get a list of full paths for all text files.
 
     Parameters
@@ -164,10 +165,8 @@ def readtext(paths: List) -> pl.DataFrame:
 
     Parameters
     ----------
-    directory:
-        A string indictating a path to a directory.
-    recursive:
-        Whether to search subdirectories.
+    paths:
+        A list of paths of text files returned by get_text_paths.
 
     Returns
     -------
