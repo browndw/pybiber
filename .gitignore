@@ -1,6 +1,10 @@
 # Project Specific
 .DS_Store
 
+# History files
+.Rhistory
+.Rapp.history
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
