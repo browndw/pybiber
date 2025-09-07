@@ -1,34 +1,43 @@
 [project]
 name = "pybiber"
 description = "Extract Biber features from a document parsed and annotated by spaCy."
-readme.content-type = "text/x-rst"
-readme.file = "README.rst"
-urls.Documentation = "https://browndw.github.io/pybiber"
-urls.Homepage = "https://github.com/browndw/pybiber"
+readme = { file = "README.rst", content-type = "text/x-rst" }
+license = { file = "LICENSE" }
 authors = [{ name = "David Brown", email = "dwb2@andrew.cmu.edu" }]
 maintainers = [{ name = "David Brown", email = "dwb2@andrew.cmu.edu" }]
 keywords = ["nlp", "language"]
 classifiers = [
     "Programming Language :: Python :: 3 :: Only",
-    "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
-    "Programming Language :: Python :: 3.13",
+    "License :: OSI Approved :: MIT License",
 ]
-requires-python = ">=3.9"
+requires-python = ">=3.10"
 version = "0.1.1"
 dependencies = [
     "adjustText>=1.1",
-    "importlib-resources>=6.5",
     "factor_analyzer>=0.5",
     "polars>=1.17",
     "spacy>=3.7",
     "statsmodels>=0.14",
 ]
 
+[project.urls]
+Homepage = "https://github.com/browndw/pybiber"
+Documentation = "https://browndw.github.io/pybiber"
+
+[project.optional-dependencies]
+test = [
+    "pytest",
+    "pytest-cov",
+]
+spacy-model = [
+    "en_core_web_sm>=3.7.0"
+]
+
 [build-system]
-requires = ["setuptools>=45", "setuptools-scm>=6.2", "wheel"]
+requires = ["setuptools>=45", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [tool.setuptools]
@@ -37,7 +46,9 @@ include-package-data = true
 [tool.setuptools.packages]
 find = { namespaces = false }
 
-[tool.setuptools_scm]
+[tool.setuptools.package-data]
+# Ensure bundled datasets are included in wheels
+"pybiber" = ["data/*.parquet", "data/*.csv"]
 
 [tool.distutils.bdist_wheel]
 universal = 1
