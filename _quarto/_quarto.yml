@@ -16,6 +16,8 @@ website:
         file: get-started.qmd
       - text: "Biber analyzer"
         file: biber-analyzer.qmd
+      - text: "Tutorials"
+        file: tutorials.qmd
       - text: "Reference"
         file: reference/index.qmd
       - text: Learn more
@@ -37,6 +39,12 @@ website:
         contents:
           - text: "`biber`"
             href: reference/biber.qmd
+          - text: "`run_biber_from_folder`"
+            href: reference/run_biber_from_folder.qmd
+          - text: "`run_biber`"
+            href: reference/run_biber.qmd
+          - text: "`PybiberPipeline`"
+            href: reference/PybiberPipeline.qmd
           - text: "`corpus_from_folder`"
             href: reference/corpus_from_folder.qmd
           - text: "`get_noun_phrases`"
@@ -51,6 +59,8 @@ website:
         contents:
           - text: "`mda`"
             href: reference/mda.qmd
+          - text: "`mda_biber`"
+            href: reference/mda_biber.qmd
           - text: "`pca`"
             href: reference/pca.qmd
           - text: "`mdaviz_screeplot`"
@@ -76,11 +86,19 @@ quartodoc:
       desc: "Read in and prepare data"
       package: pybiber.parse_utils
       contents:
+        - CorpusProcessor
         - corpus_from_folder
         - get_text_paths
         - readtext
         - spacy_parse
         - get_noun_phrases
+    - title: pybiber pipeline
+      desc: "High-level orchestration wrappers"
+      package: pybiber.pipeline
+      contents:
+        - PybiberPipeline
+        - run_biber_from_folder
+        - run_biber
     - title: pybiber parse
       desc: "Generate a biber document-feature matrix"
       package: pybiber.parse_functions
@@ -91,6 +109,7 @@ quartodoc:
       package: pybiber.BiberAnalyzer
       contents:
         - mda
+        - mda_biber
         - pca
         - mdaviz_screeplot
         - mdaviz_groupmeans
