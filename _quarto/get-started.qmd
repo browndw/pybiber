@@ -1,20 +1,48 @@
 ---
-title: "Get started"
+title: "Get Started"
 jupyter: python3
 ---
 
-Processing a corpus using the pybiber package involves the following steps:
+This guide walks you through the complete pybiber workflow, from installing the package to extracting linguistic features from your text corpus.
 
-1. Preparing a corpus of text data.
-2. Initiating a model instance.
-3. Parsing the corpus data.
-4. Extracting the features into DataFrame.
+## Overview
 
-After the document-feature matrix has been produced, it can be used for further analysis like classification tasks [e.g., @reinhart2024llms]. Additionally, the pybiber package contains functions for carrying Biber's Mulit-Dimensional Analysis [@biber1985investigating], which is a specific implementation of exploratory factor analysis. Refer to the [Biber analyzer](biber-analyzer.qmd ) documentation.
+Processing a corpus with pybiber involves four main steps:
 
-## Preparing a corpus
+1. **Prepare your corpus** - Organize texts in the required DataFrame format
+2. **Initialize a spaCy model** - Load a model with POS tagging and dependency parsing
+3. **Parse the corpus** - Extract token-level linguistic annotations
+4. **Extract features** - Aggregate tokens into document-level feature counts
 
-First we will import our libraries:
+After generating the document-feature matrix, you can proceed to advanced analyses like classification tasks [@reinhart2024llms] or Multi-Dimensional Analysis [@biber1985investigating]. See the [Biber Analyzer](biber-analyzer.qmd) documentation for statistical analysis workflows.
+
+## Prerequisites
+
+### Installation
+
+Install pybiber from PyPI:
+
+```bash
+pip install pybiber
+```
+
+### spaCy Model
+
+Install a spaCy model with part-of-speech tagging and dependency parsing:
+
+```bash
+python -m spacy download en_core_web_sm
+```
+
+::: {.callout-important}
+## Model Requirements
+
+The pybiber package requires a spaCy model that performs both part-of-speech tagging and dependency parsing. Most `en_core_*` models meet these requirements. For other languages, check the [spaCy models page](https://spacy.io/models){.external target="_blank"}.
+:::
+
+## Step 1: Preparing a Corpus
+
+### Import Libraries
 
 ```{python}
 import spacy
@@ -22,58 +50,364 @@ import pybiber as pb
 import polars as pl
 ```
 
-There are a variety of ways of preparing and reading in a corpus for processing. The [](`~pybiber.parse_utils.spacy_parse`) function requires polars DataFrame with a `doc_id` and a `text` column. Such a DataFrame can be prepared ahead of time and read in using one of polars [input functions](https://docs.pola.rs/api/python/dev/reference/io.html). For example, the [Human-AI Parallel corpus mini](https://huggingface.co/datasets/browndw/human-ai-parallel-corpus-mini){.external target="_blank"} can be read directly from huggingface:
+### Data Structure Requirements
 
-```{python}
-df = pl.read_parquet('hf://datasets/browndw/human-ai-parallel-corpus-mini/hape_mini-text.parquet')
-df.head()
-```
+The pybiber workflow expects a Polars DataFrame with two essential columns:
+- `doc_id`: Unique identifier for each document
+- `text`: Raw text content
 
-Alternatively, a corpus of plain text files can be stored in a directory. All of the files can, then, be read into a DataFrame using [](`~pybiber.parse_utils.corpus_from_folder`)
+This structure follows conventions established by [readtext](https://readtext.quanteda.io/articles/readtext_vignette.html){.external target="_blank"} and [quanteda](https://quanteda.io/){.external target="_blank"} in R.
 
-Here, we will use the MICUSP mini data:
+### Option 1: Using Sample Data
+
+For this tutorial, we'll use the included sample dataset:
 
 ```{python}
 from pybiber.data import micusp_mini
 ```
 
-## Initiate a spaCy instance
-
-Initiate a model instance:
+Let's examine the structure:
 
 ```{python}
-nlp = spacy.load("en_core_web_sm", disable=["ner"])
-```
-
-::: {.callout-important}
-## Model requirements
-
-A spaCy model must be installed in your working enviroment using `python -m spacy download en_core_web_sm` or an alternative. See information about [spaCy models](https://spacy.io/usage){.external target="_blank"}. Also, the pybiber package requires a model that will execute both part-of-speech tagging and dependency parsing.
-:::
-
-## Parse the text data
-
-To process the corpus, use [](`~pybiber.parse_utils.spacy_parse`). Processing the `micusp_mini` corpus should take between 20-30 seconds.
-
-```{python}
-df_spacy = pb.spacy_parse(corp=micusp_mini, nlp_model=nlp)
+print(f"Corpus shape: {micusp_mini.shape}")
+micusp_mini.head()
 ```
 
 ::: {.callout-note}
-The number of cores assigned can be specified using `n_process`, which can increase processing speed. The batch size can also be adjusted with `batch_size`. However, larger batch sizes may actually slow down processessing.
+The `micusp_mini` dataset is a subset of the Michigan Corpus of Upper-Level Student Papers, containing academic texts from various disciplines. Document IDs encode discipline information (e.g., BIO=Biology, ENG=English).
 :::
 
-## Extract the features
+### Option 2: Loading Your Own Data
 
-After parsing the corpus, features can then be aggregated using [](`~pybiber.parse_functions.biber`).
-
-```{python}
-df_biber = pb.biber(df_spacy)
-```
-
-To return absolute frequencies set `normalize=False`.
+#### From CSV/Parquet Files
 
 ```{python}
-df_biber.head()
+#| eval: false
+# From CSV
+corpus = pl.read_csv("my_corpus.csv")
+
+# From Parquet (recommended for large datasets)
+corpus = pl.read_parquet("my_corpus.parquet")
+
+# From Hugging Face datasets
+corpus = pl.read_parquet(
+    'hf://datasets/browndw/human-ai-parallel-corpus-mini/hape_mini-text.parquet'
+)
 ```
+
+#### From Text Files in Directory
+
+Use [](`~pybiber.parse_utils.corpus_from_folder`) to read all `.txt` files from a directory:
+
+```{python}
+#| eval: false
+# Read all .txt files from a directory
+corpus = pb.corpus_from_folder("path/to/text/files")
+
+# For nested directory structures
+text_paths = pb.get_text_paths("path/to/corpus", recursive=True)
+corpus = pb.readtext(text_paths)
+```
+
+#### Custom Corpus Creation
+
+```{python}
+#| eval: false
+# Create corpus from custom data
+import polars as pl
+
+corpus = pl.DataFrame({
+    "doc_id": ["doc1", "doc2", "doc3"],
+    "text": [
+        "This is the first document.",
+        "Here is another text sample.",
+        "And this is the third document."
+    ]
+})
+```
+
+## Step 2: Initialize spaCy Model
+
+Load a spaCy model with the required linguistic components:
+
+```{python}
+#| warning: false
+nlp = spacy.load("en_core_web_sm", disable=["ner"])
+```
+
+### Model Configuration Options
+
+```{python}
+#| eval: false
+# Option 1: Keep all components (slower but complete)
+nlp = spacy.load("en_core_web_sm")
+
+# Option 2: Disable unnecessary components for speed (recommended)
+nlp = spacy.load("en_core_web_sm", disable=["ner"])
+
+# Option 3: Maximize speed (disable more components)
+nlp = spacy.load("en_core_web_sm", disable=["ner", "lemmatizer"])
+```
+
+::: {.callout-tip}
+## Performance Tip
+
+Disabling Named Entity Recognition (`ner`) typically provides the best speed/functionality balance for feature extraction, as NER isn't required for Biber features. This is also the default setting in `PybiberPipeline`.
+:::
+
+## Step 3: Parse the Text Data
+
+### Using CorpusProcessor
+
+The [](`~pybiber.parse_utils.CorpusProcessor`) provides efficient, configurable text processing:
+
+```{python}
+processor = pb.CorpusProcessor()
+df_tokens = processor.process_corpus(micusp_mini, nlp_model=nlp)
+```
+
+The processing time depends on corpus size and system specifications. For the `micusp_mini` corpus (~50 documents), expect processing to take about 60 seconds.
+
+### Understanding the Token Output
+
+The processor returns a token-level DataFrame with linguistic annotations:
+
+```{python}
+print(f"Token DataFrame shape: {df_tokens.shape}")
+df_tokens.head(10)
+```
+
+Key columns include:
+- `doc_id`: Document identifier
+- `token`: Raw token text  
+- `lemma`: Lemmatized form
+- `pos`: Part-of-speech tag (universal)
+- `tag`: Fine-grained POS tag
+- `dep_rel`: Dependency relation
+- `sent_id`: Sentence identifier
+
+### Performance Optimization
+
+You can customize processing parameters for better performance:
+
+```{python}
+#| eval: false
+processor = pb.CorpusProcessor()
+df_tokens = processor.process_corpus(
+    corpus, 
+    nlp_model=nlp,
+    n_process=4,        # Use multiple CPU cores
+    batch_size=100,     # Optimize batch size
+    show_progress=True  # Display progress bar
+)
+```
+
+::: {.callout-note}
+## Batch Size Guidelines
+
+- **Small corpora** (<1000 docs): batch_size=50-100
+- **Medium corpora** (1000-10000 docs): batch_size=100-200  
+- **Large corpora** (>10000 docs): batch_size=200-500
+
+Larger batch sizes may actually slow processing due to memory constraints.
+:::
+
+## Step 4: Extract Linguistic Features
+
+### Basic Feature Extraction
+
+Transform token-level data into document-level feature counts using [](`~pybiber.parse_functions.biber`):
+
+```{python}
+df_features = pb.biber(df_tokens)
+```
+
+### Understanding the Feature Matrix
+
+The result is a document-feature matrix with 67 linguistic variables:
+
+```{python}
+print(f"Feature matrix shape: {df_features.shape}")
+print(f"Features extracted: {df_features.shape[1] - 1}")  # Minus doc_id column
+df_features.head()
+```
+
+### Feature Normalization Options
+
+By default, features are normalized per 1,000 tokens, except for two features that use different scales:
+
+```{python}
+#| eval: false
+# Normalized frequencies (default)
+df_normalized = pb.biber(df_tokens, normalize=True)
+
+# Raw counts
+df_raw = pb.biber(df_tokens, normalize=False)
+```
+
+::: {.callout-important}
+## Feature Scaling
+
+- **Most features**: Normalized per 1,000 tokens
+- **f_43_type_token**: Type-token ratio (0-1 scale)  
+- **f_44_mean_word_length**: Average characters per word
+
+This normalization enables comparison across documents of different lengths.
+:::
+
+### Type-Token Ratio Options
+
+The package offers two type-token ratio calculations:
+
+```{python}
+#| eval: false
+# Moving Average Type-Token Ratio (default, recommended)
+df_mattr = pb.biber(df_tokens, force_ttr=False)
+
+# Traditional Type-Token Ratio (for specific comparisons)
+df_ttr = pb.biber(df_tokens, force_ttr=True)
+```
+
+::: {.callout-note}
+## TTR vs MATTR
+
+- **MATTR** (default): More robust, calculated using 100-token windows
+- **Traditional TTR**: Simple unique tokens / total tokens ratio
+- Use consistent measures when comparing corpora processed separately
+:::
+
+## Alternative Workflow: High-Level Pipeline
+
+For streamlined processing, use the [](`~pybiber.pipeline.PybiberPipeline`):
+
+### Complete Pipeline Example
+
+```{python}
+#| eval: false
+# Initialize pipeline with optimal settings
+pipeline = pb.PybiberPipeline(
+    model="en_core_web_sm",
+    disable_ner=True,
+    n_process=4,
+    batch_size=100
+)
+
+# Process folder of text files
+df_features = pipeline.run_from_folder("/path/to/texts", recursive=True)
+
+# Or process existing corpus DataFrame
+df_features = pipeline.run(micusp_mini)
+```
+
+### Pipeline with Token Retention
+
+If you need both features and token-level data:
+
+```{python}
+#| eval: false
+# Return both features and tokens
+features, tokens = pipeline.run(
+    micusp_mini, 
+    return_tokens=True,
+    normalize=True
+)
+```
+
+## Data Quality and Validation
+
+### Examining Feature Distributions
+
+Before analysis, examine your feature distributions:
+
+```{python}
+# Summary statistics
+feature_columns = df_features.select(pl.selectors.numeric())
+summary = feature_columns.describe()
+print(summary)
+```
+
+### Identifying Potential Issues
+
+```{python}
+# Check for zero-variance features
+zero_var_features = (
+    feature_columns
+    .std()
+    .transpose(include_header=True)
+    .filter(pl.col("column_0") == 0.0)
+)
+
+if zero_var_features.height > 0:
+    print("Zero-variance features found:")
+    print(zero_var_features)
+else:
+    print("No zero-variance features detected")
+```
+
+### Document Length Analysis
+
+```{python}
+#| eval: false
+# Analyze document lengths from tokens
+doc_lengths = (
+    df_tokens
+    .group_by("doc_id")
+    .len()
+    .sort("len", descending=True)
+)
+
+print("Document length distribution:")
+print(doc_lengths.describe())
+```
+
+## Next Steps
+
+Now that you have extracted linguistic features, you can proceed to:
+
+### Statistical Analysis
+- **[Biber Analyzer](biber-analyzer.qmd)**: Multi-Dimensional Analysis and PCA
+- **[Tutorials](tutorials.qmd)**: Advanced workflows and applications
+
+### Feature Understanding  
+- **[Feature Categories](feature-categories.qmd)**: Complete descriptions of all 67 features
+
+### Further Processing
+```{python}
+#| eval: false
+# Convert to pandas if needed
+df_pandas = df_features.to_pandas()
+
+# Export for external analysis
+df_features.write_csv("biber_features.csv")
+df_features.write_parquet("biber_features.parquet")
+```
+
+## Troubleshooting
+
+### Common Issues
+
+**Memory errors with large corpora:**
+- Reduce `batch_size` parameter
+- Process in smaller chunks using the tutorials
+- Use `n_process=1` to reduce memory overhead
+
+**Slow processing:**
+- Increase `n_process` (up to CPU core count)
+- Disable unnecessary spaCy components
+- Use optimal `batch_size` for your system
+
+**Model loading errors:**
+- Verify spaCy model installation: `python -c "import spacy; spacy.load('en_core_web_sm')"`
+- Reinstall model if needed: `python -m spacy download en_core_web_sm`
+
+**Feature extraction errors:**
+- Ensure corpus has required columns (`doc_id`, `text`)  
+- Check for empty documents in your corpus
+- Validate text encoding (should be UTF-8)
+
+### Getting Help
+
+- **Documentation**: Browse the [Reference](reference/index.qmd) section
+- **GitHub Issues**: [Report bugs or request features](https://github.com/browndw/pybiber/issues)
+- **Community**: Check existing issues for similar problems
 

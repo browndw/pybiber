@@ -1,0 +1,436 @@
+---
+title: "Tutorials and Advanced Usage"
+jupyter: python3
+---
+
+This page provides comprehensive tutorials for advanced pybiber workflows, from corpus preparation to statistical analysis and visualization.
+
+## Tutorial 1: Building and Processing Large Corpora
+
+### Working with Directory Structures
+
+When working with large corpora, organizing your texts in a systematic directory structure is crucial:
+
+```
+corpus/
+├── academic/
+│   ├── biology/
+│   │   ├── paper001.txt
+│   │   └── paper002.txt
+│   └── literature/
+│       ├── essay001.txt
+│       └── essay002.txt
+└── news/
+    ├── politics/
+    └── sports/
+```
+
+### Recursive Text Processing
+
+Use the pipeline to process nested directories:
+
+```{python}
+#| eval: false
+import pybiber as pb
+
+# Initialize pipeline with optimized settings
+pipeline = pb.PybiberPipeline(
+    model="en_core_web_sm",
+    disable_ner=True,  # Faster processing
+    n_process=4,       # Use multiple cores
+    batch_size=100     # Optimize batch size
+)
+
+# Process entire directory structure
+features = pipeline.run_from_folder(
+    "corpus/", 
+    recursive=True,
+    normalize=True
+)
+```
+
+### Handling Different Text Formats
+
+While pybiber primarily works with `.txt` files, you can preprocess other formats:
+
+```{python}
+#| eval: false
+import polars as pl
+from pathlib import Path
+
+# Process CSV with text columns
+csv_data = pl.read_csv("articles.csv")
+corpus = csv_data.select([
+    pl.col("article_id").alias("doc_id"),
+    pl.col("content").alias("text")
+])
+
+# Process with pipeline
+pipeline = pb.PybiberPipeline()
+features = pipeline.run(corpus)
+```
+
+## Tutorial 2: Corpus Comparison and Classification
+
+### Comparing Multiple Corpora
+
+```{python}
+#| eval: false
+import pybiber as pb
+import polars as pl
+
+# Load multiple corpora
+academic_corpus = pb.corpus_from_folder("academic_texts/")
+news_corpus = pb.corpus_from_folder("news_texts/")
+
+# Add corpus labels
+academic_corpus = academic_corpus.with_columns(
+    pl.lit("academic").alias("corpus_type")
+)
+news_corpus = news_corpus.with_columns(
+    pl.lit("news").alias("corpus_type")
+)
+
+# Combine and process
+combined_corpus = pl.concat([academic_corpus, news_corpus])
+pipeline = pb.PybiberPipeline()
+features = pipeline.run(combined_corpus)
+
+# Extract corpus labels for analysis
+features = features.with_columns(
+    combined_corpus.select("corpus_type")
+)
+```
+
+### Feature-Based Classification
+
+```{python}
+#| eval: false
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import classification_report
+
+# Prepare data for classification
+X = features.select(pl.selectors.numeric()).to_numpy()
+y = features.get_column("corpus_type").to_numpy()
+
+# Split data
+X_train, X_test, y_train, y_test = train_test_split(
+    X, y, test_size=0.2, random_state=42
+)
+
+# Train classifier
+clf = RandomForestClassifier(n_estimators=100, random_state=42)
+clf.fit(X_train, y_train)
+
+# Evaluate
+y_pred = clf.predict(X_test)
+print(classification_report(y_test, y_pred))
+```
+
+## Tutorial 3: Advanced Multi-Dimensional Analysis
+
+### Custom MDA Workflows
+
+```{python}
+import pybiber as pb
+import polars as pl
+from pybiber.data import micusp_mini
+
+# Process sample data
+pipeline = pb.PybiberPipeline()
+features = pipeline.run(micusp_mini)
+
+# Extract discipline information
+features = features.with_columns(
+    pl.col("doc_id").str.extract(r"^([A-Z]+)", 0).alias("discipline")
+)
+
+# Initialize analyzer
+analyzer = pb.BiberAnalyzer(features, id_column=True)
+```
+
+### Customizing Factor Analysis Parameters
+
+```{python}
+# Experiment with different correlation thresholds
+analyzer.mda(n_factors=4, cor_min=0.3, threshold=0.4)
+
+# Examine the effect on feature selection
+print("Features after correlation filtering:")
+print(analyzer.mda_summary.shape)
+```
+
+### Comparing Factor Solutions
+
+```{python}
+#| eval: false
+import matplotlib.pyplot as plt
+
+# Compare different numbers of factors
+fig, axes = plt.subplots(2, 2, figsize=(12, 10))
+
+for i, n_factors in enumerate([2, 3, 4, 5]):
+    analyzer.mda(n_factors=n_factors)
+    ax = axes[i // 2, i % 2]
+    
+    # Plot scree plot for each solution
+    analyzer.mdaviz_screeplot()
+    plt.sca(ax)
+    ax.set_title(f"{n_factors} Factor Solution")
+
+plt.tight_layout()
+plt.show()
+```
+
+## Tutorial 4: Temporal and Diachronic Analysis
+
+### Analyzing Language Change Over Time
+
+```{python}
+#| eval: false
+import polars as pl
+
+# Prepare time-stamped corpus
+corpus = pl.read_csv("historical_texts.csv")
+corpus = corpus.with_columns([
+    pl.col("year").cast(pl.Int32),
+    pl.col("decade").cast(pl.String)
+])
+
+# Process with pybiber
+pipeline = pb.PybiberPipeline()
+features = pipeline.run(corpus)
+
+# Add temporal metadata
+features = features.join(
+    corpus.select(["doc_id", "year", "decade"]),
+    on="doc_id"
+)
+
+# Analyze by decade
+decade_analysis = pb.BiberAnalyzer(
+    features.drop("year"), 
+    id_column=True
+)
+
+# Examine temporal dimensions
+decade_analysis.mda(n_factors=3)
+decade_analysis.mdaviz_groupmeans(factor=1)
+```
+
+### Trend Analysis
+
+```{python}
+#| eval: false
+# Calculate feature trends over time
+trends = (
+    features
+    .group_by("decade")
+    .agg([
+        pl.selectors.numeric().mean().suffix("_mean"),
+        pl.selectors.numeric().std().suffix("_std")
+    ])
+    .sort("decade")
+)
+
+# Visualize specific feature trends
+import matplotlib.pyplot as plt
+
+plt.figure(figsize=(10, 6))
+plt.plot(trends["decade"], trends["f_01_past_tense_mean"], 
+         marker='o', label='Past Tense')
+plt.plot(trends["decade"], trends["f_03_present_tense_mean"], 
+         marker='s', label='Present Tense')
+plt.xlabel("Decade")
+plt.ylabel("Normalized Frequency")
+plt.legend()
+plt.title("Tense Usage Over Time")
+plt.xticks(rotation=45)
+plt.show()
+```
+
+## Tutorial 5: Cross-Linguistic and Multilingual Analysis
+
+### Comparing Languages
+
+```{python}
+#| eval: false
+# Process different language corpora
+english_pipeline = pb.PybiberPipeline(model="en_core_web_sm")
+spanish_pipeline = pb.PybiberPipeline(model="es_core_news_sm")
+
+english_features = english_pipeline.run_from_folder("english_texts/")
+spanish_features = spanish_pipeline.run_from_folder("spanish_texts/")
+
+# Add language labels
+english_features = english_features.with_columns(
+    pl.lit("English").alias("language")
+)
+spanish_features = spanish_features.with_columns(
+    pl.lit("Spanish").alias("language")
+)
+
+# Combine for comparative analysis
+multilingual_features = pl.concat([english_features, spanish_features])
+```
+
+### Language-Specific Adaptations
+
+```{python}
+#| eval: false
+# Customize feature extraction for specific languages
+def extract_language_specific_features(tokens, language="en"):
+    base_features = pb.biber(tokens, normalize=True)
+    
+    if language == "es":
+        # Add Spanish-specific features
+        spanish_features = extract_spanish_subjunctive(tokens)
+        base_features = base_features.join(spanish_features, on="doc_id")
+    
+    return base_features
+```
+
+## Tutorial 6: Statistical Validation and Robustness
+
+### Cross-Validation of Factor Solutions
+
+```{python}
+#| eval: false
+from sklearn.model_selection import KFold
+import numpy as np
+
+def validate_factor_solution(features, n_factors=3, n_splits=5):
+    """Cross-validate factor stability."""
+    kf = KFold(n_splits=n_splits, shuffle=True, random_state=42)
+    loadings_stability = []
+    
+    for train_idx, _ in kf.split(features):
+        # Sample training data
+        train_features = features[train_idx]
+        
+        # Fit MDA
+        analyzer = pb.BiberAnalyzer(train_features)
+        analyzer.mda(n_factors=n_factors)
+        
+        # Store loadings
+        loadings_stability.append(analyzer.mda_loadings)
+    
+    # Calculate loading stability metrics
+    return analyze_loading_stability(loadings_stability)
+```
+
+### Bootstrap Confidence Intervals
+
+```{python}
+#| eval: false
+def bootstrap_mda_confidence(features, n_bootstrap=1000):
+    """Calculate bootstrap confidence intervals for factor loadings."""
+    bootstrap_loadings = []
+    n_docs = features.shape[0]
+    
+    for i in range(n_bootstrap):
+        # Resample with replacement
+        sample_idx = np.random.choice(n_docs, n_docs, replace=True)
+        boot_features = features[sample_idx]
+        
+        # Fit MDA
+        analyzer = pb.BiberAnalyzer(boot_features)
+        analyzer.mda(n_factors=3)
+        bootstrap_loadings.append(analyzer.mda_loadings)
+    
+    # Calculate confidence intervals
+    return calculate_loading_confidence(bootstrap_loadings)
+```
+
+## Tutorial 7: Performance Optimization
+
+### Memory-Efficient Processing
+
+```{python}
+#| eval: false
+# Process large corpora in chunks
+def process_large_corpus(corpus_path, chunk_size=1000):
+    """Process large corpus in memory-efficient chunks."""
+    
+    # Get all text files
+    text_files = list(Path(corpus_path).rglob("*.txt"))
+    all_features = []
+    
+    # Process in chunks
+    for i in range(0, len(text_files), chunk_size):
+        chunk_files = text_files[i:i + chunk_size]
+        
+        # Create temporary corpus
+        chunk_corpus = pb.readtext(chunk_files)
+        
+        # Process chunk
+        pipeline = pb.PybiberPipeline()
+        chunk_features = pipeline.run(chunk_corpus)
+        
+        all_features.append(chunk_features)
+        
+        # Clear memory
+        del chunk_corpus, chunk_features
+    
+    # Combine all features
+    return pl.concat(all_features)
+```
+
+### Parallel Processing Optimization
+
+```{python}
+#| eval: false
+# Optimize parallel processing parameters
+def find_optimal_batch_size(corpus, model="en_core_web_sm"):
+    """Find optimal batch size for your system."""
+    import time
+    
+    batch_sizes = [10, 50, 100, 200, 500]
+    processing_times = []
+    
+    for batch_size in batch_sizes:
+        pipeline = pb.PybiberPipeline(
+            model=model,
+            batch_size=batch_size,
+            n_process=4
+        )
+        
+        start_time = time.time()
+        _ = pipeline.run(corpus.head(1000))  # Test subset
+        end_time = time.time()
+        
+        processing_times.append(end_time - start_time)
+    
+    # Find optimal batch size
+    optimal_idx = np.argmin(processing_times)
+    return batch_sizes[optimal_idx]
+```
+
+## Best Practices Summary
+
+### Data Preparation
+- Organize texts in systematic directory structures
+- Encode metadata in filenames or separate files
+- Clean text appropriately for your spaCy model
+- Validate corpus structure before processing
+
+### Feature Extraction
+- Choose appropriate spaCy models for your texts
+- Consider disabling unnecessary components (like NER) for speed
+- Use appropriate normalization (per 1000 tokens vs. absolute counts)
+- Monitor memory usage with large corpora
+
+### Statistical Analysis
+- Examine scree plots before selecting number of factors
+- Validate factor solutions with multiple approaches
+- Consider cross-validation for robust results
+- Document all analytical decisions and parameters
+
+### Performance Optimization
+- Experiment with batch sizes and parallel processing
+- Process large corpora in chunks if memory is limited
+- Monitor system resources during processing
+- Cache intermediate results when possible
+
+These tutorials provide a foundation for advanced pybiber usage. Adapt these patterns to your specific research questions and computational constraints.

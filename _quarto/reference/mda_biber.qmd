@@ -1,0 +1,13 @@
+# mda_biber { #pybiber.BiberAnalyzer.mda_biber }
+
+```python
+BiberAnalyzer.mda_biber(threshold=0.35)
+```
+
+Project results onto Biber's dimensions.
+
+## Parameters {.doc-section .doc-section-parameters}
+
+| Name      | Type   | Description                                                                          | Default   |
+|-----------|--------|--------------------------------------------------------------------------------------|-----------|
+| threshold | float  | The factor loading threshold (in absolute value) used to calculate dimension scores. | `0.35`    |

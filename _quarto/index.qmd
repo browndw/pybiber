@@ -4,17 +4,59 @@ jupyter: python3
 
 # pybiber
 
-The pybiber package aggregates [the lexicogrammatical and functional features](feature-categories.qmd) described by Biber [-@biber1988variation] and widely used for text-type, register, and genre classification tasks.
+**A comprehensive Python package for linguistic feature extraction and Multi-Dimensional Analysis**
 
-The package uses [spaCy](https://spacy.io/models){.external target="_blank"} part-of-speech tagging and dependency parsing to summarize and aggregate patterns.
+The pybiber package provides tools for extracting [67 lexicogrammatical and functional features](feature-categories.qmd) described by Biber [-@biber1988variation] and widely used for text-type, register, and genre classification tasks in corpus linguistics.
 
-Because feature extraction builds from the outputs of probabilistic taggers, the accuracy of the resulting counts are reliant on the accuracy of those models. Thus, texts with irregular spellings, non-normative punctuation, etc. will likely produce unreliable outputs, unless taggers are tuned specifically for those purposes.
+## Key Features
+
+- **Feature Extraction**: Automated extraction of 67 linguistic features from text corpora
+- **Multi-Dimensional Analysis**: Implementation of Biber's MDA methodology for register analysis  
+- **Principal Component Analysis**: Alternative dimensionality reduction approaches
+- **Visualization Tools**: Comprehensive plotting functions for exploratory data analysis
+- **High Performance**: Built on [spaCy](https://spacy.io/models){.external target="_blank"} and [Polars](https://docs.pola.rs/){.external target="_blank"} for efficient processing
+- **Pipeline Integration**: End-to-end workflows from raw text to statistical analysis
+
+## Applications
+
+The pybiber package is suitable for:
+
+- **Register and genre analysis** in corpus linguistics
+- **Text classification** and machine learning preprocessing  
+- **Diachronic language change** studies
+- **Cross-linguistic variation** research
+- **Academic writing analysis** and pedagogical applications
+- **Stylometric analysis** and authorship attribution
+
+## Technical Foundation
+
+The package uses [spaCy](https://spacy.io/models){.external target="_blank"} part-of-speech tagging and dependency parsing to extract linguistic features. All data processing leverages the [Polars](https://docs.pola.rs/api/python/stable/reference/index.html){.external target="_blank"} DataFrame library for high-performance analytics.
+
+::: {.callout-warning}
+## Accuracy Considerations
+
+Feature extraction builds from the outputs of probabilistic taggers, so the accuracy of resulting counts depends on the accuracy of those models. Texts with irregular spellings, non-normative punctuation, etc. may produce unreliable outputs unless taggers are specifically tuned for those domains.
+:::
+
+## Related Implementations
+
+- [pseudobibeR](https://cran.r-project.org/web/packages/pseudobibeR/index.html){.external target="_blank"}: R implementation of Biber's feature set
+- [quanteda](https://quanteda.io/){.external target="_blank"}: R package for quantitative text analysis
 
 ---
 
-All DataFrames are rendered using [polars](https://docs.pola.rs/api/python/stable/reference/index.html){.external target="_blank"}. If you prefer to conduct any post-processing using pandas, please refer to [the documentation](https://docs.pola.rs/api/python/stable/reference/dataframe/api/polars.DataFrame.to_pandas.html){.external target="_blank"} for converting polars to pandas. Note that conversion requires both pandas and pyarrow to be installed into your working environment.
+## Quick Start
 
-See [pseudobibeR](https://cran.r-project.org/web/packages/pseudobibeR/index.html){.external target="_blank"} for the R implementation.
+For users eager to jump in, here's a minimal example:
+
+```{python}
+#| eval: false
+import pybiber as pb
+
+# One-line corpus processing
+pipeline = pb.PybiberPipeline()
+features = pipeline.run_from_folder("path/to/texts")
+```
 
 ---
 
@@ -26,19 +68,39 @@ You can install the released version of pybiber from [PyPI](https://pypi.org/pro
 pip install pybiber
 ```
 
-Install a [spaCy model](https://spacy.io/usage){.external target="_blank"}:
+### spaCy Model Installation
+
+Install a [spaCy model](https://spacy.io/usage){.external target="_blank"} for linguistic analysis:
 
 ```bash
 python -m spacy download en_core_web_sm
-
-# models can also be installed using pip
-# pip install https://github.com/explosion/spacy-models/releases/download/en_core_web_sm-3.8.0/en_core_web_sm-3.8.0-py3-none-any.whl
 ```
 
-## Usage
+::: {.callout-tip}
+## Alternative Installation Methods
 
-To use the pybiber package, you must first import [spaCy](https://spacy.io/models){.external target="_blank"} and initiate an instance. You will also need to create a corpus. The [](`~pybiber.biber`) function expects a [polars DataFrame](https://docs.pola.rs/api/python/stable/reference/dataframe/index.html){.external target="_blank"} with a `doc_id` column and a `text` column. This follows the convention for [`readtext`](https://readtext.quanteda.io/articles/readtext_vignette.html){.external target="_blank"} and corpus processing using [quanteda](https://quanteda.io/){.external target="_blank"} in R.
+You can also install spaCy models directly via pip:
+```bash
+pip install https://github.com/explosion/spacy-models/releases/download/en_core_web_sm-3.8.0/en_core_web_sm-3.8.0-py3-none-any.whl
+```
 
+For other languages, see the [spaCy models documentation](https://spacy.io/models){.external target="_blank"}.
+:::
+
+## Basic Workflow
+
+### Data Requirements
+
+The pybiber package works with text corpora structured as DataFrames. The [](`~pybiber.parse_functions.biber`) function expects a [Polars DataFrame](https://docs.pola.rs/api/python/stable/reference/dataframe/index.html){.external target="_blank"} with:
+- `doc_id` column: Unique identifiers for each document
+- `text` column: Raw text content
+
+This structure follows conventions established by [`readtext`](https://readtext.quanteda.io/articles/readtext_vignette.html){.external target="_blank"} and [quanteda](https://quanteda.io/){.external target="_blank"} in R.
+
+### Step-by-Step Processing
+
+
+#### 1. Import Libraries and Load Data
 
 ```{python}
 import spacy
@@ -46,74 +108,115 @@ import pybiber as pb
 from pybiber.data import micusp_mini
 ```
 
-You can see the simple data structure of a corpus:
+Let's examine the structure of our sample corpus:
 
 ```{python}
 micusp_mini.head()
 ```
 
-::: {.callout-tip}
-## Building your own corpus
+The `micusp_mini` dataset is a subset of the Michigan Corpus of Upper-Level Student Papers, containing academic texts from various disciplines.
 
-To build your own corpus, a good place to start is [](`~pybiber.parse_utils.corpus_from_folder`), which reads in all of the text files from a directory.
+::: {.callout-tip}
+## Building Your Own Corpus
+
+To process your own texts, use [](`~pybiber.parse_utils.corpus_from_folder`) to read all text files from a directory:
+
+```python
+corpus = pb.corpus_from_folder("path/to/your/texts")
+```
 :::
 
-### Initiate an instance
+#### 2. Initialize spaCy Model
 
-The pybiber package requires a model that will carry out part-of-speech tagging and [dependency parsing](https://spacy.io/usage/linguistic-features){.external target="_blank"}, like one of spaCy's `en_core` models.
+The pybiber package requires a spaCy model with part-of-speech tagging and [dependency parsing](https://spacy.io/usage/linguistic-features){.external target="_blank"} capabilities:
 
 ```{python}
+#| warning: false
 nlp = spacy.load("en_core_web_sm", disable=["ner"])
 ```
 
 ::: {.callout-note}
-Here we are disabling `ner` or "Named Entity Recognition" from the pipeline to increase processing speed, but doing so is not necessary.
+We disable Named Entity Recognition (`ner`) to increase processing speed, though this is optional. The essential components for feature extraction are the part-of-speech tagger and dependency parser. Note that `PybiberPipeline` disables NER by default.
 :::
 
-### Process the corpus
+#### 3. Process the Corpus
 
-To process the corpus, use [](`~pybiber.parse_utils.spacy_parse`). Processing the `micusp_mini` corpus should take between 20-30 seconds.
+Use the [](`~pybiber.parse_utils.CorpusProcessor`) to parse your texts:
 
 ```{python}
-df_spacy = pb.spacy_parse(micusp_mini, nlp)
+processor = pb.CorpusProcessor()
+df_spacy = processor.process_corpus(micusp_mini, nlp_model=nlp)
 ```
 
-The function returns a DataFrame, which is structured like a [spacyr](https://cran.r-project.org/web/packages/spacyr/vignettes/using_spacyr.html){.external target="_blank"} output.
+This returns a token-level DataFrame with linguistic annotations, structured similarly to [spacyr](https://cran.r-project.org/web/packages/spacyr/vignettes/using_spacyr.html){.external target="_blank"} output:
 
 ```{python}
 df_spacy.head()
 ```
 
-### Aggregate features
+#### 4. Extract Linguistic Features
 
-After parsing the corpus, features can then be aggregated using [](`~pybiber.parse_functions.biber`).
+Finally, aggregate the token-level data into document-level feature counts:
 
 ```{python}
 df_biber = pb.biber(df_spacy)
 ```
 
-
-::: {.callout-important}
-## Feature counts
-
-In the [documentation](`~pybiber.parse_functions.biber`), note the difference beween type-token ratio (TTR) and moving average type-token ration (MATTR). For most use-cases, forcing TTR is unnecessary, but when comparing multiple corpora that haven't been processed together, it is important to make sure the same measure is being used.
-
-Also, the default is to normalize frequencies per 1000 tokens. However, absolute frequencies can be returned by setting `normalize=False`.
-:::
-
-The resulting document-feature matrix has 67 variables and a column of document ids.
+The resulting document-feature matrix contains 67 linguistic features plus document identifiers:
 
 ```{python}
-df_biber.shape
-```
-
-::: {.callout-tip}
-
-Encoding metadata into your document id's (i.e., file names) is key to further processing and analysis. In the `micusp_mini` data, for example, the first three letters before the underscore represent an academic discipline (e.g., BIO for biology, ENG for English, etc.).
-:::
-
-```{python}
+print(f"Matrix dimensions: {df_biber.shape}")
 df_biber.head()
 ```
 
+## Understanding the Output
 
+### Feature Normalization
+
+::: {.callout-important}
+## Feature Scaling
+
+By default, all features are normalized per 1,000 tokens except:
+- `f_43_type_token`: Type-token ratio (0-1 scale)
+- `f_44_mean_word_length`: Average word length in characters
+
+Set `normalize=False` to return absolute counts instead of normalized frequencies.
+:::
+
+### Document Metadata
+
+::: {.callout-tip}
+## Encoding Metadata
+
+Encode important metadata into your document IDs (file names) for downstream analysis. In the `micusp_mini` data, the first three letters represent academic disciplines (e.g., BIO=Biology, ENG=English).
+:::
+
+## Advanced Usage
+
+### High-Level Pipeline
+
+For streamlined processing, use the [](`~pybiber.pipeline.PybiberPipeline`):
+
+```{python}
+#| eval: false
+# Process a folder of .txt files in one step
+pipeline = pb.PybiberPipeline(model="en_core_web_sm")
+features = pipeline.run_from_folder("path/to/texts", recursive=True)
+```
+
+### Working with Pandas
+
+All DataFrames use [Polars](https://docs.pola.rs/api/python/stable/reference/index.html){.external target="_blank"} for performance. To convert to pandas:
+
+```{python}
+#| eval: false
+df_pandas = df_biber.to_pandas()  # Requires pandas and pyarrow
+```
+
+## Next Steps
+
+- **[Get Started Guide](get-started.qmd)**: Detailed walkthrough of the basic workflow
+- **[Feature Categories](feature-categories.qmd)**: Complete list and descriptions of all 67 features
+- **[Biber Analyzer](biber-analyzer.qmd)**: Multi-Dimensional Analysis and statistical visualization tools
+
+For advanced analytical workflows, explore the [`BiberAnalyzer`](biber-analyzer.qmd) class for factor analysis and dimensional visualization.

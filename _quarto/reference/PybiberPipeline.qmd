@@ -1,0 +1,96 @@
+# PybiberPipeline { #pybiber.pipeline.PybiberPipeline }
+
+```python
+pipeline.PybiberPipeline(
+    self,
+    nlp=None,
+    model='en_core_web_sm',
+    disable_ner=True,
+    n_process=CONFIG.DEFAULT_N_PROCESS,
+    batch_size=CONFIG.DEFAULT_BATCH_SIZE,
+    show_progress=None,
+)
+```
+
+End-to-end convenience wrapper for common pybiber workflows.
+
+## Parameters {.doc-section .doc-section-parameters}
+
+| Name          | Type                 | Description                                                                                                               | Default                     |
+|---------------|----------------------|---------------------------------------------------------------------------------------------------------------------------|-----------------------------|
+| nlp           | Optional\[Language\] | Pre-loaded spaCy model. If None, the model named by `model` will be loaded lazily on first use.                           | `None`                      |
+| model         | str                  | Name of the spaCy model to load when `nlp` is None. Defaults to "en_core_web_sm".                                         | `'en_core_web_sm'`          |
+| disable_ner   | bool                 | When True, disable spaCy's NER component for speed and stability. Parser is still enabled and required. Defaults to True. | `True`                      |
+| n_process     | int                  | Number of processes to use for spaCy's pipe.                                                                              | `CONFIG.DEFAULT_N_PROCESS`  |
+| batch_size    | int                  | Batch size for spaCy's pipe.                                                                                              | `CONFIG.DEFAULT_BATCH_SIZE` |
+| show_progress | Optional\[bool\]     | Whether to show internal progress indicators when processing. If None, it is determined based on corpus size.             | `None`                      |
+
+## Methods
+
+| Name | Description |
+| --- | --- |
+| [features](#pybiber.pipeline.PybiberPipeline.features) | Compute Biber features from token-level parses. |
+| [from_folder](#pybiber.pipeline.PybiberPipeline.from_folder) | Read .txt files from a folder into a corpus DataFrame. |
+| [parse](#pybiber.pipeline.PybiberPipeline.parse) | Parse a corpus with spaCy using the configured settings. |
+| [run](#pybiber.pipeline.PybiberPipeline.run) | Parse and compute features from an in-memory corpus DataFrame. |
+| [run_from_folder](#pybiber.pipeline.PybiberPipeline.run_from_folder) | Read, parse, and compute features from a folder of .txt files. |
+| [to_analyzer](#pybiber.pipeline.PybiberPipeline.to_analyzer) | Create a BiberAnalyzer from a Biber feature matrix. |
+
+### features { #pybiber.pipeline.PybiberPipeline.features }
+
+```python
+pipeline.PybiberPipeline.features(tokens, normalize=True, force_ttr=False)
+```
+
+Compute Biber features from token-level parses.
+
+### from_folder { #pybiber.pipeline.PybiberPipeline.from_folder }
+
+```python
+pipeline.PybiberPipeline.from_folder(directory, recursive=False)
+```
+
+Read .txt files from a folder into a corpus DataFrame.
+
+### parse { #pybiber.pipeline.PybiberPipeline.parse }
+
+```python
+pipeline.PybiberPipeline.parse(corpus)
+```
+
+Parse a corpus with spaCy using the configured settings.
+
+### run { #pybiber.pipeline.PybiberPipeline.run }
+
+```python
+pipeline.PybiberPipeline.run(
+    corpus,
+    return_tokens=False,
+    normalize=True,
+    force_ttr=False,
+)
+```
+
+Parse and compute features from an in-memory corpus DataFrame.
+
+### run_from_folder { #pybiber.pipeline.PybiberPipeline.run_from_folder }
+
+```python
+pipeline.PybiberPipeline.run_from_folder(
+    directory,
+    recursive=False,
+    return_tokens=False,
+    normalize=True,
+    force_ttr=False,
+)
+```
+
+Read, parse, and compute features from a folder of .txt files.
+
+### to_analyzer { #pybiber.pipeline.PybiberPipeline.to_analyzer }
+
+```python
+pipeline.PybiberPipeline.to_analyzer(biber_df)
+```
+
+Create a BiberAnalyzer from a Biber feature matrix.

@@ -6,11 +6,22 @@ Read in and prepare data
 
 | | |
 | --- | --- |
+| [CorpusProcessor](CorpusProcessor.qmd#pybiber.parse_utils.CorpusProcessor) | Main class that orchestrates corpus processing pipeline. |
 | [corpus_from_folder](corpus_from_folder.qmd#pybiber.parse_utils.corpus_from_folder) | Import all text files from a directory. |
 | [get_text_paths](get_text_paths.qmd#pybiber.parse_utils.get_text_paths) | Get a list of full paths for all text files. |
 | [readtext](readtext.qmd#pybiber.parse_utils.readtext) | Import all text files from a list of paths. |
-| [spacy_parse](spacy_parse.qmd#pybiber.parse_utils.spacy_parse) | Parse a corpus using the 'en_core_web_sm' model. |
+| [spacy_parse](spacy_parse.qmd#pybiber.parse_utils.spacy_parse) | Parse a corpus (legacy public API). |
 | [get_noun_phrases](get_noun_phrases.qmd#pybiber.parse_utils.get_noun_phrases) | Extract expanded noun phrases using the 'en_core_web_sm' model. |
+
+## pybiber pipeline
+
+High-level orchestration wrappers
+
+| | |
+| --- | --- |
+| [PybiberPipeline](PybiberPipeline.qmd#pybiber.pipeline.PybiberPipeline) | End-to-end convenience wrapper for common pybiber workflows. |
+| [run_biber_from_folder](run_biber_from_folder.qmd#pybiber.pipeline.run_biber_from_folder) | One-liner: read -> parse -> biber() from a folder of .txt files. |
+| [run_biber](run_biber.qmd#pybiber.pipeline.run_biber) | One-liner: parse -> biber() from an in-memory corpus DataFrame. |
 
 ## pybiber parse
 
@@ -27,6 +38,7 @@ Analyze a biber document-feature matrix
 | | |
 | --- | --- |
 | [mda](mda.qmd#pybiber.BiberAnalyzer.mda) | Execute Biber's multi-dimensional anlaysis. |
+| [mda_biber](mda_biber.qmd#pybiber.BiberAnalyzer.mda_biber) | Project results onto Biber's dimensions. |
 | [pca](pca.qmd#pybiber.BiberAnalyzer.pca) | Execute principal component analysis. |
 | [mdaviz_screeplot](mdaviz_screeplot.qmd#pybiber.BiberAnalyzer.mdaviz_screeplot) | Generate a scree plot for determining factors. |
 | [mdaviz_groupmeans](mdaviz_groupmeans.qmd#pybiber.BiberAnalyzer.mdaviz_groupmeans) | Generate a stick plot of the group means for a factor. |

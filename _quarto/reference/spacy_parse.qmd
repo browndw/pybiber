@@ -1,22 +1,31 @@
 # spacy_parse { #pybiber.parse_utils.spacy_parse }
 
 ```python
-parse_utils.spacy_parse(corp, nlp_model, n_process=1, batch_size=25)
+parse_utils.spacy_parse(
+    corp,
+    nlp_model,
+    n_process=1,
+    batch_size=25,
+    disable_ner=True,
+)
 ```
 
-Parse a corpus using the 'en_core_web_sm' model.
+Parse a corpus (legacy public API).
+
+This function is maintained for backward compatibility and now delegates
+to the new class-based pipeline (`CorpusProcessor.process_corpus`).
 
 ## Parameters {.doc-section .doc-section-parameters}
 
-| Name       | Type         | Description                                                           | Default    |
-|------------|--------------|-----------------------------------------------------------------------|------------|
-| corp       | pl.DataFrame | A polars DataFrame conataining a 'doc_id' column and a 'text' column. | _required_ |
-| nlp_model  | Language     | An 'en_core_web_sm' instance.                                         | _required_ |
-| n_process  |              | The number of parallel processes to use during parsing.               | `1`        |
-| batch_size |              | The batch size to use during parsing.                                 | `25`       |
+| Name       | Type         | Description                                    | Default    |
+|------------|--------------|------------------------------------------------|------------|
+| corp       | pl.DataFrame | DataFrame with 'doc_id' and 'text'.            | _required_ |
+| nlp_model  | Language     | spaCy model instance (e.g., 'en_core_web_sm'). | _required_ |
+| n_process  | int          | Number of processes passed to spaCy's pipe.    | `1`        |
+| batch_size | int          | Batch size for spaCy pipe.                     | `25`       |
 
 ## Returns {.doc-section .doc-section-returns}
 
-| Name   | Type         | Description                                                                                        |
-|--------|--------------|----------------------------------------------------------------------------------------------------|
-|        | pl.DataFrame | A polars DataFrame with, token sequencies identified by part-of-speech tags and dependency parses. |
+| Name   | Type         | Description                                                                           |
+|--------|--------------|---------------------------------------------------------------------------------------|
+|        | pl.DataFrame | Token-level dependency parse output identical in schema to the legacy implementation. |

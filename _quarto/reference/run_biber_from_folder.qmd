@@ -1,0 +1,17 @@
+# run_biber_from_folder { #pybiber.pipeline.run_biber_from_folder }
+
+```python
+pipeline.run_biber_from_folder(
+    directory,
+    model='en_core_web_sm',
+    disable_ner=True,
+    n_process=CONFIG.DEFAULT_N_PROCESS,
+    batch_size=CONFIG.DEFAULT_BATCH_SIZE,
+    recursive=False,
+    return_tokens=False,
+    normalize=True,
+    force_ttr=False,
+)
+```
+
+One-liner: read -> parse -> biber() from a folder of .txt files.

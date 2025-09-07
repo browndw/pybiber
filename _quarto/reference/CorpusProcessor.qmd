@@ -1,0 +1,81 @@
+# CorpusProcessor { #pybiber.parse_utils.CorpusProcessor }
+
+```python
+parse_utils.CorpusProcessor(self)
+```
+
+Main class that orchestrates corpus processing pipeline.
+
+## Methods
+
+| Name | Description |
+| --- | --- |
+| [extract_noun_phrases](#pybiber.parse_utils.CorpusProcessor.extract_noun_phrases) | Process a corpus using the complete pipeline. |
+| [process_corpus](#pybiber.parse_utils.CorpusProcessor.process_corpus) | Process a corpus using the complete pipeline. |
+| [spacy_parse](#pybiber.parse_utils.CorpusProcessor.spacy_parse) | Alias of process_corpus for parity with legacy naming. |
+
+### extract_noun_phrases { #pybiber.parse_utils.CorpusProcessor.extract_noun_phrases }
+
+```python
+parse_utils.CorpusProcessor.extract_noun_phrases(
+    corp,
+    nlp_model,
+    n_process=CONFIG.DEFAULT_N_PROCESS,
+    batch_size=CONFIG.DEFAULT_BATCH_SIZE,
+    disable_ner=True,
+    show_progress=None,
+)
+```
+
+Process a corpus using the complete pipeline.
+
+:param corp: A polars DataFrame containing 'doc_id' and 'text' columns.
+:param nlp_model: An 'en_core_web_sm' instance.
+:param n_process: The number of parallel processes to use
+                 during parsing.
+:param batch_size: The batch size to use during parsing.
+:param show_progress: Whether to show progress for large corpora.
+                     If None, will auto-determine based on corpus size.
+:return: A polars DataFrame with full dependency parses.
+
+### process_corpus { #pybiber.parse_utils.CorpusProcessor.process_corpus }
+
+```python
+parse_utils.CorpusProcessor.process_corpus(
+    corp,
+    nlp_model,
+    n_process=CONFIG.DEFAULT_N_PROCESS,
+    batch_size=CONFIG.DEFAULT_BATCH_SIZE,
+    disable_ner=True,
+    show_progress=None,
+)
+```
+
+Process a corpus using the complete pipeline.
+
+:param corp: A polars DataFrame containing 'doc_id' and 'text' columns.
+:param nlp_model: An 'en_core_web' instance.
+:param n_process: The number of parallel processes to use
+                 during parsing.
+:param batch_size: The batch size to use during parsing.
+:param show_progress: Whether to show progress for large corpora.
+                     If None, will auto-determine based on corpus size.
+:return: A polars DataFrame with full dependency parses.
+
+### spacy_parse { #pybiber.parse_utils.CorpusProcessor.spacy_parse }
+
+```python
+parse_utils.CorpusProcessor.spacy_parse(
+    corp,
+    nlp_model,
+    n_process=CONFIG.DEFAULT_N_PROCESS,
+    batch_size=CONFIG.DEFAULT_BATCH_SIZE,
+    disable_ner=True,
+    show_progress=None,
+)
+```
+
+Alias of process_corpus for parity with legacy naming.
+
+Provided to ease migration and satisfy tests that call
+CorpusProcessor.spacy_parse().

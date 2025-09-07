@@ -1,7 +1,13 @@
 # get_noun_phrases { #pybiber.parse_utils.get_noun_phrases }
 
 ```python
-parse_utils.get_noun_phrases(corp, nlp_model, n_process=1, batch_size=25)
+parse_utils.get_noun_phrases(
+    corp,
+    nlp_model,
+    n_process=1,
+    batch_size=25,
+    disable_ner=True,
+)
 ```
 
 Extract expanded noun phrases using the 'en_core_web_sm' model.

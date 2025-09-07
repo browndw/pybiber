@@ -1,0 +1,17 @@
+# run_biber { #pybiber.pipeline.run_biber }
+
+```python
+pipeline.run_biber(
+    corpus,
+    nlp=None,
+    model='en_core_web_sm',
+    disable_ner=True,
+    n_process=CONFIG.DEFAULT_N_PROCESS,
+    batch_size=CONFIG.DEFAULT_BATCH_SIZE,
+    return_tokens=False,
+    normalize=True,
+    force_ttr=False,
+)
+```
+
+One-liner: parse -> biber() from an in-memory corpus DataFrame.
