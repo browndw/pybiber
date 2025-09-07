@@ -1,7 +1,7 @@
 
 pybiber: Aggregate counts of linguistic features retrieved from spaCy parsing based on Biber's taxonomy
 =======================================================================================================
-|pypi| |pypi_downloads|
+|pypi| |pypi_downloads| |tests|
 
 The pybiber package aggregates the lexicogrammatical and functional features described by `Biber (1988) <https://books.google.com/books?id=CVTPaSSYEroC&dq=variation+across+speech+and+writing&lr=&source=gbs_navlinks_s>`_ and widely used for text-type, register, and genre classification tasks.
 
@@ -90,3 +90,6 @@ See the `LICENSE <https://github.com/browndw/pybiber/blob/master/LICENSE>`_ file
     :target: https://pypi.org/project/pybiber/
     :alt: Downloads from PyPI
 
+.. |tests| image:: https://github.com/browndw/pybiber/actions/workflows/test.yml/badge.svg
+    :target: https://github.com/browndw/pybiber/actions/workflows/test.yml
+    :alt: Test Status
