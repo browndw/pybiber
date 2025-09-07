@@ -1,0 +1,66 @@
+name: Build and Deploy Docs
+
+on:
+  push:
+    tags:
+      - "v*.*.*"
+    paths:
+      - '_quarto/**'
+      - 'pybiber/**'
+      - 'pyproject.toml'
+      - 'README.rst'
+      - '.github/workflows/docs.yml'
+  workflow_dispatch:
+
+jobs:
+  build-deploy:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+
+      - name: Install Python dependencies
+        run: |
+          python -m pip install --upgrade pip
+          # Install project and tools needed for docs
+          pip install -e .
+          pip install quartodoc spacy
+          python -m spacy download en_core_web_sm
+
+      - name: Set up Quarto
+        uses: quarto-dev/quarto-actions/setup@v2
+        with:
+          version: 'latest'
+
+      - name: Build API docs with quartodoc
+        env:
+          PYTHONPATH: ${{ github.workspace }}
+        working-directory: _quarto
+        run: quartodoc build
+
+      - name: Render site with Quarto
+        env:
+          PYTHONPATH: ${{ github.workspace }}
+        working-directory: _quarto
+        run: quarto render --no-cache
+
+      - name: Prepare publish directory
+        run: |
+          rm -rf docs
+          mkdir -p docs
+          cp -a _quarto/_site/. docs/
+
+      - name: Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_branch: gh-pages
+          publish_dir: docs
+          force_orphan: true
