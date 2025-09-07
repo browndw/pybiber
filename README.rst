@@ -57,11 +57,30 @@ After parsing the corpus, features can then be aggregated using :code:`biber`.
 
     df_biber = pb.biber(df_spacy)
 
+Pipeline (one-liner)
+--------------------
+
+If you want to go straight from a folder of .txt files to Biber features, use the high-level pipeline:
+
+.. code-block:: import
+
+    from pybiber import PybiberPipeline
+
+    pipeline = PybiberPipeline(model="en_core_web_sm", disable_ner=True)
+    # Read, parse, and compute features; set return_tokens=True to get token table too
+    df_biber = pipeline.run_from_folder("/path/to/texts")
+
+You can also run the pipeline on an in-memory corpus:
+
+.. code-block:: import
+
+    df_biber, df_tokens = pipeline.run(corpus_df, return_tokens=True)
+
 License
 -------
 
-Code licensed under `Apache License 2.0 <https://www.apache.org/licenses/LICENSE-2.0>`_.
-See `LICENSE <https://github.com/browndw/docuscospacy/blob/master/LICENSE>`_ file.
+Code licensed under the `MIT License <https://opensource.org/license/mit/>`_.
+See the `LICENSE <https://github.com/browndw/pybiber/blob/master/LICENSE>`_ file.
 
 .. |pypi| image:: https://badge.fury.io/py/pybiber.svg
     :target: https://badge.fury.io/py/pybiber
