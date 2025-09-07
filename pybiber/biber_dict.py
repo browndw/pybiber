@@ -244,7 +244,10 @@ FEATURES = {
     ],
     'f_48_amplifiers': [
         '\\babsolutely_\\S*',
-        '\\baltogether_\\S*',
+        # Avoid conjunct context (often captured by f_45) by preventing a
+        # preceding "_punct_" token; this reduces overlap with discourse
+        # conjuncts.
+        '(?<!_punct_ )\\baltogether_\\S*',
         '\\bcompletely_\\S*',
         '\\bdefinitely_\\S*',
         '\\bdrastically_\\S*',
