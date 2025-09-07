@@ -3,20 +3,37 @@ title: "Biber analyzer"
 jupyter: python3
 ---
 
-Biber's Mulit-Dimensional Analysis [@biber1985investigating] is a specific implementation of exploratory factor analysis and has been used in a wide variety of studies. A representative sample of such studies can be seen in [the table of contents of a tribute volume](https://benjamins.com/catalog/scl.60){.external target="_blank"}.
+The `BiberAnalyzer` class provides a comprehensive toolkit for conducting Multi-Dimensional Analysis (MDA) and Principal Component Analysis (PCA) on linguistic feature data. This implementation follows Biber's methodology [@biber1985investigating] for exploring the systematic co-occurrence patterns of linguistic features across text types and registers.
 
-Multi-Dimensional Analysis (MDA) is a process made up of 4 main steps:
+## Overview of Multi-Dimensional Analysis
 
-1. Identification of relevant variables
-2. Extraction of factors from variables
-3. Functional interpretation of factors as dimensions
-4. Placement of categories on the dimensions
+Multi-Dimensional Analysis is a specific implementation of exploratory factor analysis that has been extensively used in corpus linguistics and register analysis. A representative sample of MDA studies can be seen in [the table of contents of a tribute volume](https://benjamins.com/catalog/scl.60){.external target="_blank"}.
 
-A description of the procedure can be found [here](https://www.uni-bamberg.de/fileadmin/eng-ling/fs/Chapter_21/1Welcome.html){.external target="_blank"}.
+The MDA procedure consists of four main steps:
 
-## Create a biber document-feature matrix
+1. **Identification of relevant variables** - Selection of linguistic features for analysis
+2. **Extraction of factors from variables** - Statistical identification of underlying dimensions
+3. **Functional interpretation of factors as dimensions** - Linguistic interpretation of statistical patterns
+4. **Placement of categories on the dimensions** - Positioning of text types along the extracted dimensions
 
-First we will import our libraries and some data:
+A detailed description of the MDA procedure can be found [here](https://www.uni-bamberg.de/fileadmin/eng-ling/fs/Chapter_21/1Welcome.html){.external target="_blank"}.
+
+## Key Features of BiberAnalyzer
+
+The `BiberAnalyzer` class offers several analytical and visualization capabilities:
+
+- **Exploratory Data Analysis**: Scree plots for factor selection
+- **Multi-Dimensional Analysis**: Factor extraction with Promax rotation
+- **Principal Component Analysis**: Alternative dimensionality reduction approach
+- **Visualization Tools**: Comprehensive plotting functions for results interpretation
+- **Biber Replication**: Projection onto Biber's original dimensions
+- **Statistical Summaries**: Detailed output of loadings, scores, and group means
+
+## Setting Up the Analysis
+
+### Loading Libraries and Data
+
+First we will import our libraries and load the sample dataset:
 
 ```{python}
 import spacy
@@ -25,29 +42,52 @@ import polars as pl
 from pybiber.data import micusp_mini
 ```
 
-Then process that data:
+The sample data (`micusp_mini`) is a subset of the Michigan Corpus of Upper-Level Student Papers, containing academic texts from various disciplines. This dataset is ideal for demonstrating cross-disciplinary variation in linguistic features.
+
+### Text Processing Pipeline
+
+Next, we'll process the raw texts through the spaCy NLP pipeline to extract linguistic features:
 
 ```{python}
+#| warning: false
 nlp = spacy.load("en_core_web_sm", disable=["ner"])
-df_spacy = pb.spacy_parse(micusp_mini, nlp_model=nlp)
+processor = pb.CorpusProcessor()
+df_spacy = processor.process_corpus(micusp_mini, nlp_model=nlp)
+```
+
+::: {.callout-note}
+We explicitly disable Named Entity Recognition (`ner`) here for consistency with the `PybiberPipeline` defaults, which disables NER by default for improved processing speed since NER is not required for Biber feature extraction.
+:::
+
+### Feature Extraction
+
+Now we extract the 67 Biber linguistic features from the parsed texts:
+
+```{python}
 df_biber = pb.biber(df_spacy)
 ```
 
-## Format categories
+The `biber()` function returns normalized frequencies (per 1,000 tokens) for all features except type-token ratio and mean word length, which use different scales appropriate to their nature.
 
-The MDA procedure requires a categorical variable.
+## Data Preparation for Analysis
 
-The data that we're using for this demonstration have the names of disciplines encoded into the `doc_id`. The first three letters before the underscore represent an academic discipline (e.g., BIO for biology, ENG for English, etc.).
+### Understanding the Dataset Structure
+
+Let's examine the structure of our feature matrix:
 
 ```{python}
 df_biber.head()
 ```
 
+### Creating Categorical Variables
+
+For MDA, we need a categorical grouping variable to compare different text types or registers. In our MICUSP data, discipline information is encoded in the `doc_id` field.
+
 ::: {.callout-note}
-The data are down-sampled from the Michigan Corpus of Upper-Level Student Papers.
+The MICUSP data are down-sampled from the Michigan Corpus of Upper-Level Student Papers. Each document ID contains a three-letter discipline code (e.g., BIO for Biology, ENG for English, etc.).
 :::
 
-We can extract that string and place it into a new column called `discipline`
+We can extract the discipline codes and create a categorical variable:
 
 ```{python}
 df_biber = (
@@ -61,40 +101,241 @@ df_biber = (
 df_biber.head()
 ```
 
-## Process the data with BiberAnalyzer
-
-Now the data can be processed using [](`~pybiber.biber_analyzer.BiberAnalyzer`)
+Let's also examine the distribution of texts across disciplines:
 
 ```{python}
-df = pb.BiberAnalyzer(df_biber, id_column=True)
+discipline_counts = df_biber.group_by("discipline").len().sort("len", descending=True)
+print("Distribution of texts by discipline:")
+print(discipline_counts)
 ```
 
-## Determine the number of factors to extract
+## Initializing the BiberAnalyzer
+
+### Creating the Analyzer Object
+
+Now we can initialize the `BiberAnalyzer` with our feature matrix. The `id_column=True` parameter indicates that our DataFrame contains both document IDs and category labels:
+
+```{python}
+analyzer = pb.BiberAnalyzer(df_biber, id_column=True)
+```
+
+The `BiberAnalyzer` automatically:
+- Validates the input data structure
+- Separates numeric features from categorical variables
+- Computes eigenvalues for factor analysis
+- Performs initial data quality checks
+
+### Data Requirements and Validation
+
+The `BiberAnalyzer` expects specific data formats:
+- **Numeric columns**: Normalized linguistic features (Float64)
+- **String columns**: Document identifiers and/or category labels
+- **Valid grouping**: Category variable should group multiple documents (not unique per document)
+
+## Exploratory Data Analysis
+
+### Determining Optimal Number of Factors
+
+Before extracting factors, we need to determine how many factors to retain. The scree plot visualization helps identify the "elbow point" where eigenvalues level off:
 
 
 ```{python}
-df.mdaviz_screeplot();
+analyzer.mdaviz_screeplot();
 ```
 
-## Extract factors
+The scree plot shows two series:
+- **Blue line**: Eigenvalues from all features  
+- **Orange line**: Eigenvalues after removing highly correlated features (MDA approach)
+
+The MDA convention is to extract factors with eigenvalues > 1.0, and to look for the point where the curve begins to level off.
+
+### Understanding Feature Correlations
+
+The MDA procedure retains only features that are sufficiently correlated (r > 0.2) with other features, removing those that fall below this threshold. This approach leverages the natural multicollinearity among linguistic features to aggregate them into meaningful dimensions. You can examine the eigenvalue data directly:
 
 ```{python}
-df.mda(n_factors=3)
+print("Eigenvalues comparison:")
+print(analyzer.eigenvalues.head(10))
 ```
 
-## Check the summary
+## Conducting Multi-Dimensional Analysis
+
+### Factor Extraction
+
+Based on the scree plot, let's extract 3 factors (a common choice that often captures major dimensions of variation):
 
 ```{python}
-df.mda_summary
+analyzer.mda(n_factors=3)
 ```
 
-## Plot factors
+The `mda()` method performs several key operations:
+- Retains features that are sufficiently correlated with others (correlation threshold: 0.2)
+- Extracts the specified number of factors using maximum likelihood estimation
+- Applies Promax rotation for better interpretability
+- Computes factor scores for each document
+- Calculates group means for each category
+
+### Examining Factor Loadings and Summary Statistics
+
+The MDA results provide comprehensive information about the extracted factors:
 
 ```{python}
-df.mdaviz_groupmeans(factor=2);
+analyzer.mda_summary
 ```
 
-## Check the dimension scores
+The summary table shows:
+- **Feature loadings** on each factor (values > 0.35 are typically considered significant)
+- **Communalities** (proportion of variance explained for each feature)
+- **Uniqueness** (proportion of variance not explained by the factors)
+
+### Interpreting the Factors
+
+To interpret the factors, look for features with high loadings (> 0.35 or < -0.35). Features loading positively contribute to the positive pole of a dimension, while negative loadings contribute to the negative pole.
+
+### Visualizing Factor Results
+
+The group means plot shows how different text categories (disciplines) vary along each dimension:
+
 ```{python}
-df.mda_dim_scores
+analyzer.mdaviz_groupmeans(factor=2);
 ```
+
+This visualization displays:
+- **X-axis**: Different discipline categories
+- **Y-axis**: Mean factor scores for each discipline
+- **Error bars**: 95% confidence intervals around the means
+
+Categories with higher positive scores have more features associated with the positive pole of this dimension, while negative scores indicate association with the negative pole.
+
+### Examining Individual Document Scores
+
+You can also examine the factor scores for individual documents:
+```{python}
+analyzer.mda_dim_scores
+```
+
+These scores represent where each individual document falls along each extracted dimension. Higher positive scores indicate stronger association with features that load positively on that factor.
+
+## Alternative Analysis: Principal Component Analysis
+
+### PCA as an Alternative Approach
+
+While MDA is the traditional approach in register analysis, Principal Component Analysis (PCA) offers an alternative dimensionality reduction method that may reveal different patterns:
+
+```{python}
+analyzer.pca()
+```
+
+### PCA Visualizations
+
+PCA provides its own set of visualization tools. Let's examine how groups vary along the first principal component:
+
+```{python}
+analyzer.pcaviz_groupmeans(pc=1);
+```
+
+We can also examine the contribution of individual features to each principal component:
+
+```{python}
+analyzer.pcaviz_contrib(pc=1);
+```
+
+This plot shows which linguistic features contribute most strongly to the first principal component, helping interpret what linguistic patterns the component captures.
+
+## Advanced Analysis Options
+
+### Customizing the Analysis
+
+The `BiberAnalyzer` offers several customization options:
+
+#### Adjusting Correlation Thresholds
+```{python}
+#| eval: false
+# Use stricter correlation threshold
+analyzer.mda(n_factors=3, cor_min=0.3)
+```
+
+#### Changing Factor Loading Thresholds
+```{python}
+#| eval: false
+# Use higher threshold for significant loadings
+analyzer.mda(n_factors=3, threshold=0.4)
+```
+
+#### Multiple Scree Plot Comparisons
+```{python}
+# Compare different correlation thresholds
+analyzer.mdaviz_screeplot(mda=False);
+```
+
+### Accessing Raw Results
+
+All analysis results are stored as attributes of the analyzer object:
+
+```{python}
+# Check available results
+available_results = [attr for attr in dir(analyzer) if not attr.startswith('_') and 'mda' in attr]
+print("Available MDA results:", available_results)
+```
+
+## Interpretation Guidelines
+
+### Reading Factor Loadings
+
+When interpreting MDA results:
+
+1. **High positive loadings** (> 0.35): Features that increase together and contribute to the positive pole
+2. **High negative loadings** (< -0.35): Features that contribute to the negative pole
+3. **Low loadings** (-0.35 to 0.35): Features that don't strongly define this dimension
+4. **Communality**: How much of each feature's variance is explained by all factors
+5. **Uniqueness**: Unexplained variance (1 - communality)
+
+### Comparing Text Types
+
+When comparing categories on dimensions:
+- **Distance** between groups indicates how different they are linguistically
+- **Confidence intervals** show statistical reliability of group differences  
+- **Consistent patterns** across multiple factors suggest robust register differences
+
+## Comparison with Biber's Original Dimensions
+
+### Projecting onto Biber's Factors
+
+One powerful feature of the `BiberAnalyzer` is the ability to project your data onto Biber's original dimensions, allowing for direct comparison with established research:
+
+```{python}
+#| warning: false
+analyzer.mda_biber()
+```
+
+The `mda_biber()` method:
+- Loads Biber's original factor loadings from his 1988 study
+- Projects your feature data onto these established dimensions
+- Provides direct comparison with Biber's dimensions:
+  - **Factor 1**: Involved vs. Informational Production
+  - **Factor 2**: Narrative vs. Non-narrative Concerns  
+  - **Factor 3**: Explicit vs. Situation-dependent Reference
+  - **Factor 4**: Overt Expression of Persuasion
+  - **Factor 5**: Abstract vs. Non-abstract Information
+  - **Factor 6**: On-line Informational Elaboration
+
+### Visualizing Biber Dimension Results
+
+Now we can visualize how our academic disciplines fall along Biber's first dimension:
+
+```{python}
+analyzer.mdaviz_groupmeans(factor=1);
+```
+
+This plot shows how different academic disciplines position along Biber's first dimension (Involved vs. Informational Production). Academic texts typically fall toward the "Informational" pole (negative scores) due to their formal, expository nature.
+
+## Conclusion
+
+The `BiberAnalyzer` provides a comprehensive toolkit for exploring systematic patterns of linguistic variation in text corpora. By combining traditional MDA with modern computational tools and visualizations, researchers can:
+
+- Identify key dimensions of linguistic variation in their corpora
+- Compare their findings with established research through Biber projection
+- Explore alternative analytical approaches through PCA
+- Create publication-ready visualizations of their results
+
+This approach enables rigorous, quantitative investigation of register variation, genre differences, and other patterns of linguistic co-occurrence in large text collections.
