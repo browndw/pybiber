@@ -197,7 +197,7 @@ To interpret the factors, look for features with high loadings (> 0.35 or < -0.3
 The group means plot shows how different text categories (disciplines) vary along each dimension:
 
 ```{python}
-analyzer.mdaviz_groupmeans(factor=2);
+analyzer.mdaviz_groupmeans(factor=2, width=2, height=5);
 ```
 
 This visualization displays:
@@ -231,13 +231,13 @@ analyzer.pca()
 PCA provides its own set of visualization tools. Let's examine how groups vary along the first principal component:
 
 ```{python}
-analyzer.pcaviz_groupmeans(pc=1);
+analyzer.pcaviz_groupmeans(pc=1, width=6, height=3);
 ```
 
 We can also examine the contribution of individual features to each principal component:
 
 ```{python}
-analyzer.pcaviz_contrib(pc=1);
+analyzer.pcaviz_contrib(pc=1, width=6, height=3);
 ```
 
 This plot shows which linguistic features contribute most strongly to the first principal component, helping interpret what linguistic patterns the component captures.
@@ -309,6 +309,7 @@ analyzer.mda_biber()
 ```
 
 The `mda_biber()` method:
+
 - Loads Biber's original factor loadings from his 1988 study
 - Projects your feature data onto these established dimensions
 - Provides direct comparison with Biber's dimensions:
@@ -324,7 +325,7 @@ The `mda_biber()` method:
 Now we can visualize how our academic disciplines fall along Biber's first dimension:
 
 ```{python}
-analyzer.mdaviz_groupmeans(factor=1);
+analyzer.mdaviz_groupmeans(factor=1, width=2, height=5);
 ```
 
 This plot shows how different academic disciplines position along Biber's first dimension (Involved vs. Informational Production). Academic texts typically fall toward the "Informational" pole (negative scores) due to their formal, expository nature.
