@@ -66,4 +66,7 @@ jobs:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_branch: gh-pages
           publish_dir: docs
+          # Publish into a docs/ subfolder on the gh-pages branch to match
+          # the GitHub Pages source setting (Branch: gh-pages, Folder: /docs)
+          destination_dir: docs
           force_orphan: true
