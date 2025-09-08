@@ -51,6 +51,9 @@ jobs:
         working-directory: _quarto
         run: quarto render --no-cache
 
+      - name: Add .nojekyll file
+        run: touch _quarto/_site/.nojekyll
+
       - name: Prepare publish directory
         run: |
           rm -rf docs
