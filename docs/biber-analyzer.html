@@ -1,0 +1,1510 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.4.557">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>pybiber - Biber analyzer</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { display: inline-block; text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+/* CSS for citations */
+div.csl-bib-body { }
+div.csl-entry {
+  clear: both;
+  margin-bottom: 0em;
+}
+.hanging-indent div.csl-entry {
+  margin-left:2em;
+  text-indent:-2em;
+}
+div.csl-left-margin {
+  min-width:2em;
+  float:left;
+}
+div.csl-right-inline {
+  margin-left:2em;
+  padding-left:1em;
+}
+div.csl-indent {
+  margin-left: 2em;
+}</style>
+
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js" integrity="sha512-bLT0Qm9VnAYZDflyKcBaQ2gg0hSYNQrJ8RilYldYQ1FxQYoCLtUjuuRuZo+fjqhx/qtq/1itJ0C2ejDxltZVFg==" crossorigin="anonymous"></script><script src="site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="site_libs/clipboard/clipboard.min.js"></script>
+<script src="site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="site_libs/quarto-search/fuse.min.js"></script>
+<script src="site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="./">
+<link href="./favicon.ico" rel="icon">
+<script src="site_libs/quarto-html/quarto.js"></script>
+<script src="site_libs/quarto-html/popper.min.js"></script>
+<script src="site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="site_libs/quarto-html/anchor.min.js"></script>
+<link href="site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="site_libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="site_libs/bootstrap/bootstrap.min.css" rel="stylesheet" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js" integrity="sha512-c3Nl8+7g4LMSTdrm621y7kf9v3SDPnhxLNhcjFJbKECVnmZHTdo+IRO05sNLTH/D3vA6u1X32ehoLC7WFVdheg==" crossorigin="anonymous"></script>
+
+<script type="application/javascript">define('jquery', [],function() {return window.jQuery;})</script>
+
+
+</head>
+
+<body class="nav-fixed fullcontent">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container mx-auto">
+    <a href="./index.html" class="navbar-brand navbar-brand-logo">
+    <img src="./logo.png" alt="" class="navbar-logo">
+    </a>
+    <a class="navbar-brand" href="./index.html">
+    <span class="navbar-title">pybiber</span>
+    </a>
+  </div>
+            <div id="quarto-search" class="" title="Search"></div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll me-auto">
+  <li class="nav-item">
+    <a class="nav-link" href="./get-started.html"> 
+<span class="menu-text">Get started</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link active" href="./biber-analyzer.html" aria-current="page"> 
+<span class="menu-text">Biber analyzer</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="./tutorials.html"> 
+<span class="menu-text">Tutorials</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="./reference/index.html"> 
+<span class="menu-text">Reference</span></a>
+  </li>  
+  <li class="nav-item dropdown ">
+    <a class="nav-link dropdown-toggle" href="#" id="nav-menu-learn-more" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+ <span class="menu-text">Learn more</span>
+    </a>
+    <ul class="dropdown-menu" aria-labelledby="nav-menu-learn-more">    
+        <li>
+    <a class="dropdown-item" href="./feature-categories.html">
+ <span class="dropdown-text">Biber features</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="https://cran.r-project.org/web/packages/pseudobibeR/index.html" target="_blank">
+ <span class="dropdown-text">psuedobibeR for R</span></a>
+  </li>  
+    </ul>
+  </li>
+</ul>
+            <ul class="navbar-nav navbar-nav-scroll ms-auto">
+  <li class="nav-item compact">
+    <a class="nav-link" href="https://github.com/browndw/pybiber"> <i class="bi bi-github" role="img" aria-label="pybiber on GitHub">
+</i> 
+<span class="menu-text"></span></a>
+  </li>  
+</ul>
+          </div> <!-- /navcollapse -->
+          <div class="quarto-navbar-tools">
+</div>
+      </div> <!-- /container-fluid -->
+    </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+<!-- margin-sidebar -->
+    
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">Biber analyzer</h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<p>The <code>BiberAnalyzer</code> class provides a comprehensive toolkit for conducting Multi-Dimensional Analysis (MDA) and Principal Component Analysis (PCA) on linguistic feature data. This implementation follows Biber’s methodology <span class="citation" data-cites="biber1985investigating">(<a href="#ref-biber1985investigating" role="doc-biblioref">Biber 1985</a>)</span> for exploring the systematic co-occurrence patterns of linguistic features across text types and registers.</p>
+<section id="overview-of-multi-dimensional-analysis" class="level2">
+<h2 class="anchored" data-anchor-id="overview-of-multi-dimensional-analysis">Overview of Multi-Dimensional Analysis</h2>
+<p>Multi-Dimensional Analysis is a specific implementation of exploratory factor analysis that has been extensively used in corpus linguistics and register analysis. A representative sample of MDA studies can be seen in <a href="https://benjamins.com/catalog/scl.60" class="external" target="_blank">the table of contents of a tribute volume</a>.</p>
+<p>The MDA procedure consists of four main steps:</p>
+<ol type="1">
+<li><strong>Identification of relevant variables</strong> - Selection of linguistic features for analysis</li>
+<li><strong>Extraction of factors from variables</strong> - Statistical identification of underlying dimensions</li>
+<li><strong>Functional interpretation of factors as dimensions</strong> - Linguistic interpretation of statistical patterns</li>
+<li><strong>Placement of categories on the dimensions</strong> - Positioning of text types along the extracted dimensions</li>
+</ol>
+<p>A detailed description of the MDA procedure can be found <a href="https://www.uni-bamberg.de/fileadmin/eng-ling/fs/Chapter_21/1Welcome.html" class="external" target="_blank">here</a>.</p>
+</section>
+<section id="key-features-of-biberanalyzer" class="level2">
+<h2 class="anchored" data-anchor-id="key-features-of-biberanalyzer">Key Features of BiberAnalyzer</h2>
+<p>The <code>BiberAnalyzer</code> class offers several analytical and visualization capabilities:</p>
+<ul>
+<li><strong>Exploratory Data Analysis</strong>: Scree plots for factor selection</li>
+<li><strong>Multi-Dimensional Analysis</strong>: Factor extraction with Promax rotation</li>
+<li><strong>Principal Component Analysis</strong>: Alternative dimensionality reduction approach</li>
+<li><strong>Visualization Tools</strong>: Comprehensive plotting functions for results interpretation</li>
+<li><strong>Biber Replication</strong>: Projection onto Biber’s original dimensions</li>
+<li><strong>Statistical Summaries</strong>: Detailed output of loadings, scores, and group means</li>
+</ul>
+</section>
+<section id="setting-up-the-analysis" class="level2">
+<h2 class="anchored" data-anchor-id="setting-up-the-analysis">Setting Up the Analysis</h2>
+<section id="loading-libraries-and-data" class="level3">
+<h3 class="anchored" data-anchor-id="loading-libraries-and-data">Loading Libraries and Data</h3>
+<p>First we will import our libraries and load the sample dataset:</p>
+<div id="65cd4300" class="cell" data-execution_count="1">
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> spacy</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pybiber <span class="im">as</span> pb</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> polars <span class="im">as</span> pl</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> pybiber.data <span class="im">import</span> micusp_mini</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>The sample data (<code>micusp_mini</code>) is a subset of the Michigan Corpus of Upper-Level Student Papers, containing academic texts from various disciplines. This dataset is ideal for demonstrating cross-disciplinary variation in linguistic features.</p>
+</section>
+<section id="text-processing-pipeline" class="level3">
+<h3 class="anchored" data-anchor-id="text-processing-pipeline">Text Processing Pipeline</h3>
+<p>Next, we’ll process the raw texts through the spaCy NLP pipeline to extract linguistic features:</p>
+<div id="c59086b5" class="cell" data-execution_count="2">
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>nlp <span class="op">=</span> spacy.load(<span class="st">"en_core_web_sm"</span>, disable<span class="op">=</span>[<span class="st">"ner"</span>])</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>processor <span class="op">=</span> pb.CorpusProcessor()</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>df_spacy <span class="op">=</span> processor.process_corpus(micusp_mini, nlp_model<span class="op">=</span>nlp)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Performance: Corpus processing completed in 49.67s</code></pre>
+</div>
+</div>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Note
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>We explicitly disable Named Entity Recognition (<code>ner</code>) here for consistency with the <code>PybiberPipeline</code> defaults, which disables NER by default for improved processing speed since NER is not required for Biber feature extraction.</p>
+</div>
+</div>
+</section>
+<section id="feature-extraction" class="level3">
+<h3 class="anchored" data-anchor-id="feature-extraction">Feature Extraction</h3>
+<p>Now we extract the 67 Biber linguistic features from the parsed texts:</p>
+<div id="4590c09b" class="cell" data-execution_count="3">
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>df_biber <span class="op">=</span> pb.biber(df_spacy)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>[INFO] Using MATTR for f_43_type_token
+[INFO] All features normalized per 1000 tokens except: f_43_type_token and f_44_mean_word_length</code></pre>
+</div>
+</div>
+<p>The <code>biber()</code> function returns normalized frequencies (per 1,000 tokens) for all features except type-token ratio and mean word length, which use different scales appropriate to their nature.</p>
+</section>
+</section>
+<section id="data-preparation-for-analysis" class="level2">
+<h2 class="anchored" data-anchor-id="data-preparation-for-analysis">Data Preparation for Analysis</h2>
+<section id="understanding-the-dataset-structure" class="level3">
+<h3 class="anchored" data-anchor-id="understanding-the-dataset-structure">Understanding the Dataset Structure</h3>
+<p>Let’s examine the structure of our feature matrix:</p>
+<div id="f9dea627" class="cell" data-execution_count="4">
+<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>df_biber.head()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="4">
+<div><style>
+.dataframe > thead > tr,
+.dataframe > tbody > tr {
+  text-align: right;
+  white-space: pre-wrap;
+}
+</style>
+<small>shape: (5, 68)</small>
+<table class="dataframe caption-top table table-sm table-striped small" data-quarto-postprocess="true" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th">doc_id</th>
+<th data-quarto-table-cell-role="th">f_01_past_tense</th>
+<th data-quarto-table-cell-role="th">f_02_perfect_aspect</th>
+<th data-quarto-table-cell-role="th">f_03_present_tense</th>
+<th data-quarto-table-cell-role="th">f_04_place_adverbials</th>
+<th data-quarto-table-cell-role="th">…</th>
+<th data-quarto-table-cell-role="th">f_63_split_auxiliary</th>
+<th data-quarto-table-cell-role="th">f_64_phrasal_coordination</th>
+<th data-quarto-table-cell-role="th">f_65_clausal_coordination</th>
+<th data-quarto-table-cell-role="th">f_66_neg_synthetic</th>
+<th data-quarto-table-cell-role="th">f_67_neg_analytic</th>
+</tr>
+<tr class="odd">
+<th>str</th>
+<th>f64</th>
+<th>f64</th>
+<th>f64</th>
+<th>f64</th>
+<th>…</th>
+<th>f64</th>
+<th>f64</th>
+<th>f64</th>
+<th>f64</th>
+<th>f64</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>"BIO_G0_02_1"</td>
+<td>11.574886</td>
+<td>9.821115</td>
+<td>61.381971</td>
+<td>2.104525</td>
+<td>…</td>
+<td>4.910558</td>
+<td>6.664328</td>
+<td>4.209049</td>
+<td>1.403016</td>
+<td>2.806033</td>
+</tr>
+<tr class="even">
+<td>"BIO_G0_03_1"</td>
+<td>20.300088</td>
+<td>3.53045</td>
+<td>59.13504</td>
+<td>1.765225</td>
+<td>…</td>
+<td>0.882613</td>
+<td>7.943513</td>
+<td>2.647838</td>
+<td>0.882613</td>
+<td>7.0609</td>
+</tr>
+<tr class="odd">
+<td>"BIO_G0_06_1"</td>
+<td>9.480034</td>
+<td>2.585464</td>
+<td>52.5711</td>
+<td>0.861821</td>
+<td>…</td>
+<td>6.320023</td>
+<td>10.054582</td>
+<td>5.458202</td>
+<td>0.574548</td>
+<td>8.905487</td>
+</tr>
+<tr class="even">
+<td>"BIO_G0_12_1"</td>
+<td>36.900369</td>
+<td>2.767528</td>
+<td>23.98524</td>
+<td>1.845018</td>
+<td>…</td>
+<td>2.767528</td>
+<td>0.922509</td>
+<td>1.845018</td>
+<td>1.845018</td>
+<td>5.535055</td>
+</tr>
+<tr class="odd">
+<td>"BIO_G0_21_1"</td>
+<td>40.050858</td>
+<td>2.542912</td>
+<td>26.700572</td>
+<td>2.542912</td>
+<td>…</td>
+<td>3.17864</td>
+<td>7.628735</td>
+<td>6.993007</td>
+<td>2.542912</td>
+<td>2.542912</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+</section>
+<section id="creating-categorical-variables" class="level3">
+<h3 class="anchored" data-anchor-id="creating-categorical-variables">Creating Categorical Variables</h3>
+<p>For MDA, we need a categorical grouping variable to compare different text types or registers. In our MICUSP data, discipline information is encoded in the <code>doc_id</code> field.</p>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Note
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>The MICUSP data are down-sampled from the Michigan Corpus of Upper-Level Student Papers. Each document ID contains a three-letter discipline code (e.g., BIO for Biology, ENG for English, etc.).</p>
+</div>
+</div>
+<p>We can extract the discipline codes and create a categorical variable:</p>
+<div id="d57a2ef1" class="cell" data-execution_count="5">
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>df_biber <span class="op">=</span> (</span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>    df_biber</span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>    .with_columns(</span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>        pl.col(<span class="st">"doc_id"</span>).<span class="bu">str</span>.extract(<span class="vs">r"^([A-Z])+"</span>, <span class="dv">0</span>)</span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>        .alias(<span class="st">"discipline"</span>)</span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>      )</span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>      )</span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a>df_biber.head()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="5">
+<div><style>
+.dataframe > thead > tr,
+.dataframe > tbody > tr {
+  text-align: right;
+  white-space: pre-wrap;
+}
+</style>
+<small>shape: (5, 69)</small>
+<table class="dataframe caption-top table table-sm table-striped small" data-quarto-postprocess="true" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th">doc_id</th>
+<th data-quarto-table-cell-role="th">f_01_past_tense</th>
+<th data-quarto-table-cell-role="th">f_02_perfect_aspect</th>
+<th data-quarto-table-cell-role="th">f_03_present_tense</th>
+<th data-quarto-table-cell-role="th">f_04_place_adverbials</th>
+<th data-quarto-table-cell-role="th">…</th>
+<th data-quarto-table-cell-role="th">f_64_phrasal_coordination</th>
+<th data-quarto-table-cell-role="th">f_65_clausal_coordination</th>
+<th data-quarto-table-cell-role="th">f_66_neg_synthetic</th>
+<th data-quarto-table-cell-role="th">f_67_neg_analytic</th>
+<th data-quarto-table-cell-role="th">discipline</th>
+</tr>
+<tr class="odd">
+<th>str</th>
+<th>f64</th>
+<th>f64</th>
+<th>f64</th>
+<th>f64</th>
+<th>…</th>
+<th>f64</th>
+<th>f64</th>
+<th>f64</th>
+<th>f64</th>
+<th>str</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>"BIO_G0_02_1"</td>
+<td>11.574886</td>
+<td>9.821115</td>
+<td>61.381971</td>
+<td>2.104525</td>
+<td>…</td>
+<td>6.664328</td>
+<td>4.209049</td>
+<td>1.403016</td>
+<td>2.806033</td>
+<td>"BIO"</td>
+</tr>
+<tr class="even">
+<td>"BIO_G0_03_1"</td>
+<td>20.300088</td>
+<td>3.53045</td>
+<td>59.13504</td>
+<td>1.765225</td>
+<td>…</td>
+<td>7.943513</td>
+<td>2.647838</td>
+<td>0.882613</td>
+<td>7.0609</td>
+<td>"BIO"</td>
+</tr>
+<tr class="odd">
+<td>"BIO_G0_06_1"</td>
+<td>9.480034</td>
+<td>2.585464</td>
+<td>52.5711</td>
+<td>0.861821</td>
+<td>…</td>
+<td>10.054582</td>
+<td>5.458202</td>
+<td>0.574548</td>
+<td>8.905487</td>
+<td>"BIO"</td>
+</tr>
+<tr class="even">
+<td>"BIO_G0_12_1"</td>
+<td>36.900369</td>
+<td>2.767528</td>
+<td>23.98524</td>
+<td>1.845018</td>
+<td>…</td>
+<td>0.922509</td>
+<td>1.845018</td>
+<td>1.845018</td>
+<td>5.535055</td>
+<td>"BIO"</td>
+</tr>
+<tr class="odd">
+<td>"BIO_G0_21_1"</td>
+<td>40.050858</td>
+<td>2.542912</td>
+<td>26.700572</td>
+<td>2.542912</td>
+<td>…</td>
+<td>7.628735</td>
+<td>6.993007</td>
+<td>2.542912</td>
+<td>2.542912</td>
+<td>"BIO"</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+<p>Let’s also examine the distribution of texts across disciplines:</p>
+<div id="d93bd2a5" class="cell" data-execution_count="6">
+<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>discipline_counts <span class="op">=</span> df_biber.group_by(<span class="st">"discipline"</span>).<span class="bu">len</span>().sort(<span class="st">"len"</span>, descending<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"Distribution of texts by discipline:"</span>)</span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(discipline_counts)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Distribution of texts by discipline:
+shape: (17, 2)
+┌────────────┬─────┐
+│ discipline ┆ len │
+│ ---        ┆ --- │
+│ str        ┆ u32 │
+╞════════════╪═════╡
+│ NUR        ┆ 10  │
+│ EDU        ┆ 10  │
+│ ENG        ┆ 10  │
+│ CLS        ┆ 10  │
+│ NRE        ┆ 10  │
+│ MEC        ┆ 10  │
+│ CEE        ┆ 10  │
+│ SOC        ┆ 10  │
+│ PSY        ┆ 10  │
+│ BIO        ┆ 10  │
+│ PHY        ┆ 10  │
+│ PHI        ┆ 10  │
+│ LIN        ┆ 10  │
+│ IOE        ┆ 10  │
+│ HIS        ┆ 10  │
+│ POL        ┆ 10  │
+│ ECO        ┆ 10  │
+└────────────┴─────┘</code></pre>
+</div>
+</div>
+</section>
+</section>
+<section id="initializing-the-biberanalyzer" class="level2">
+<h2 class="anchored" data-anchor-id="initializing-the-biberanalyzer">Initializing the BiberAnalyzer</h2>
+<section id="creating-the-analyzer-object" class="level3">
+<h3 class="anchored" data-anchor-id="creating-the-analyzer-object">Creating the Analyzer Object</h3>
+<p>Now we can initialize the <code>BiberAnalyzer</code> with our feature matrix. The <code>id_column=True</code> parameter indicates that our DataFrame contains both document IDs and category labels:</p>
+<div id="7c19c518" class="cell" data-execution_count="7">
+<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>analyzer <span class="op">=</span> pb.BiberAnalyzer(df_biber, id_column<span class="op">=</span><span class="va">True</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>The <code>BiberAnalyzer</code> automatically: - Validates the input data structure - Separates numeric features from categorical variables - Computes eigenvalues for factor analysis - Performs initial data quality checks</p>
+</section>
+<section id="data-requirements-and-validation" class="level3">
+<h3 class="anchored" data-anchor-id="data-requirements-and-validation">Data Requirements and Validation</h3>
+<p>The <code>BiberAnalyzer</code> expects specific data formats: - <strong>Numeric columns</strong>: Normalized linguistic features (Float64) - <strong>String columns</strong>: Document identifiers and/or category labels - <strong>Valid grouping</strong>: Category variable should group multiple documents (not unique per document)</p>
+</section>
+</section>
+<section id="exploratory-data-analysis" class="level2">
+<h2 class="anchored" data-anchor-id="exploratory-data-analysis">Exploratory Data Analysis</h2>
+<section id="determining-optimal-number-of-factors" class="level3">
+<h3 class="anchored" data-anchor-id="determining-optimal-number-of-factors">Determining Optimal Number of Factors</h3>
+<p>Before extracting factors, we need to determine how many factors to retain. The scree plot visualization helps identify the “elbow point” where eigenvalues level off:</p>
+<div id="26d2c7d6" class="cell" data-execution_count="8">
+<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>analyzer.mdaviz_screeplot()<span class="op">;</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="biber-analyzer_files/figure-html/cell-9-output-1.png" class="img-fluid figure-img"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>The scree plot shows two series: - <strong>Blue line</strong>: Eigenvalues from all features<br>
+- <strong>Orange line</strong>: Eigenvalues after removing highly correlated features (MDA approach)</p>
+<p>The MDA convention is to extract factors with eigenvalues &gt; 1.0, and to look for the point where the curve begins to level off.</p>
+</section>
+<section id="understanding-feature-correlations" class="level3">
+<h3 class="anchored" data-anchor-id="understanding-feature-correlations">Understanding Feature Correlations</h3>
+<p>The MDA procedure retains only features that are sufficiently correlated (r &gt; 0.2) with other features, removing those that fall below this threshold. This approach leverages the natural multicollinearity among linguistic features to aggregate them into meaningful dimensions. You can examine the eigenvalue data directly:</p>
+<div id="56d6bea7" class="cell" data-execution_count="9">
+<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"Eigenvalues comparison:"</span>)</span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(analyzer.eigenvalues.head(<span class="dv">10</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Eigenvalues comparison:
+shape: (10, 2)
+┌──────────┬──────────┐
+│ ev_all   ┆ ev_mda   │
+│ ---      ┆ ---      │
+│ f64      ┆ f64      │
+╞══════════╪══════════╡
+│ 9.662192 ┆ 9.655607 │
+│ 4.54516  ┆ 4.531601 │
+│ 3.00359  ┆ 2.97753  │
+│ 2.565752 ┆ 2.535722 │
+│ 2.448391 ┆ 2.429068 │
+│ 2.337111 ┆ 2.336713 │
+│ 2.197334 ┆ 2.186297 │
+│ 2.106533 ┆ 2.080074 │
+│ 1.935782 ┆ 1.915118 │
+│ 1.809263 ┆ 1.789251 │
+└──────────┴──────────┘</code></pre>
+</div>
+</div>
+</section>
+</section>
+<section id="conducting-multi-dimensional-analysis" class="level2">
+<h2 class="anchored" data-anchor-id="conducting-multi-dimensional-analysis">Conducting Multi-Dimensional Analysis</h2>
+<section id="factor-extraction" class="level3">
+<h3 class="anchored" data-anchor-id="factor-extraction">Factor Extraction</h3>
+<p>Based on the scree plot, let’s extract 3 factors (a common choice that often captures major dimensions of variation):</p>
+<div id="41dfb2f2" class="cell" data-execution_count="10">
+<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>analyzer.mda(n_factors<span class="op">=</span><span class="dv">3</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>INFO:pybiber.biber_analyzer:Dropping 2 variable(s) with max |r| &lt;= 0.20: ['f_15_gerunds', 'f_34_sentence_relatives']</code></pre>
+</div>
+</div>
+<p>The <code>mda()</code> method performs several key operations: - Retains features that are sufficiently correlated with others (correlation threshold: 0.2) - Extracts the specified number of factors using maximum likelihood estimation - Applies Promax rotation for better interpretability - Computes factor scores for each document - Calculates group means for each category</p>
+</section>
+<section id="examining-factor-loadings-and-summary-statistics" class="level3">
+<h3 class="anchored" data-anchor-id="examining-factor-loadings-and-summary-statistics">Examining Factor Loadings and Summary Statistics</h3>
+<p>The MDA results provide comprehensive information about the extracted factors:</p>
+<div id="cf4b3be8" class="cell" data-execution_count="11">
+<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a>analyzer.mda_summary</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="11">
+<div><style>
+.dataframe > thead > tr,
+.dataframe > tbody > tr {
+  text-align: right;
+  white-space: pre-wrap;
+}
+</style>
+<small>shape: (3, 6)</small>
+<table class="dataframe caption-top table table-sm table-striped small" data-quarto-postprocess="true" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th">Factor</th>
+<th data-quarto-table-cell-role="th">F</th>
+<th data-quarto-table-cell-role="th">df</th>
+<th data-quarto-table-cell-role="th">PR(&gt;F)</th>
+<th data-quarto-table-cell-role="th">Signif</th>
+<th data-quarto-table-cell-role="th">R2</th>
+</tr>
+<tr class="odd">
+<th>str</th>
+<th>f64</th>
+<th>list[u32]</th>
+<th>f64</th>
+<th>str</th>
+<th>f64</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>"factor_1"</td>
+<td>3.425988</td>
+<td>[16, 153]</td>
+<td>0.000034</td>
+<td>"*** p &lt; 0.001"</td>
+<td>0.263771</td>
+</tr>
+<tr class="even">
+<td>"factor_2"</td>
+<td>11.55233</td>
+<td>[16, 153]</td>
+<td>3.3103e-19</td>
+<td>"*** p &lt; 0.001"</td>
+<td>0.547119</td>
+</tr>
+<tr class="odd">
+<td>"factor_3"</td>
+<td>3.970458</td>
+<td>[16, 153]</td>
+<td>0.000003</td>
+<td>"*** p &lt; 0.001"</td>
+<td>0.293392</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+<p>The summary table shows: - <strong>Feature loadings</strong> on each factor (values &gt; 0.35 are typically considered significant) - <strong>Communalities</strong> (proportion of variance explained for each feature) - <strong>Uniqueness</strong> (proportion of variance not explained by the factors)</p>
+</section>
+<section id="interpreting-the-factors" class="level3">
+<h3 class="anchored" data-anchor-id="interpreting-the-factors">Interpreting the Factors</h3>
+<p>To interpret the factors, look for features with high loadings (&gt; 0.35 or &lt; -0.35). Features loading positively contribute to the positive pole of a dimension, while negative loadings contribute to the negative pole.</p>
+</section>
+<section id="visualizing-factor-results" class="level3">
+<h3 class="anchored" data-anchor-id="visualizing-factor-results">Visualizing Factor Results</h3>
+<p>The group means plot shows how different text categories (disciplines) vary along each dimension:</p>
+<div id="0ff2e714" class="cell" data-execution_count="12">
+<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a>analyzer.mdaviz_groupmeans(factor<span class="op">=</span><span class="dv">2</span>, width<span class="op">=</span><span class="dv">2</span>, height<span class="op">=</span><span class="dv">5</span>)<span class="op">;</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="biber-analyzer_files/figure-html/cell-13-output-1.png" class="img-fluid figure-img"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>This visualization displays: - <strong>X-axis</strong>: Different discipline categories - <strong>Y-axis</strong>: Mean factor scores for each discipline - <strong>Error bars</strong>: 95% confidence intervals around the means</p>
+<p>Categories with higher positive scores have more features associated with the positive pole of this dimension, while negative scores indicate association with the negative pole.</p>
+</section>
+<section id="examining-individual-document-scores" class="level3">
+<h3 class="anchored" data-anchor-id="examining-individual-document-scores">Examining Individual Document Scores</h3>
+<p>You can also examine the factor scores for individual documents:</p>
+<div id="27731166" class="cell" data-execution_count="13">
+<div class="sourceCode cell-code" id="cb18"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a>analyzer.mda_dim_scores</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="13">
+<div><style>
+.dataframe > thead > tr,
+.dataframe > tbody > tr {
+  text-align: right;
+  white-space: pre-wrap;
+}
+</style>
+<small>shape: (170, 5)</small>
+<table class="dataframe caption-top table table-sm table-striped small" data-quarto-postprocess="true" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th">doc_id</th>
+<th data-quarto-table-cell-role="th">doc_cat</th>
+<th data-quarto-table-cell-role="th">factor_1</th>
+<th data-quarto-table-cell-role="th">factor_2</th>
+<th data-quarto-table-cell-role="th">factor_3</th>
+</tr>
+<tr class="odd">
+<th>str</th>
+<th>str</th>
+<th>f64</th>
+<th>f64</th>
+<th>f64</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>"BIO_G0_02_1"</td>
+<td>"BIO"</td>
+<td>-1.047555</td>
+<td>2.579108</td>
+<td>2.741629</td>
+</tr>
+<tr class="even">
+<td>"BIO_G0_03_1"</td>
+<td>"BIO"</td>
+<td>1.89817</td>
+<td>5.793548</td>
+<td>2.645765</td>
+</tr>
+<tr class="odd">
+<td>"BIO_G0_06_1"</td>
+<td>"BIO"</td>
+<td>2.990878</td>
+<td>2.540135</td>
+<td>3.211185</td>
+</tr>
+<tr class="even">
+<td>"BIO_G0_12_1"</td>
+<td>"BIO"</td>
+<td>-3.970903</td>
+<td>-19.69307</td>
+<td>-3.853258</td>
+</tr>
+<tr class="odd">
+<td>"BIO_G0_21_1"</td>
+<td>"BIO"</td>
+<td>-1.683797</td>
+<td>-14.797897</td>
+<td>-6.842276</td>
+</tr>
+<tr class="even">
+<td>"BIO_G0_25_1"</td>
+<td>"BIO"</td>
+<td>1.904973</td>
+<td>4.959696</td>
+<td>-2.525448</td>
+</tr>
+<tr class="odd">
+<td>"BIO_G0_29_1"</td>
+<td>"BIO"</td>
+<td>-3.269407</td>
+<td>5.220856</td>
+<td>6.099175</td>
+</tr>
+<tr class="even">
+<td>"BIO_G2_02_1"</td>
+<td>"BIO"</td>
+<td>-2.075444</td>
+<td>10.794254</td>
+<td>6.572835</td>
+</tr>
+<tr class="odd">
+<td>"BIO_G2_03_1"</td>
+<td>"BIO"</td>
+<td>-11.160595</td>
+<td>-10.013755</td>
+<td>2.574394</td>
+</tr>
+<tr class="even">
+<td>"BIO_G3_02_1"</td>
+<td>"BIO"</td>
+<td>-6.392135</td>
+<td>-2.541001</td>
+<td>1.353258</td>
+</tr>
+<tr class="odd">
+<td>…</td>
+<td>…</td>
+<td>…</td>
+<td>…</td>
+<td>…</td>
+</tr>
+<tr class="even">
+<td>"SOC_G0_01_1"</td>
+<td>"SOC"</td>
+<td>-5.21524</td>
+<td>3.960617</td>
+<td>0.390415</td>
+</tr>
+<tr class="odd">
+<td>"SOC_G0_02_1"</td>
+<td>"SOC"</td>
+<td>0.533442</td>
+<td>12.483244</td>
+<td>3.574479</td>
+</tr>
+<tr class="even">
+<td>"SOC_G0_07_1"</td>
+<td>"SOC"</td>
+<td>-10.519145</td>
+<td>3.482978</td>
+<td>-0.420552</td>
+</tr>
+<tr class="odd">
+<td>"SOC_G0_13_1"</td>
+<td>"SOC"</td>
+<td>29.571642</td>
+<td>16.727145</td>
+<td>-0.466964</td>
+</tr>
+<tr class="even">
+<td>"SOC_G1_01_1"</td>
+<td>"SOC"</td>
+<td>-3.961574</td>
+<td>2.09907</td>
+<td>5.063635</td>
+</tr>
+<tr class="odd">
+<td>"SOC_G1_08_1"</td>
+<td>"SOC"</td>
+<td>-6.098901</td>
+<td>-7.156877</td>
+<td>-0.963255</td>
+</tr>
+<tr class="even">
+<td>"SOC_G1_09_1"</td>
+<td>"SOC"</td>
+<td>5.832215</td>
+<td>-4.200802</td>
+<td>-1.617159</td>
+</tr>
+<tr class="odd">
+<td>"SOC_G2_03_1"</td>
+<td>"SOC"</td>
+<td>-1.145246</td>
+<td>5.567016</td>
+<td>0.136861</td>
+</tr>
+<tr class="even">
+<td>"SOC_G3_07_1"</td>
+<td>"SOC"</td>
+<td>-8.482581</td>
+<td>-1.640527</td>
+<td>1.118681</td>
+</tr>
+<tr class="odd">
+<td>"SOC_G3_08_1"</td>
+<td>"SOC"</td>
+<td>-2.413674</td>
+<td>7.861919</td>
+<td>0.461343</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+<p>These scores represent where each individual document falls along each extracted dimension. Higher positive scores indicate stronger association with features that load positively on that factor.</p>
+</section>
+</section>
+<section id="alternative-analysis-principal-component-analysis" class="level2">
+<h2 class="anchored" data-anchor-id="alternative-analysis-principal-component-analysis">Alternative Analysis: Principal Component Analysis</h2>
+<section id="pca-as-an-alternative-approach" class="level3">
+<h3 class="anchored" data-anchor-id="pca-as-an-alternative-approach">PCA as an Alternative Approach</h3>
+<p>While MDA is the traditional approach in register analysis, Principal Component Analysis (PCA) offers an alternative dimensionality reduction method that may reveal different patterns:</p>
+<div id="0bd189e1" class="cell" data-execution_count="14">
+<div class="sourceCode cell-code" id="cb19"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a>analyzer.pca()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="pca-visualizations" class="level3">
+<h3 class="anchored" data-anchor-id="pca-visualizations">PCA Visualizations</h3>
+<p>PCA provides its own set of visualization tools. Let’s examine how groups vary along the first principal component:</p>
+<div id="b5db05d0" class="cell" data-execution_count="15">
+<div class="sourceCode cell-code" id="cb20"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a>analyzer.pcaviz_groupmeans(pc<span class="op">=</span><span class="dv">1</span>, width<span class="op">=</span><span class="dv">6</span>, height<span class="op">=</span><span class="dv">3</span>)<span class="op">;</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="biber-analyzer_files/figure-html/cell-16-output-1.png" class="img-fluid figure-img"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>We can also examine the contribution of individual features to each principal component:</p>
+<div id="f8895562" class="cell" data-execution_count="16">
+<div class="sourceCode cell-code" id="cb21"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a>analyzer.pcaviz_contrib(pc<span class="op">=</span><span class="dv">1</span>, width<span class="op">=</span><span class="dv">6</span>, height<span class="op">=</span><span class="dv">3</span>)<span class="op">;</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="biber-analyzer_files/figure-html/cell-17-output-1.png" class="img-fluid figure-img"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>This plot shows which linguistic features contribute most strongly to the first principal component, helping interpret what linguistic patterns the component captures.</p>
+</section>
+</section>
+<section id="advanced-analysis-options" class="level2">
+<h2 class="anchored" data-anchor-id="advanced-analysis-options">Advanced Analysis Options</h2>
+<section id="customizing-the-analysis" class="level3">
+<h3 class="anchored" data-anchor-id="customizing-the-analysis">Customizing the Analysis</h3>
+<p>The <code>BiberAnalyzer</code> offers several customization options:</p>
+<section id="adjusting-correlation-thresholds" class="level4">
+<h4 class="anchored" data-anchor-id="adjusting-correlation-thresholds">Adjusting Correlation Thresholds</h4>
+<div id="c55c9c0a" class="cell" data-execution_count="17">
+<div class="sourceCode cell-code" id="cb22"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Use stricter correlation threshold</span></span>
+<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a>analyzer.mda(n_factors<span class="op">=</span><span class="dv">3</span>, cor_min<span class="op">=</span><span class="fl">0.3</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="changing-factor-loading-thresholds" class="level4">
+<h4 class="anchored" data-anchor-id="changing-factor-loading-thresholds">Changing Factor Loading Thresholds</h4>
+<div id="f84f3307" class="cell" data-execution_count="18">
+<div class="sourceCode cell-code" id="cb23"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Use higher threshold for significant loadings</span></span>
+<span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a>analyzer.mda(n_factors<span class="op">=</span><span class="dv">3</span>, threshold<span class="op">=</span><span class="fl">0.4</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="multiple-scree-plot-comparisons" class="level4">
+<h4 class="anchored" data-anchor-id="multiple-scree-plot-comparisons">Multiple Scree Plot Comparisons</h4>
+<div id="dae4e522" class="cell" data-execution_count="19">
+<div class="sourceCode cell-code" id="cb24"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Compare different correlation thresholds</span></span>
+<span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a>analyzer.mdaviz_screeplot(mda<span class="op">=</span><span class="va">False</span>)<span class="op">;</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="biber-analyzer_files/figure-html/cell-20-output-1.png" class="img-fluid figure-img"></p>
+</figure>
+</div>
+</div>
+</div>
+</section>
+</section>
+<section id="accessing-raw-results" class="level3">
+<h3 class="anchored" data-anchor-id="accessing-raw-results">Accessing Raw Results</h3>
+<p>All analysis results are stored as attributes of the analyzer object:</p>
+<div id="81b8e9a8" class="cell" data-execution_count="20">
+<div class="sourceCode cell-code" id="cb25"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Check available results</span></span>
+<span id="cb25-2"><a href="#cb25-2" aria-hidden="true" tabindex="-1"></a>available_results <span class="op">=</span> [attr <span class="cf">for</span> attr <span class="kw">in</span> <span class="bu">dir</span>(analyzer) <span class="cf">if</span> <span class="kw">not</span> attr.startswith(<span class="st">'_'</span>) <span class="kw">and</span> <span class="st">'mda'</span> <span class="kw">in</span> attr]</span>
+<span id="cb25-3"><a href="#cb25-3" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"Available MDA results:"</span>, available_results)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Available MDA results: ['mda', 'mda_biber', 'mda_dim_scores', 'mda_group_means', 'mda_loadings', 'mda_summary', 'mdaviz_groupmeans', 'mdaviz_screeplot']</code></pre>
+</div>
+</div>
+</section>
+</section>
+<section id="interpretation-guidelines" class="level2">
+<h2 class="anchored" data-anchor-id="interpretation-guidelines">Interpretation Guidelines</h2>
+<section id="reading-factor-loadings" class="level3">
+<h3 class="anchored" data-anchor-id="reading-factor-loadings">Reading Factor Loadings</h3>
+<p>When interpreting MDA results:</p>
+<ol type="1">
+<li><strong>High positive loadings</strong> (&gt; 0.35): Features that increase together and contribute to the positive pole</li>
+<li><strong>High negative loadings</strong> (&lt; -0.35): Features that contribute to the negative pole</li>
+<li><strong>Low loadings</strong> (-0.35 to 0.35): Features that don’t strongly define this dimension</li>
+<li><strong>Communality</strong>: How much of each feature’s variance is explained by all factors</li>
+<li><strong>Uniqueness</strong>: Unexplained variance (1 - communality)</li>
+</ol>
+</section>
+<section id="comparing-text-types" class="level3">
+<h3 class="anchored" data-anchor-id="comparing-text-types">Comparing Text Types</h3>
+<p>When comparing categories on dimensions: - <strong>Distance</strong> between groups indicates how different they are linguistically - <strong>Confidence intervals</strong> show statistical reliability of group differences<br>
+- <strong>Consistent patterns</strong> across multiple factors suggest robust register differences</p>
+</section>
+</section>
+<section id="comparison-with-bibers-original-dimensions" class="level2">
+<h2 class="anchored" data-anchor-id="comparison-with-bibers-original-dimensions">Comparison with Biber’s Original Dimensions</h2>
+<section id="projecting-onto-bibers-factors" class="level3">
+<h3 class="anchored" data-anchor-id="projecting-onto-bibers-factors">Projecting onto Biber’s Factors</h3>
+<p>One powerful feature of the <code>BiberAnalyzer</code> is the ability to project your data onto Biber’s original dimensions, allowing for direct comparison with established research:</p>
+<div id="42d477ec" class="cell" data-execution_count="21">
+<div class="sourceCode cell-code" id="cb27"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a>analyzer.mda_biber()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>The <code>mda_biber()</code> method:</p>
+<ul>
+<li>Loads Biber’s original factor loadings from his 1988 study</li>
+<li>Projects your feature data onto these established dimensions</li>
+<li>Provides direct comparison with Biber’s dimensions:
+<ul>
+<li><strong>Factor 1</strong>: Involved vs.&nbsp;Informational Production</li>
+<li><strong>Factor 2</strong>: Narrative vs.&nbsp;Non-narrative Concerns<br>
+</li>
+<li><strong>Factor 3</strong>: Explicit vs.&nbsp;Situation-dependent Reference</li>
+<li><strong>Factor 4</strong>: Overt Expression of Persuasion</li>
+<li><strong>Factor 5</strong>: Abstract vs.&nbsp;Non-abstract Information</li>
+<li><strong>Factor 6</strong>: On-line Informational Elaboration</li>
+</ul></li>
+</ul>
+</section>
+<section id="visualizing-biber-dimension-results" class="level3">
+<h3 class="anchored" data-anchor-id="visualizing-biber-dimension-results">Visualizing Biber Dimension Results</h3>
+<p>Now we can visualize how our academic disciplines fall along Biber’s first dimension:</p>
+<div id="0d7fd5a2" class="cell" data-execution_count="22">
+<div class="sourceCode cell-code" id="cb28"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a>analyzer.mdaviz_groupmeans(factor<span class="op">=</span><span class="dv">1</span>, width<span class="op">=</span><span class="dv">2</span>, height<span class="op">=</span><span class="dv">5</span>)<span class="op">;</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="biber-analyzer_files/figure-html/cell-23-output-1.png" class="img-fluid figure-img"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>This plot shows how different academic disciplines position along Biber’s first dimension (Involved vs.&nbsp;Informational Production). Academic texts typically fall toward the “Informational” pole (negative scores) due to their formal, expository nature.</p>
+</section>
+</section>
+<section id="conclusion" class="level2">
+<h2 class="anchored" data-anchor-id="conclusion">Conclusion</h2>
+<p>The <code>BiberAnalyzer</code> provides a comprehensive toolkit for exploring systematic patterns of linguistic variation in text corpora. By combining traditional MDA with modern computational tools and visualizations, researchers can:</p>
+<ul>
+<li>Identify key dimensions of linguistic variation in their corpora</li>
+<li>Compare their findings with established research through Biber projection</li>
+<li>Explore alternative analytical approaches through PCA</li>
+<li>Create publication-ready visualizations of their results</li>
+</ul>
+<p>This approach enables rigorous, quantitative investigation of register variation, genre differences, and other patterns of linguistic co-occurrence in large text collections.</p>
+
+
+
+</section>
+
+<div id="quarto-appendix" class="default"><section class="quarto-appendix-contents" role="doc-bibliography" id="quarto-bibliography"><h2 class="anchored quarto-appendix-heading">References</h2><div id="refs" class="references csl-bib-body hanging-indent" data-entry-spacing="0" role="list">
+<div id="ref-biber1985investigating" class="csl-entry" role="listitem">
+Biber, Douglas. 1985. <span>“Investigating Macroscopic Textual Variation Through Multifeature/Multidimensional Analyses.”</span> <a href="https://doi.org/10.1515/ling.1985.23.2.337">https://doi.org/10.1515/ling.1985.23.2.337</a>.
+</div>
+</div></section></div></main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const isCodeAnnotation = (el) => {
+    for (const clz of el.classList) {
+      if (clz.startsWith('code-annotation-')) {                     
+        return true;
+      }
+    }
+    return false;
+  }
+  const clipboard = new window.ClipboardJS('.code-copy-button', {
+    text: function(trigger) {
+      const codeEl = trigger.previousElementSibling.cloneNode(true);
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+  });
+  clipboard.on('success', function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copied!");
+    let tooltip;
+    if (window.bootstrap) {
+      button.setAttribute("data-bs-toggle", "tooltip");
+      button.setAttribute("data-bs-placement", "left");
+      button.setAttribute("data-bs-title", "Copied!");
+      tooltip = new bootstrap.Tooltip(button, 
+        { trigger: "manual", 
+          customClass: "code-copy-button-tooltip",
+          offset: [0, -8]});
+      tooltip.show();    
+    }
+    setTimeout(function() {
+      if (tooltip) {
+        tooltip.hide();
+        button.removeAttribute("data-bs-title");
+        button.removeAttribute("data-bs-toggle");
+        button.removeAttribute("data-bs-placement");
+      }
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  });
+    var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+    var mailtoRegex = new RegExp(/^mailto:/);
+      var filterRegex = new RegExp('/' + window.location.host + '/');
+    var isInternal = (href) => {
+        return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+    }
+    // Inspect non-navigation links and adorn them if external
+ 	var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool)');
+    for (var i=0; i<links.length; i++) {
+      const link = links[i];
+      if (!isInternal(link.href)) {
+        // undo the damage that might have been done by quarto-nav.js in the case of
+        // links that we want to consider external
+        if (link.dataset.originalHref !== undefined) {
+          link.href = link.dataset.originalHref;
+        }
+      }
+    }
+  function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+    const config = {
+      allowHTML: true,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start',
+    };
+    if (contentFn) {
+      config.content = contentFn;
+    }
+    if (onTriggerFn) {
+      config.onTrigger = onTriggerFn;
+    }
+    if (onUntriggerFn) {
+      config.onUntrigger = onUntriggerFn;
+    }
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      // use id or data attribute instead here
+      let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      if (note) {
+        return note.innerHTML;
+      } else {
+        return "";
+      }
+    });
+  }
+  const xrefs = window.document.querySelectorAll('a.quarto-xref');
+  const processXRef = (id, note) => {
+    // Strip column container classes
+    const stripColumnClz = (el) => {
+      el.classList.remove("page-full", "page-columns");
+      if (el.children) {
+        for (const child of el.children) {
+          stripColumnClz(child);
+        }
+      }
+    }
+    stripColumnClz(note)
+    if (id === null || id.startsWith('sec-')) {
+      // Special case sections, only their first couple elements
+      const container = document.createElement("div");
+      if (note.children && note.children.length > 2) {
+        container.appendChild(note.children[0].cloneNode(true));
+        for (let i = 1; i < note.children.length; i++) {
+          const child = note.children[i];
+          if (child.tagName === "P" && child.innerText === "") {
+            continue;
+          } else {
+            container.appendChild(child.cloneNode(true));
+            break;
+          }
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(container);
+        }
+        return container.innerHTML
+      } else {
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        return note.innerHTML;
+      }
+    } else {
+      // Remove any anchor links if they are present
+      const anchorLink = note.querySelector('a.anchorjs-link');
+      if (anchorLink) {
+        anchorLink.remove();
+      }
+      if (window.Quarto?.typesetMath) {
+        window.Quarto.typesetMath(note);
+      }
+      // TODO in 1.5, we should make sure this works without a callout special case
+      if (note.classList.contains("callout")) {
+        return note.outerHTML;
+      } else {
+        return note.innerHTML;
+      }
+    }
+  }
+  for (var i=0; i<xrefs.length; i++) {
+    const xref = xrefs[i];
+    tippyHover(xref, undefined, function(instance) {
+      instance.disable();
+      let url = xref.getAttribute('href');
+      let hash = undefined; 
+      if (url.startsWith('#')) {
+        hash = url;
+      } else {
+        try { hash = new URL(url).hash; } catch {}
+      }
+      if (hash) {
+        const id = hash.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note !== null) {
+          try {
+            const html = processXRef(id, note.cloneNode(true));
+            instance.setContent(html);
+          } finally {
+            instance.enable();
+            instance.show();
+          }
+        } else {
+          // See if we can fetch this
+          fetch(url.split('#')[0])
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.getElementById(id);
+            if (note !== null) {
+              const html = processXRef(id, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      } else {
+        // See if we can fetch a full url (with no hash to target)
+        // This is a special case and we should probably do some content thinning / targeting
+        fetch(url)
+        .then(res => res.text())
+        .then(html => {
+          const parser = new DOMParser();
+          const htmlDoc = parser.parseFromString(html, "text/html");
+          const note = htmlDoc.querySelector('main.content');
+          if (note !== null) {
+            // This should only happen for chapter cross references
+            // (since there is no id in the URL)
+            // remove the first header
+            if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+              note.children[0].remove();
+            }
+            const html = processXRef(null, note);
+            instance.setContent(html);
+          } 
+        }).finally(() => {
+          instance.enable();
+          instance.show();
+        });
+      }
+    }, function(instance) {
+    });
+  }
+      let selectedAnnoteEl;
+      const selectorForAnnotation = ( cell, annotation) => {
+        let cellAttr = 'data-code-cell="' + cell + '"';
+        let lineAttr = 'data-code-annotation="' +  annotation + '"';
+        const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+        return selector;
+      }
+      const selectCodeLines = (annoteEl) => {
+        const doc = window.document;
+        const targetCell = annoteEl.getAttribute("data-target-cell");
+        const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+        const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+        const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+        const lineIds = lines.map((line) => {
+          return targetCell + "-" + line;
+        })
+        let top = null;
+        let height = null;
+        let parent = null;
+        if (lineIds.length > 0) {
+            //compute the position of the single el (top and bottom and make a div)
+            const el = window.document.getElementById(lineIds[0]);
+            top = el.offsetTop;
+            height = el.offsetHeight;
+            parent = el.parentElement.parentElement;
+          if (lineIds.length > 1) {
+            const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+            const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+            height = bottom - top;
+          }
+          if (top !== null && height !== null && parent !== null) {
+            // cook up a div (if necessary) and position it 
+            let div = window.document.getElementById("code-annotation-line-highlight");
+            if (div === null) {
+              div = window.document.createElement("div");
+              div.setAttribute("id", "code-annotation-line-highlight");
+              div.style.position = 'absolute';
+              parent.appendChild(div);
+            }
+            div.style.top = top - 2 + "px";
+            div.style.height = height + 4 + "px";
+            div.style.left = 0;
+            let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+            if (gutterDiv === null) {
+              gutterDiv = window.document.createElement("div");
+              gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+              gutterDiv.style.position = 'absolute';
+              const codeCell = window.document.getElementById(targetCell);
+              const gutter = codeCell.querySelector('.code-annotation-gutter');
+              gutter.appendChild(gutterDiv);
+            }
+            gutterDiv.style.top = top - 2 + "px";
+            gutterDiv.style.height = height + 4 + "px";
+          }
+          selectedAnnoteEl = annoteEl;
+        }
+      };
+      const unselectCodeLines = () => {
+        const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+        elementsIds.forEach((elId) => {
+          const div = window.document.getElementById(elId);
+          if (div) {
+            div.remove();
+          }
+        });
+        selectedAnnoteEl = undefined;
+      };
+        // Handle positioning of the toggle
+    window.addEventListener(
+      "resize",
+      throttle(() => {
+        elRect = undefined;
+        if (selectedAnnoteEl) {
+          selectCodeLines(selectedAnnoteEl);
+        }
+      }, 10)
+    );
+    function throttle(fn, ms) {
+    let throttle = false;
+    let timer;
+      return (...args) => {
+        if(!throttle) { // first call gets through
+            fn.apply(this, args);
+            throttle = true;
+        } else { // all the others get throttled
+            if(timer) clearTimeout(timer); // cancel #2
+            timer = setTimeout(() => {
+              fn.apply(this, args);
+              timer = throttle = false;
+            }, ms);
+        }
+      };
+    }
+      // Attach click handler to the DT
+      const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+      for (const annoteDlNode of annoteDls) {
+        annoteDlNode.addEventListener('click', (event) => {
+          const clickedEl = event.target;
+          if (clickedEl !== selectedAnnoteEl) {
+            unselectCodeLines();
+            const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+            if (activeEl) {
+              activeEl.classList.remove('code-annotation-active');
+            }
+            selectCodeLines(clickedEl);
+            clickedEl.classList.add('code-annotation-active');
+          } else {
+            // Unselect the line
+            unselectCodeLines();
+            clickedEl.classList.remove('code-annotation-active');
+          }
+        });
+      }
+  const findCites = (el) => {
+    const parentEl = el.parentElement;
+    if (parentEl) {
+      const cites = parentEl.dataset.cites;
+      if (cites) {
+        return {
+          el,
+          cites: cites.split(' ')
+        };
+      } else {
+        return findCites(el.parentElement)
+      }
+    } else {
+      return undefined;
+    }
+  };
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const citeInfo = findCites(ref);
+    if (citeInfo) {
+      tippyHover(citeInfo.el, function() {
+        var popup = window.document.createElement('div');
+        citeInfo.cites.forEach(function(cite) {
+          var citeDiv = window.document.createElement('div');
+          citeDiv.classList.add('hanging-indent');
+          citeDiv.classList.add('csl-entry');
+          var biblioDiv = window.document.getElementById('ref-' + cite);
+          if (biblioDiv) {
+            citeDiv.innerHTML = biblioDiv.innerHTML;
+          }
+          popup.appendChild(citeDiv);
+        });
+        return popup.innerHTML;
+      });
+    }
+  }
+});
+</script>
+</div> <!-- /content -->
+
+
+
+
+</body></html>
