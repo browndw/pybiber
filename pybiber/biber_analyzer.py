@@ -169,10 +169,11 @@ class BiberAnalyzer:
         self.pca_coordinates = None
         self.pca_variance_explained = None
         self.pca_variable_contribution = None
+        self.pca_loadings = None
 
         # check grouping variable
-    # Only raise if there are multiple documents and every document
-    # has a unique category (i.e., grouping variable ineffective)
+        # Only raise if there are multiple documents and every document
+        # has a unique category (i.e., grouping variable ineffective)
         if (self.feature_matrix.height > 1 and
                 len(self.doc_cats) == self.feature_matrix.height):
             raise ValueError("""
@@ -429,7 +430,7 @@ class BiberAnalyzer:
         """
         pc_col = "PC_" + str(pc)
 
-        if self.pca_variable_contribution is None:
+        if self.pca_variable_contribution is None or self.pca_loadings is None:
             logger.warning("No component to plot. Have you executed pca()?")
             return None
         if self.pca_variable_contribution is not None:
@@ -440,39 +441,68 @@ class BiberAnalyzer:
             )
             return None
 
+        # Merge contributions with loadings to apply polarity for visualization
         df_plot = (
             self.pca_variable_contribution
             .select('feature', pc_col)
+            .join(
+                self.pca_loadings.select(
+                    'feature',
+                    pl.col(pc_col).alias('loading')
+                ),
+                on='feature',
+                how='inner',
+            )
+            .with_columns([
+                pl.col(pc_col).alias('abs_contrib'),
+                pl.when(pl.col('loading') > 0).then(1)
+                  .when(pl.col('loading') < 0).then(-1)
+                  .otherwise(0)
+                  .alias('sign'),
+            ])
+            .with_columns(
+                (
+                    pl.col('abs_contrib') * pl.col('sign')
+                ).alias('signed_contrib')
+            )
+        )
+
+        # keep only variables with contribution above mean (by absolute value)
+        mean_abs_contrib = float(
+            df_plot
+            .select(pl.col('abs_contrib').abs().mean().alias('m'))
+            .to_series(0)[0]
+        )
+        df_plot = (
+            df_plot
+            .filter(pl.col('abs_contrib').abs() > mean_abs_contrib)
+            .with_columns(pl.col('signed_contrib').alias(pc_col))
+            .select('feature', pc_col)
             .sort(pc_col, descending=True)
             .with_columns(
-                pl.col(pc_col)
-                .abs()
-                .mean()
-                .lt(pl.col(pc_col)
-                    .abs())
-                .alias('GT Mean')
-                )
-            .filter(pl.col('GT Mean'))
-            .with_columns(
-                pl.col('feature').str.replace(r"f_\d+_", "").alias("feature")
-                )
-            .with_columns(
-                pl.col('feature').str.replace_all("_", " ").alias("feature")
-                )
+                pl.col('feature').str.replace(r"f_\d+_", "").alias('feature')
             )
+            .with_columns(
+                pl.col('feature').str.replace_all('_', ' ').alias('feature')
+            )
+        )
 
         feature = df_plot['feature'].to_numpy()
-        contribuution = df_plot[pc_col].to_numpy()
+        contribution = df_plot[pc_col].to_numpy()
         ylimit = df_plot.get_column(pc_col).abs().ceil().max()
 
         fig, ax = plt.subplots(figsize=(width, height), dpi=dpi)
 
-        ax.bar(feature[contribuution > 0],
-               contribuution[contribuution > 0],
-               color='#440154', edgecolor='black', linewidth=.5)
-        ax.bar(feature[contribuution < 0],
-               contribuution[contribuution < 0],
-               color='#21918c', edgecolor='black', linewidth=.5)
+        ax.bar(
+            feature[contribution > 0],
+            contribution[contribution > 0],
+            color='#440154', edgecolor='black', linewidth=.5,
+        )
+        ax.bar(
+            feature[contribution < 0],
+            contribution[contribution < 0],
+            color='#21918c', edgecolor='black', linewidth=.5,
+        )
 
         # Despine
         ax.spines['right'].set_visible(False)
@@ -876,38 +906,33 @@ class BiberAnalyzer:
         pca_result = pca.fit_transform(df)
         pca_df = pl.DataFrame(
             pca_result, schema=["PC_" + str(i) for i in range(1, n + 1)]
-            )
+        )
 
-        # calculate variable contribution
-        # this is a Python implementation adapted from FactoMineR
-        # https://github.com/husson/FactoMineR/blob/master/R/PCA.R
-        sdev = pca_df.std(ddof=0).to_numpy().T
-        contrib = []
-        for i in range(len(sdev)):
-            # Raw coordinate (loading * component stdev)
-            coord = pca.components_[i] * sdev[i]
-            # Magnitude squared
-            mag2 = coord ** 2
-            total = mag2.sum()
-            if total == 0 or not np.isfinite(total):
-                # All zeros (e.g., zero-variance only) -> zero contribution
-                contrib_vec = np.zeros_like(coord)
-            else:
-                contrib_vec = (mag2 / total) * 100.0
-            # Apply polarity using sign (avoids divide-by-zero NaNs)
-            contrib_vec = contrib_vec * np.sign(coord)
-            contrib.append(contrib_vec)
-        contrib = np.array(contrib)
-        # Replace any residual NaNs (defensive) with 0
-        contrib = np.nan_to_num(contrib, nan=0.0, posinf=0.0, neginf=0.0)
+        # Raw loadings (eigenvectors), shape: (features, components)
+        loadings = pca.components_.T
+        # Zero-variance features should not contribute to any component.
+        # Force their loadings to 0 to avoid arbitrary basis vectors
+        # in the null space producing 100% contribution on a late PC.
+        if zero_var_idx:
+            loadings[zero_var_idx, :] = 0.0
+        loadings_df = pl.DataFrame(
+            loadings, schema=["PC_" + str(i) for i in range(1, n + 1)]
+        ).select(
+            pl.Series(self.variables.columns).alias("feature"),
+            pl.all(),
+        )
 
+        # Variable contribution for correlation PCA (FactoMineR):
+        # contrib[j, k] = 100 * loading[j, k]^2
+        contrib = 100.0 * (loadings ** 2)
+        if zero_var_idx:
+            contrib[zero_var_idx, :] = 0.0
         contrib_df = pl.DataFrame(
             contrib, schema=["PC_" + str(i) for i in range(1, n + 1)]
-            )
-        contrib_df = contrib_df.select(
-                    pl.Series(self.variables.columns).alias("feature"),
-                    pl.all()
-                    )
+        ).select(
+            pl.Series(self.variables.columns).alias("feature"),
+            pl.all(),
+        )
 
         if self.doc_ids is not None:
             pca_df = pca_df.select(
@@ -935,3 +960,4 @@ class BiberAnalyzer:
         self.pca_coordinates = pca_df
         self.pca_variance_explained = ve
         self.pca_variable_contribution = contrib_df
+        self.pca_loadings = loadings_df
