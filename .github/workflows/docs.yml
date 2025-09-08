@@ -31,7 +31,7 @@ jobs:
           python -m pip install --upgrade pip
           # Install project and tools needed for docs
           pip install -e .
-          pip install quartodoc spacy
+          pip install quartodoc spacy jupyter nbformat
           python -m spacy download en_core_web_sm
 
       - name: Set up Quarto

@@ -6,6 +6,8 @@ The format is based on Keep a Changelog, and this project adheres to Semantic Ve
 
 ## [Unreleased]
 
+## [0.2.0] - 2025-09-08
+
 - Refactor: Introduced class-based `CorpusProcessor` pipeline with validation → preprocessing → chunking → spaCy parse → shaping.
 - Determinism: Numeric cumulative `sentence_id` per doc; stable `doc_id` sort; single-pass lag/lead; right-join zero-fill helpers.
 - Validation: Centralized validators and error messages in `pybiber/validation.py`; added `validate_spacy_model`.
