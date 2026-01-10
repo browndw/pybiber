@@ -1,40 +1,21 @@
 from __future__ import annotations
 
-from pathlib import Path
-
 import numpy as np
-import polars as pl
-import pytest
 
 from pybiber.biber_analyzer import BiberAnalyzer
 
-
-def _repo_root() -> Path:
-    return Path(__file__).resolve().parents[1]
-
-
-def _baseline_dir() -> Path:
-    return _repo_root() / "comparisons" / "micusp_old"
-
-
-@pytest.mark.parametrize(
-    "artifact",
-    [
-        "biber_features.parquet",
-        "mda_dim_scores.parquet",
-        "mda_loadings.parquet",
-        "mda_group_means.parquet",
-        "mda_summary.parquet",
-        "pca_coordinates.parquet",
-        "pca_loadings.parquet",
-        "pca_variable_contribution.parquet",
-        "pca_variance_explained.parquet",
-    ],
+from .micusp_baseline_embedded import (
+    BIBER_FEATURES,
+    MDA_DIM_SCORES,
+    MDA_GROUP_MEANS,
+    MDA_LOADINGS,
+    MDA_SUMMARY,
+    PCA_COORDINATES,
+    PCA_LOADINGS,
+    PCA_VARIABLE_CONTRIBUTION,
+    PCA_VARIANCE_EXPLAINED,
+    df_from_embedded,
 )
-def test_micusp_baseline_artifacts_present(artifact: str):
-    path = _baseline_dir() / artifact
-    if not path.exists():
-        pytest.skip(f"MICUSP baseline artifact missing: {path}")
 
 
 def test_micusp_pca_matches_020_baseline():
@@ -44,21 +25,13 @@ def test_micusp_pca_matches_020_baseline():
     against the stored parquet outputs under comparisons/micusp_old.
     """
 
-    base = _baseline_dir()
-    if not base.exists():
-        pytest.skip("MICUSP baseline directory not present")
-
-    features_path = base / "biber_features.parquet"
-    if not features_path.exists():
-        pytest.skip("MICUSP baseline feature table not present")
-
-    features = pl.read_parquet(features_path)
+    features = df_from_embedded(BIBER_FEATURES)
 
     analyzer = BiberAnalyzer(features, id_column=True)
     analyzer.pca()
 
     # Coordinates: join on doc_id to avoid ordering issues
-    coord_base = pl.read_parquet(base / "pca_coordinates.parquet")
+    coord_base = df_from_embedded(PCA_COORDINATES)
     coord_new = analyzer.pca_coordinates
     assert coord_new is not None
     pc_cols = [c for c in coord_base.columns if c.startswith("PC_")]
@@ -69,7 +42,7 @@ def test_micusp_pca_matches_020_baseline():
     np.testing.assert_allclose(a, b, rtol=0.0, atol=1e-10)
 
     # Loadings: join on feature
-    load_base = pl.read_parquet(base / "pca_loadings.parquet")
+    load_base = df_from_embedded(PCA_LOADINGS)
     load_new = analyzer.pca_loadings
     assert load_new is not None
     joined = load_base.join(load_new, on="feature", how="inner", suffix="_new")
@@ -78,7 +51,7 @@ def test_micusp_pca_matches_020_baseline():
     np.testing.assert_allclose(a, b, rtol=0.0, atol=1e-10)
 
     # Contribution: join on feature
-    contrib_base = pl.read_parquet(base / "pca_variable_contribution.parquet")
+    contrib_base = df_from_embedded(PCA_VARIABLE_CONTRIBUTION)
     contrib_new = analyzer.pca_variable_contribution
     assert contrib_new is not None
     joined = contrib_base.join(contrib_new, on="feature", how="inner", suffix="_new")  # noqa: E501
@@ -87,7 +60,7 @@ def test_micusp_pca_matches_020_baseline():
     np.testing.assert_allclose(a, b, rtol=0.0, atol=1e-10)
 
     # Variance explained: join on Dim
-    ve_base = pl.read_parquet(base / "pca_variance_explained.parquet")
+    ve_base = df_from_embedded(PCA_VARIANCE_EXPLAINED)
     ve_new = analyzer.pca_variance_explained
     assert ve_new is not None
     joined = ve_base.join(ve_new, on="Dim", how="inner", suffix="_new")
@@ -112,15 +85,7 @@ def test_micusp_mda_matches_020_baseline():
     parquets under comparisons/micusp_old.
     """
 
-    base = _baseline_dir()
-    if not base.exists():
-        pytest.skip("MICUSP baseline directory not present")
-
-    features_path = base / "biber_features.parquet"
-    if not features_path.exists():
-        pytest.skip("MICUSP baseline feature table not present")
-
-    features = pl.read_parquet(features_path)
+    features = df_from_embedded(BIBER_FEATURES)
 
     analyzer = BiberAnalyzer(features, id_column=True)
     analyzer.mda(
@@ -129,7 +94,7 @@ def test_micusp_mda_matches_020_baseline():
         )
 
     # Dim scores: join on doc_id
-    dim_base = pl.read_parquet(base / "mda_dim_scores.parquet")
+    dim_base = df_from_embedded(MDA_DIM_SCORES)
     dim_new = analyzer.mda_dim_scores
     assert dim_new is not None
     factor_cols = [c for c in dim_base.columns if c.startswith("factor_")]
@@ -142,7 +107,7 @@ def test_micusp_mda_matches_020_baseline():
     )
 
     # Loadings: join on feature (allow tiny numeric drift)
-    load_base = pl.read_parquet(base / "mda_loadings.parquet")
+    load_base = df_from_embedded(MDA_LOADINGS)
     load_new = analyzer.mda_loadings
     assert load_new is not None
     joined = load_base.join(load_new, on="feature", how="inner", suffix="_new")
@@ -154,7 +119,7 @@ def test_micusp_mda_matches_020_baseline():
     )
 
     # Group means: join on doc_cat
-    gm_base = pl.read_parquet(base / "mda_group_means.parquet")
+    gm_base = df_from_embedded(MDA_GROUP_MEANS)
     gm_new = analyzer.mda_group_means
     assert gm_new is not None
     joined = gm_base.join(gm_new, on="doc_cat", how="inner", suffix="_new")
@@ -166,7 +131,7 @@ def test_micusp_mda_matches_020_baseline():
     )
 
     # Summary: join on Factor
-    sum_base = pl.read_parquet(base / "mda_summary.parquet")
+    sum_base = df_from_embedded(MDA_SUMMARY)
     sum_new = analyzer.mda_summary
     assert sum_new is not None
     joined = sum_base.join(sum_new, on="Factor", how="inner", suffix="_new")
