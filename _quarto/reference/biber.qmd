@@ -1,18 +1,19 @@
 # biber { #pybiber.parse_functions.biber }
 
 ```python
-parse_functions.biber(tokens, normalize=True, force_ttr=False)
+parse_functions.biber(tokens, normalize=True, force_ttr=False, mattr_window=100)
 ```
 
 Extract Biber features from a parsed corpus.
 
 ## Parameters {.doc-section .doc-section-parameters}
 
-| Name      | Type             | Description                                                                           | Default    |
-|-----------|------------------|---------------------------------------------------------------------------------------|------------|
-| tokens    | pl.DataFrame     | A polars DataFrame with the output of the spacy_parse function.                       | _required_ |
-| normalize | Optional\[bool\] | Normalize counts per 1000 tokens.                                                     | `True`     |
-| force_ttr | Optional\[bool\] | Force the calcuation of type-token ratio rather than moving average type-token ratio. | `False`    |
+| Name         | Type             | Description                                                                                                                                                                                                                               | Default    |
+|--------------|------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|------------|
+| tokens       | pl.DataFrame     | A polars DataFrame with the output of the spacy_parse function.                                                                                                                                                                           | _required_ |
+| normalize    | Optional\[bool\] | Normalize counts per 1000 tokens.                                                                                                                                                                                                         | `True`     |
+| force_ttr    | Optional\[bool\] | Force the calcuation of type-token ratio rather than moving average type-token ratio.                                                                                                                                                     | `False`    |
+| mattr_window | int              | Window size (in tokens) for MATTR (moving-average TTR). If the shortest document in the corpus has fewer than ``mattr_window`` alphabetic tokens and ``force_ttr`` is False, the window is reduced to that minimum length with a warning. | `100`      |
 
 ## Returns {.doc-section .doc-section-returns}
 
@@ -23,8 +24,7 @@ Extract Biber features from a parsed corpus.
 ## Notes {.doc-section .doc-section-notes}
 
 MATTR is the default as it is less sensitive than TTR
-to variations in text lenghth. However, the
-function will automatically use TTR if any of the
-corpus texts are less than 200 words.
-Thus, forcing TTR can be necessary when processing multiple
-corpora that you want to be consistent.
+to variations in text lenghth. For very short texts, MATTR depends on the
+chosen window size; if any document is shorter than the requested window,
+the window is reduced to the shortest document length (with a warning).
+Set ``force_ttr=True`` to always compute simple TTR.

@@ -4,7 +4,14 @@ All notable changes to this project will be documented in this file.
 
 The format is based on Keep a Changelog, and this project adheres to Semantic Versioning.
 
-## [Unreleased]
+## [0.3.0] - 2026-01-10
+
+- Features: Added configurable MATTR window size via `mattr_window` for `biber()` and pipeline helpers; if the requested window exceeds the shortest document length, the window is reduced to the shortest length with a warning.
+- Refactor: Removed SciPy/FactorAnalyzer runtime dependency from MDA; implemented NumPy-only maximum-likelihood factor analysis and rotations.
+- Parity: Restored PCA parity with legacy artifacts (stable sign conventions and consistent loadings/scores definitions).
+- Parity: Aligned MDA extraction/rotation pipeline with legacy 0.2.0 (ML extraction → varimax → stats::factanal-style promax conversion; deterministic ordering).
+- Optimizer: Improved bounded ML optimization stability near active bounds (projected gradient) and made multi-start behavior stable (prefer primary SMC start; restarts as fallback).
+- Tests: Added regression coverage against cached MICUSP parquet artifacts (no spaCy parse required).
 
 ## [0.2.0] - 2025-09-08
 

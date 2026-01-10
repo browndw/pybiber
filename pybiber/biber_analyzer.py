@@ -5,21 +5,17 @@ from a parsed corpus.
 """
 
 import warnings
+import math
 import numpy as np
 import polars as pl
 import matplotlib.pyplot as plt
 import matplotlib.ticker as mtick
-import statsmodels.api as sm
 import logging
 import importlib.resources as resources
 
 from adjustText import adjust_text
 from collections import Counter
-from factor_analyzer import FactorAnalyzer
 from matplotlib.figure import Figure
-from sklearn.linear_model import LinearRegression
-from sklearn import decomposition
-from statsmodels.formula.api import ols
 
 logger = logging.getLogger(__name__)
 if not logger.handlers:
@@ -31,7 +27,50 @@ if not logger.handlers:
     logger.setLevel(logging.INFO)
 
 
-def _safe_standardize(x: np.ndarray, ddof: int = 1, eps: float = 1e-12):
+_ML_PSI_LOWER = 5e-3
+_ML_PSI_UPPER = 0.995
+
+# ML factor analysis notes:
+# - We use a bounded optimizer over uniquenesses (psi).
+# - The primary start is FactorAnalyzer-style (SMC-based). If it converges, we
+#   prefer it to avoid drifting into alternate local optima on innocuous input
+#   changes (e.g., feature filtering). Random restarts are used only as a
+#   recovery mechanism when the primary start fails.
+
+
+def _svd_flip(
+    u: np.ndarray,
+    vt: np.ndarray,
+    u_based_decision: bool = False,
+) -> tuple[np.ndarray, np.ndarray]:
+    """Deterministically flip SVD signs (NumPy port of sklearn's svd_flip).
+
+    For PCA parity with sklearn, choose signs based on `vt` rows
+    (`u_based_decision=False`).
+    """
+    u = np.asarray(u)
+    vt = np.asarray(vt)
+    if u.ndim != 2 or vt.ndim != 2:
+        return u, vt
+    if u.shape[1] == 0:
+        return u, vt
+    if u_based_decision:
+        max_abs_rows = np.argmax(np.abs(u), axis=0)
+        signs = np.sign(u[max_abs_rows, np.arange(u.shape[1])])
+    else:
+        max_abs_cols = np.argmax(np.abs(vt), axis=1)
+        signs = np.sign(vt[np.arange(vt.shape[0]), max_abs_cols])
+    signs[signs == 0] = 1.0
+    u = u * signs
+    vt = vt * signs[:, None]
+    return u, vt
+
+
+def _safe_standardize(
+        x: np.ndarray,
+        ddof: int = 1,
+        eps: float = 1e-12
+):
     """Standardize array columns safely.
 
     Replaces zero (or extremely small) standard deviations with 1 to avoid
@@ -64,7 +103,11 @@ def _safe_standardize(x: np.ndarray, ddof: int = 1, eps: float = 1e-12):
     return (x - mean) / std, zero_var_idx.tolist()
 
 
-def _get_eigenvalues(x: np.array, cor_min=0.2):
+def _get_eigenvalues(
+        x: np.ndarray,
+        cor_min: float = 0.2
+):
+    """Compute eigenvalues for all features and the MDA-filtered subset."""
     # Guard against insufficient data (need at least 2 observations & 2 vars)
     if x.ndim != 2 or x.shape[0] < 2 or x.shape[1] < 2:
         return pl.DataFrame({"ev_all": [], "ev_mda": []})
@@ -72,44 +115,670 @@ def _get_eigenvalues(x: np.array, cor_min=0.2):
         with np.errstate(divide="ignore", invalid="ignore"):
             m_cor = np.corrcoef(x.T)
         np.fill_diagonal(m_cor, 0)
-        t = (
+        mask = (
             pl.from_numpy(m_cor)
             .with_columns(pl.all().abs())
             .max_horizontal()
             .gt(cor_min)
             .to_list()
         )
-        # If filtering removes all columns, fallback to original set
-        if not any(t):
-            t = [True] * x.shape[1]
-        y = x.T[t].T
-    # Standardize using safe routine (ddof=0 for backward compatibility)
+        if not any(mask):
+            mask = [True] * x.shape[1]
+        y = x.T[mask].T
         x_z, _ = _safe_standardize(x, ddof=0)
         y_z, _ = _safe_standardize(y, ddof=0)
-        r_1 = np.cov(x_z, rowvar=False, ddof=0)
-        r_2 = np.cov(y_z, rowvar=False, ddof=0)
-        e_1, _ = np.linalg.eigh(r_1)
-        e_2, _ = np.linalg.eigh(r_2)
-        e_1 = pl.DataFrame({'ev_all': e_1[::-1]})
-        e_2 = pl.DataFrame({'ev_mda': e_2[::-1]})
-        df = pl.concat([e_1, e_2], how="horizontal")
-        return df
+        r_all = np.cov(x_z, rowvar=False, ddof=0)
+        r_mda = np.cov(y_z, rowvar=False, ddof=0)
+        e_all, _ = np.linalg.eigh(r_all)
+        e_mda, _ = np.linalg.eigh(r_mda)
+        df_all = pl.DataFrame({'ev_all': e_all[::-1]})
+        df_mda = pl.DataFrame({'ev_mda': e_mda[::-1]})
+        return pl.concat([df_all, df_mda], how="horizontal")
     except Exception:
-        # Fallback: empty result on numerical failure
         return pl.DataFrame({"ev_all": [], "ev_mda": []})
 
 
-# adapted from the R stats package
-# https://github.com/SurajGupta/r-source/blob/master/src/library/stats/R/factanal.R
-def _promax(x: np.array, m=4):
-    Q = x * np.abs(x)**(m-1)
-    model = LinearRegression(fit_intercept=False)
-    model.fit(x, Q)
-    U = model.coef_.T
-    d = np.diag(np.linalg.inv(np.dot(U.T, U)))
-    U = U * np.sqrt(d)
-    promax_loadings = np.dot(x, U)
-    return promax_loadings
+def _principal_loadings(
+    x: np.ndarray,
+    n_factors: int,
+) -> tuple[np.ndarray, np.ndarray]:
+    """Return principal-component loadings and eigenvalues."""
+    if x.ndim != 2:
+        raise ValueError(
+            """
+            Input array must be 2-dimensional for factor extraction
+            """
+            )
+    cov = np.cov(x, rowvar=False, ddof=1)
+    cov = np.nan_to_num(cov)
+    eigvals, eigvecs = np.linalg.eigh(cov)
+    order = np.argsort(eigvals)[::-1]
+    eigvals = eigvals[order]
+    eigvecs = eigvecs[:, order]
+    k = min(n_factors, eigvecs.shape[1])
+    eigvals = eigvals[:k]
+    eigvecs = eigvecs[:, :k]
+    eigvals = np.clip(eigvals, a_min=0.0, a_max=None)
+    loadings = eigvecs * np.sqrt(eigvals)
+    return loadings, eigvals
+
+
+# TODO(dwb): Keep the analytic gradient in lockstep with the objective.
+# It is intentionally backed by numerical-gradient fallbacks in the optimizer.
+
+
+def _ml_objective_with_gradient(
+    psi: np.ndarray,
+    corr_mtx: np.ndarray,
+    n_factors: int,
+) -> tuple[float, np.ndarray]:
+    """Return ML objective value and analytic gradient for uniquenesses."""
+    psi = np.asarray(psi, dtype=float)
+    grad = np.full_like(psi, np.nan)
+    if psi.ndim != 1 or psi.size != corr_mtx.shape[0]:
+        return float(np.inf), grad
+    if not np.all(np.isfinite(psi)) or np.any(psi <= 0):
+        return float(np.inf), grad
+    inv_sqrt = 1.0 / np.sqrt(psi)
+    if not np.all(np.isfinite(inv_sqrt)):
+        return float(np.inf), grad
+    sstar = (inv_sqrt[:, None] * corr_mtx) * inv_sqrt[None, :]
+    try:
+        eigvals, eigvecs = np.linalg.eigh(sstar)
+    except np.linalg.LinAlgError:
+        return float(np.inf), grad
+    eigvals = eigvals[::-1]
+    eigvecs = eigvecs[:, ::-1]
+    if eigvals.size <= n_factors:
+        return float(np.inf), grad
+    tail_vals = eigvals[n_factors:]
+    if tail_vals.size == 0 or np.any(tail_vals <= 0):
+        return float(np.inf), grad
+    objective = -(np.sum(np.log(tail_vals) - tail_vals) - n_factors + corr_mtx.shape[0])  # noqa: E501
+    tail_vecs = eigvecs[:, n_factors:]
+    weights = 1.0 - 1.0 / tail_vals
+    inv_sqrt_cubed = inv_sqrt ** 3
+    z = inv_sqrt[:, None] * tail_vecs
+    rd = corr_mtx @ z
+    contrib = (tail_vecs * rd) * weights
+    grad = -inv_sqrt_cubed * np.sum(contrib, axis=1)
+    grad = np.asarray(grad, dtype=float)
+    return float(objective), grad
+
+
+def _numerical_gradient(
+    func,
+    x: np.ndarray,
+    eps: float = 1e-8,
+    bounds: tuple[np.ndarray, np.ndarray] | None = None,
+) -> np.ndarray:
+    # Working: fallback finite-difference
+    # gradient used when analytic forms fail.
+    """Central-difference gradient with optional bound-aware projections."""
+
+    def _apply_bounds(vec: np.ndarray) -> np.ndarray:
+        if bounds is None:
+            return vec
+        lower, upper = bounds
+        return np.minimum(np.maximum(vec, lower), upper)
+
+    grad = np.zeros_like(x)
+    for i in range(x.size):
+        step = eps * max(1.0, abs(x[i]))
+        x_forward = x.copy()
+        x_backward = x.copy()
+        x_forward[i] += step
+        x_backward[i] -= step
+        x_forward = _apply_bounds(x_forward)
+        x_backward = _apply_bounds(x_backward)
+        f_forward = func(x_forward)
+        f_backward = func(x_backward)
+        if not np.isfinite(f_forward) or not np.isfinite(f_backward):
+            grad[i] = 0.0
+        else:
+            grad[i] = (f_forward - f_backward) / (2.0 * step)
+    return grad
+
+
+def _bfgs_minimize(
+    objective,
+    x0: np.ndarray,
+    max_iter: int = 800,
+    tol: float = 1e-6,
+    line_search_max: int = 30,
+    history: int = 10,
+    bounds: tuple[np.ndarray | float, np.ndarray | float] | None = None,
+    gradient=None,
+) -> tuple[np.ndarray, float, np.ndarray]:
+    # Needs follow-up: deterministic
+    # but line search may be too loose per MICUSP delta.
+    """Limited-memory BFGS with safeguarded Armijo-Wolfe line search."""
+    x = np.asarray(x0, dtype=float)
+    lower_arr = upper_arr = None
+    if bounds is not None:
+        lower_raw, upper_raw = bounds
+        lower_arr = np.asarray(lower_raw, dtype=float)
+        upper_arr = np.asarray(upper_raw, dtype=float)
+        if lower_arr.ndim == 0:
+            lower_arr = np.full_like(x, lower_arr)
+        if upper_arr.ndim == 0:
+            upper_arr = np.full_like(x, upper_arr)
+
+        def _apply_bounds(vec: np.ndarray) -> np.ndarray:
+            return np.minimum(np.maximum(vec, lower_arr), upper_arr)
+
+        x = _apply_bounds(x)
+    else:
+        def _apply_bounds(vec: np.ndarray) -> np.ndarray:
+            return vec
+
+    def _project_gradient(vec: np.ndarray, grad_vec: np.ndarray) -> np.ndarray:
+        """Projected gradient for simple bound constraints.
+
+        Components that would move outside the feasible region are set to 0,
+        approximating the behavior of L-BFGS-B near active bounds.
+        """
+        if lower_arr is None or upper_arr is None:
+            return grad_vec
+        eps = 1e-12
+        pg = np.array(grad_vec, dtype=float, copy=True)
+        at_lower = vec <= (lower_arr + eps)
+        at_upper = vec >= (upper_arr - eps)
+        pg[at_lower & (pg > 0)] = 0.0
+        pg[at_upper & (pg < 0)] = 0.0
+        return pg
+
+    def _eval_grad(vec: np.ndarray) -> np.ndarray:
+        if gradient is not None:
+            grad_vec = np.asarray(gradient(vec), dtype=float)
+        else:
+            grad_vec = _numerical_gradient(
+                objective,
+                vec,
+                bounds=(lower_arr, upper_arr) if bounds else None,
+            )
+        return grad_vec
+
+    f = objective(x)
+    if not np.isfinite(f):
+        return x, float(np.inf), np.full_like(x, np.nan)
+    g = _project_gradient(x, _eval_grad(x))
+    s_hist: list[np.ndarray] = []
+    y_hist: list[np.ndarray] = []
+    rho_hist: list[float] = []
+    for _ in range(max_iter):
+        if not np.all(np.isfinite(g)):
+            break
+        grad_norm = np.linalg.norm(g, ord=np.inf)
+        if grad_norm < tol:
+            break
+
+        # Two-loop recursion for L-BFGS direction
+        q = g.copy()
+        alpha: list[float] = []
+        if s_hist:
+            hist_triplets = list(zip(reversed(s_hist), reversed(y_hist), reversed(rho_hist)))  # noqa: E501
+            for s_vec, y_vec, rho in hist_triplets:
+                a = rho * np.dot(s_vec, q)
+                alpha.append(a)
+                q = q - a * y_vec
+            last_s = s_hist[-1]
+            last_y = y_hist[-1]
+            gamma = np.dot(last_s, last_y) / max(np.dot(last_y, last_y), 1e-12)
+            r = gamma * q
+            for (s_vec, y_vec, rho), a in zip(reversed(hist_triplets), reversed(alpha)):  # noqa: E501
+                beta = rho * np.dot(y_vec, r)
+                r = r + s_vec * (a - beta)
+            direction = -r
+        else:
+            direction = -g
+
+        directional_deriv = np.dot(g, direction)
+        if not np.isfinite(directional_deriv) or directional_deriv >= 0:
+            direction = -g
+            directional_deriv = np.dot(g, direction)
+        if directional_deriv >= 0:
+            break
+
+        step = 1.0
+        armijo = 1e-4
+        wolfe = 0.9
+        accepted = False
+        best_candidate = None
+        best_f_candidate = np.inf
+        best_g_candidate = None
+        for _ in range(line_search_max):
+            candidate = _apply_bounds(x + step * direction)
+            f_candidate = objective(candidate)
+            if not np.isfinite(f_candidate):
+                step *= 0.5
+                continue
+            g_candidate = _project_gradient(candidate, _eval_grad(candidate))
+            if np.isfinite(f_candidate) and f_candidate < best_f_candidate:
+                best_candidate = candidate
+                best_f_candidate = f_candidate
+                best_g_candidate = g_candidate
+            if (
+                f_candidate <= f + armijo * step * directional_deriv
+                and np.dot(g_candidate, direction) >= wolfe * directional_deriv
+            ):
+                accepted = True
+                break
+            step *= 0.5
+        if not accepted:
+            # Fallback: if we found any improving step (even without
+            # satisfying curvature), take the best improvement and continue.
+            if best_candidate is None or not np.isfinite(best_f_candidate) or best_f_candidate >= f:  # noqa: E501
+                break
+            candidate = best_candidate
+            f_candidate = best_f_candidate
+            g_candidate = best_g_candidate if best_g_candidate is not None else _project_gradient(candidate, _eval_grad(candidate))  # noqa: E501
+
+        s_vec = candidate - x
+        y_vec = g_candidate - g
+        ys = np.dot(y_vec, s_vec)
+        if ys > 1e-10 and np.all(np.isfinite(y_vec)):
+            rho = 1.0 / ys
+            if len(s_hist) == history:
+                s_hist.pop(0)
+                y_hist.pop(0)
+                rho_hist.pop(0)
+            s_hist.append(s_vec)
+            y_hist.append(y_vec)
+            rho_hist.append(rho)
+        x, f, g = candidate, f_candidate, g_candidate
+    return x, f, g
+
+
+def _normalize_ml_loadings(solution: np.ndarray,
+                           corr_mtx: np.ndarray,
+                           n_factors: int) -> np.ndarray:
+    # Working: parity-tested normalization from stats::factanal.
+    """Normalize ML solution to loadings (ported from R factanal)."""
+    psi = np.clip(solution, 1e-8, None)
+    sc = np.diag(1.0 / np.sqrt(psi))
+    sstar = sc @ corr_mtx @ sc
+    try:
+        eigvals, eigvecs = np.linalg.eigh(sstar)
+    except np.linalg.LinAlgError:
+        raise ValueError(
+            "Unable to normalize ML loadings due to singular matrix"
+            )
+    eigvals = eigvals[::-1][:n_factors]
+    eigvecs = eigvecs[:, ::-1][:, :n_factors]
+    eigvals = np.maximum(eigvals - 1.0, 0.0)
+    loadings = eigvecs * np.sqrt(eigvals)
+    return np.diag(np.sqrt(psi)) @ loadings
+
+
+def _initial_psi(
+    corr_mtx: np.ndarray,
+    lower: float = _ML_PSI_LOWER,
+    upper: float = _ML_PSI_UPPER,
+    n_starts: int = 1,
+    random_state: int | None = None,
+) -> np.ndarray:
+    # Working: reproduces FactorAnalyzer
+    # start heuristics with optional RNG seed.
+    """FactorAnalyzer-style starting uniquenesses with optional restarts."""
+
+    p = corr_mtx.shape[0]
+    diag_vals = np.array(np.diag(corr_mtx), dtype=float, copy=True)
+    diag_vals[~np.isfinite(diag_vals)] = 1.0
+    try:
+        inv = np.linalg.pinv(corr_mtx)
+    except np.linalg.LinAlgError:
+        inv = np.linalg.pinv(corr_mtx + np.eye(p) * 1e-6)
+    smc = 1.0 - 1.0 / np.diag(inv)
+    base = np.clip(diag_vals - smc, lower, upper)
+
+    starts = np.empty((max(1, n_starts), p), dtype=float)
+    starts[0] = base
+    if n_starts > 1:
+        rng = np.random.default_rng(random_state)
+        random_vals = rng.uniform(lower, upper, size=(n_starts - 1, p))
+        starts[1:] = random_vals
+    return starts
+
+
+def _ml_factor_loadings_from_corr(
+    corr_mtx: np.ndarray,
+    n_factors: int,
+    max_iter: int = 1000,
+    tol: float = 1e-8,
+    n_starts: int = 1,
+    random_state: int | None = None,
+) -> np.ndarray:
+    """Estimate ML factor loadings from a correlation matrix via ML FA.
+
+    Uses a bounded quasi-Newton solver over uniquenesses (psi) with an analytic
+    gradient and numerical-gradient fallbacks. The primary (SMC) start is
+    preferred when it converges; additional starts are for recovery only.
+    """
+    n_features = corr_mtx.shape[0]
+    if n_factors >= n_features:
+        raise ValueError(
+            "n_factors must be less than number of features for ML FA"
+            )
+    if not np.all(np.isfinite(corr_mtx)):
+        raise ValueError(
+            "Correlation matrix contains non-finite entries"
+            )
+    psi_bounds = (_ML_PSI_LOWER, _ML_PSI_UPPER)
+    starts = _initial_psi(
+        corr_mtx,
+        lower=psi_bounds[0],
+        upper=psi_bounds[1],
+        n_starts=max(1, n_starts),
+        random_state=random_state,
+    )
+
+    lower_arr = np.full(n_features, psi_bounds[0], dtype=float)
+    upper_arr = np.full(n_features, psi_bounds[1], dtype=float)
+
+    cached_point: np.ndarray | None = None
+    cached_value: float | None = None
+    cached_grad: np.ndarray | None = None
+
+    def _evaluate_and_cache(vec: np.ndarray) -> tuple[float, np.ndarray]:
+        nonlocal cached_point, cached_value, cached_grad
+        value, grad = _ml_objective_with_gradient(vec, corr_mtx, n_factors)
+        cached_point = np.array(vec, dtype=float, copy=True)
+        cached_value = float(value)
+        cached_grad = np.array(grad, dtype=float, copy=True)
+        return cached_value, cached_grad
+
+    def obj(psi: np.ndarray) -> float:
+        nonlocal cached_point, cached_value
+        psi = np.asarray(psi, dtype=float)
+        if (
+            cached_point is not None
+            and psi.shape == cached_point.shape
+            and np.array_equal(cached_point, psi)
+            and cached_value is not None
+        ):
+            return cached_value
+        value, _ = _evaluate_and_cache(psi)
+        return value
+
+    def grad(psi: np.ndarray) -> np.ndarray:
+        nonlocal cached_point, cached_grad
+        psi = np.asarray(psi, dtype=float)
+        if (
+            cached_point is not None
+            and psi.shape == cached_point.shape
+            and np.array_equal(cached_point, psi)
+            and cached_grad is not None
+        ):
+            return cached_grad
+        _, grad_vec = _evaluate_and_cache(psi)
+        return grad_vec
+
+    def _solve_from_start(
+        psi_start: np.ndarray
+    ) -> tuple[np.ndarray, float] | None:
+        psi_seed = np.clip(psi_start, psi_bounds[0], psi_bounds[1])
+        psi_opt, obj_val, _ = _bfgs_minimize(
+            obj,
+            psi_seed,
+            max_iter=max_iter,
+            tol=tol,
+            bounds=(lower_arr, upper_arr),
+            gradient=grad,
+        )
+        if not np.isfinite(obj_val):
+            return None
+
+        # Alternate path using numerical gradients only; helps recover
+        # FactorAnalyzer-equivalent optima on datasets where the analytic
+        # gradient or line search stalls at a different stationary point.
+        psi_num, obj_num, _ = _bfgs_minimize(
+            obj,
+            psi_seed,
+            max_iter=max_iter,
+            tol=tol,
+            bounds=(lower_arr, upper_arr),
+            gradient=None,
+        )
+        if np.isfinite(obj_num) and obj_num < obj_val - 1e-9:
+            psi_opt, obj_val = psi_num, obj_num
+
+        # Optional polish pass with numerical gradients to avoid analytic
+        # gradient drift on harder real-data cases (e.g., MICUSP parity).
+        psi_polish, obj_polish, _ = _bfgs_minimize(
+            obj,
+            psi_opt,
+            max_iter=max(120, max_iter // 8),
+            tol=max(tol * 0.1, 1e-10),
+            bounds=(lower_arr, upper_arr),
+            gradient=lambda v: _numerical_gradient(
+                obj,
+                v,
+                bounds=(lower_arr, upper_arr),
+                eps=1e-6,
+            ),
+        )
+        if np.isfinite(obj_polish) and obj_polish < obj_val - 1e-9:
+            psi_opt, obj_val = psi_polish, obj_polish
+        try:
+            loadings = _normalize_ml_loadings(psi_opt, corr_mtx, n_factors)
+        except ValueError:
+            return None
+        return loadings, float(obj_val)
+
+    # Always attempt the primary (SMC-based) start first; this mirrors
+    # FactorAnalyzer behavior and keeps solutions stable across innocuous
+    # changes (e.g., feature filtering) where alternative
+    # starts can converge to a different local optimum.
+    primary_result = _solve_from_start(starts[0])
+    if primary_result is not None:
+        primary_loadings, _ = primary_result
+        return primary_loadings
+
+    # Recovery path: if the primary start fails, try alternate starts and take
+    # the best objective value.
+    best = None
+    best_obj = np.inf
+    best_idx = -1
+    for idx, psi0 in enumerate(starts[1:], start=1):
+        result = _solve_from_start(psi0)
+        if result is None:
+            continue
+        loadings, obj_val = result
+        if (
+            obj_val < best_obj
+            or (
+                np.isclose(obj_val, best_obj, rtol=1e-9, atol=1e-9)
+                and idx < best_idx
+            )
+        ):
+            best = loadings
+            best_obj = obj_val
+            best_idx = idx
+
+    if best is None:
+        raise ValueError(
+            "ML factor analysis failed to converge for any start value"
+            )
+    return best
+
+
+def _varimax(
+    loadings: np.ndarray,
+    normalize: bool = True,
+    max_iter: int = 500,
+    tol: float = 1e-5,
+) -> np.ndarray:
+    # Working: mirrors FactorAnalyzer Rotator; no parity regressions observed.
+    """Varimax rotation mirroring factor_analyzer's Rotator."""
+    if loadings.size == 0 or loadings.shape[1] < 2:
+        return loadings
+    X = loadings.copy()
+    norms = None
+    if normalize:
+        norms = np.linalg.norm(X, axis=1, keepdims=True)
+        norms[norms == 0] = 1.0
+        X = X / norms
+    rotation = np.eye(X.shape[1])
+    delta = 0.0
+    for _ in range(max_iter):
+        prev = delta
+        basis = X @ rotation
+        diag = np.diag(np.sum(basis**2, axis=0))
+        transformed = X.T @ (basis**3 - basis @ diag / X.shape[0])
+        U, S, Vt = np.linalg.svd(transformed)
+        rotation = U @ Vt
+        delta = S.sum()
+        if delta < prev * (1.0 + tol):
+            break
+    X = X @ rotation
+    if normalize and norms is not None:
+        X = X * norms
+    return X
+
+
+def _promax_r(loadings: np.ndarray, m: int = 4) -> np.ndarray:
+    """Promax conversion matching the legacy 0.2.0 analyzer (R factanal).
+
+    This is the "varimax -> promax" conversion step used in stats::factanal
+    (and in scripts/biber_analyzer_old.py). It assumes the input loadings have
+    already been varimax-rotated.
+    """
+    x = np.asarray(loadings, dtype=float)
+    if x.size == 0 or x.shape[1] < 2:
+        return x
+    q = x * np.abs(x) ** (m - 1)
+    # Solve x @ u ~= q in least squares (equivalent to LinearRegression
+    # without intercept).
+    u, *_ = np.linalg.lstsq(x, q, rcond=None)
+    # u returned is (k, k). Normalize columns.
+    try:
+        d = np.diag(np.linalg.inv(u.T @ u))
+    except np.linalg.LinAlgError:
+        d = np.diag(np.linalg.pinv(u.T @ u))
+    u = u * np.sqrt(np.clip(d, 0.0, None))
+    return x @ u
+
+
+def _sort_loadings(loadings: np.ndarray) -> np.ndarray:
+    # Working: ensures deterministic column ordering/signs
+    # for downstream diffs.
+    """Replicate stats::factanal ordering/sign convention."""
+    if loadings.size == 0 or loadings.shape[1] == 1:
+        return loadings
+    ssq = np.sum(loadings**2, axis=0)
+    order = np.argsort(-ssq)
+    sorted_loadings = loadings[:, order]
+    col_sums = np.sum(sorted_loadings, axis=0)
+    neg = col_sums < 0
+    if np.any(neg):
+        sorted_loadings[:, neg] *= -1.0
+    return sorted_loadings
+
+
+def _betacf(a: float, b: float, x: float,
+            max_iter: int = 200, tol: float = 3e-7) -> float:
+    # Working: Numerical Recipes continued fraction used by F-test helper.
+    """Continued fraction for incomplete beta (Numerical Recipes)."""
+    FPMIN = 1e-30
+    m2 = 0
+    aa = 0.0
+    c = 1.0
+    d = 1.0 - (a + b) * x / (a + 1.0)
+    if abs(d) < FPMIN:
+        d = FPMIN
+    d = 1.0 / d
+    h = d
+    for m in range(1, max_iter + 1):
+        m2 = 2 * m
+        aa = m * (b - m) * x / ((a + m2 - 1.0) * (a + m2))
+        d = 1.0 + aa * d
+        if abs(d) < FPMIN:
+            d = FPMIN
+        c = 1.0 + aa / c
+        if abs(c) < FPMIN:
+            c = FPMIN
+        d = 1.0 / d
+        h *= d * c
+        aa = -(a + m) * (a + b + m) * x / ((a + m2) * (a + m2 + 1.0))
+        d = 1.0 + aa * d
+        if abs(d) < FPMIN:
+            d = FPMIN
+        c = 1.0 + aa / c
+        if abs(c) < FPMIN:
+            c = FPMIN
+        d = 1.0 / d
+        delta = d * c
+        h *= delta
+        if abs(delta - 1.0) < tol:
+            break
+    return h
+
+
+def _betai(a: float, b: float, x: float) -> float:
+    # Working: regularized incomplete beta builds on _betacf for ANOVA stats.
+    """Regularized incomplete beta function."""
+    if x <= 0.0:
+        return 0.0
+    if x >= 1.0:
+        return 1.0
+    bt = math.exp(
+        math.lgamma(a + b)
+        - math.lgamma(a)
+        - math.lgamma(b)
+        + a * math.log(x)
+        + b * math.log(1.0 - x)
+    )
+    if x < (a + 1.0) / (a + b + 2.0):
+        return bt * _betacf(a, b, x) / a
+    return 1.0 - bt * _betacf(b, a, 1.0 - x) / b
+
+
+def _f_sf(F: float, df1: int, df2: int) -> float:
+    """Survival function (1-CDF) for the F distribution."""
+    if df1 <= 0 or df2 <= 0 or not np.isfinite(F) or F < 0:
+        return np.nan
+    z = (df1 * F) / (df1 * F + df2)
+    return 1.0 - _betai(df1 / 2.0, df2 / 2.0, z)
+
+
+def _anova_one_way(values: list[float], groups: list[str]) -> dict[str, float]:
+    # Working: NumPy-only fallback matching scipy.stats outputs in tests.
+    """Compute one-way ANOVA stats using NumPy only."""
+    y = np.asarray(values, dtype=float)
+    g = np.asarray(groups)
+    mask = np.isfinite(y)
+    y = y[mask]
+    g = g[mask]
+    n = y.size
+    unique, inverse = np.unique(g, return_inverse=True)
+    k = unique.size
+    if n < 2 or k < 2:
+        return {"F": np.nan, "df1": 0, "df2": 0, "p": np.nan, "R2": np.nan}
+    overall_mean = np.mean(y)
+    ss_between = 0.0
+    ss_within = 0.0
+    for idx, label in enumerate(unique):
+        grp = y[inverse == idx]
+        if grp.size == 0:
+            continue
+        mean = np.mean(grp)
+        ss_between += grp.size * (mean - overall_mean) ** 2
+        ss_within += np.sum((grp - mean) ** 2)
+    df1 = max(k - 1, 0)
+    df2 = max(n - k, 0)
+    if df1 == 0 or df2 == 0:
+        return {"F": np.nan, "df1": df1, "df2": df2, "p": np.nan, "R2": np.nan}
+    ms_between = ss_between / df1 if df1 else np.nan
+    ms_within = ss_within / df2 if df2 else np.nan
+    if ms_within == 0 or not np.isfinite(ms_within):
+        F_stat = np.nan
+    else:
+        F_stat = ms_between / ms_within
+    p_value = _f_sf(F_stat, df1, df2) if np.isfinite(F_stat) else np.nan
+    total_ss = ss_between + ss_within
+    r_squared = ss_between / total_ss if total_ss > 0 else np.nan
+    return {"F": F_stat, "df1": df1, "df2": df2, "p": p_value, "R2": r_squared}
 
 
 class BiberAnalyzer:
@@ -521,7 +1190,9 @@ class BiberAnalyzer:
     def mda(self,
             n_factors: int = 3,
             cor_min: float = 0.2,
-            threshold: float = 0.35):
+            threshold: float = 0.35,
+            ml_n_starts: int = 5,
+            ml_random_state: int | None = 0):
 
         """Execute Biber's multi-dimensional anlaysis.
 
@@ -534,6 +1205,10 @@ class BiberAnalyzer:
         threshold:
             The factor loading threshold (in absolute value)
             used to calculate dimension scores.
+        ml_n_starts:
+            Number of random uniqueness seeds for ML estimation (>=1).
+        ml_random_state:
+            Optional seed for reproducible ML restarts.
 
         """
         # filter out non-correlating variables
@@ -584,6 +1259,9 @@ class BiberAnalyzer:
                 zero_full,
             )
 
+        if n_factors < 1:
+            raise ValueError("n_factors must be >= 1")
+
         # scale variables (safe)
         x = m_trim.to_numpy()
         m_z, zero_var_idx = _safe_standardize(x, ddof=1)
@@ -594,23 +1272,52 @@ class BiberAnalyzer:
             )
         # m_z = zscore(m_trim.to_numpy(), ddof=1, nan_policy='omit')
 
-        with warnings.catch_warnings():
-            warnings.simplefilter(action='ignore', category=FutureWarning)
-            if n_factors == 1:
-                warnings.filterwarnings(
-                    "ignore",
-                    message="No rotation will be performed",
-                    category=UserWarning,
-                )
-            fa = FactorAnalyzer(
-                n_factors=n_factors,
-                rotation="varimax",
-                method="ml"
+        if n_factors > m_trim.width:
+            logger.warning(
+                """
+                Requested %d factors exceeds variable count (%d); truncating.
+                """,
+                n_factors,
+                m_trim.width,
             )
-            fa.fit(m_trim.to_numpy())
+            n_factors = m_trim.width
 
-        # convert varimax to promax
-        promax_loadings = _promax(fa.loadings_)
+        base_loadings = None
+        try:
+            corr_trim = np.corrcoef(m_trim.to_numpy(), rowvar=False)
+            corr_trim = np.nan_to_num(corr_trim, nan=0.0, posinf=0.0, neginf=0.0)  # noqa: E501
+            np.fill_diagonal(corr_trim, 1.0)
+            base_loadings = _ml_factor_loadings_from_corr(
+                corr_trim,
+                n_factors,
+                n_starts=max(1, ml_n_starts),
+                random_state=ml_random_state,
+            )
+        except Exception as exc:  # pragma: no cover
+            logger.warning(
+                """
+                ML factor extraction failed (%s);
+                using principal component loadings.
+                """,
+                exc,
+            )
+            base_loadings, _ = _principal_loadings(m_z, n_factors)
+
+        # Legacy 0.2.0 path: ML extraction -> varimax -> (R-style) promax.
+        # This matches scripts/biber_analyzer_old.py (FactorAnalyzer
+        # rotation="varimax" then stats::factanal promax conversion).
+        if n_factors > 1:
+            with warnings.catch_warnings():
+                warnings.simplefilter("ignore")
+                varimax_loadings = _varimax(base_loadings.copy(), normalize=True)  # noqa: E501
+                # FactorAnalyzer returns varimax loadings with factors ordered
+                # by descending sum-of-squares and with column sums positive.
+                # Apply that convention before the legacy promax conversion so
+                # downstream dim-scores align with the 0.2.0 baseline.
+                varimax_loadings = _sort_loadings(varimax_loadings)
+                promax_loadings = _promax_r(varimax_loadings)
+        else:
+            promax_loadings = base_loadings
 
         # aggregate dimension scores
         pos = (promax_loadings > threshold).T
@@ -667,45 +1374,22 @@ class BiberAnalyzer:
             y = dim_scores.get_column(factor_col).to_list()
             X = dim_scores.get_column('doc_cat').to_list()
 
-            model = ols(
-                "response ~ group", data={"response": y, "group": X}
-                ).fit()
-            anova_table = sm.stats.anova_lm(model, typ=2)
-            factor_summary = (pl.DataFrame(
-                anova_table
-                )
-                .cast({"df": pl.UInt32})
-                .with_columns(
-                    pl.col('df')
-                    .shift(-1).alias('df2').cast(pl.UInt32)
-                    )
-                .with_columns(df=pl.concat_list("df", "df2"))
-                .with_columns(R2=pl.lit(model.rsquared))
-                .with_columns(Factor=pl.lit(factor_col))
-                .select(['Factor', 'F', "df", "PR(>F)", "R2"])
-                ).head(1)
+            stats = _anova_one_way(y, X)
+            factor_summary = pl.DataFrame({
+                'Factor': [factor_col],
+                'F': [stats['F']],
+                'df': [[stats['df1'], stats['df2']]],
+                'PR(>F)': [stats['p']],
+                'R2': [stats['R2']],
+            })
             summary.append(factor_summary)
         summary = pl.concat(summary)
-        summary = (
-            summary.with_columns(
-                pl.when(
-                    pl.col("PR(>F)") < 0.05,
-                    pl.col("PR(>F)") > 0.01
-                    )
-                .then(pl.lit("* p < 0.05"))
-                .when(
-                    pl.col("PR(>F)") < 0.01,
-                    pl.col("PR(>F)") > 0.001
-                    )
-                .then(pl.lit("** p < 0.01"))
-                .when(
-                    pl.col("PR(>F)") < 0.001,
-                    )
-                .then(pl.lit("*** p < 0.001"))
-                .otherwise(pl.lit("NS"))
-                .alias("Signif")
-                ).select(['Factor', 'F', "df", "PR(>F)", "Signif", "R2"])
-                )
+        summary = summary.with_columns(
+            pl.when(pl.col("PR(>F)") < 0.001).then(pl.lit("*** p < 0.001"))
+            .when(pl.col("PR(>F)") < 0.01).then(pl.lit("** p < 0.01"))
+            .when(pl.col("PR(>F)") < 0.05).then(pl.lit("* p < 0.05"))
+            .otherwise(pl.lit("NS")).alias("Signif")
+        ).select(['Factor', 'F', "df", "PR(>F)", "Signif", "R2"])
         self.mda_summary = summary
         self.mda_loadings = loadings
         self.mda_dim_scores = dim_scores
@@ -828,45 +1512,25 @@ class BiberAnalyzer:
             factor_col = "factor_" + str(i)
             y = dim_scores.get_column(factor_col).to_list()
             X = dim_scores.get_column("doc_cat").to_list()
-            try:
-                model = ols(
-                    "response ~ group", data={"response": y, "group": X}
-                ).fit()
-                anova_table = sm.stats.anova_lm(model, typ=2)
-                factor_summary = (
-                    pl.DataFrame(anova_table)
-                    .cast({"df": pl.UInt32})
-                    .with_columns(
-                        pl.col("df").shift(-1).alias("df2").cast(pl.UInt32)
-                    )
-                    .with_columns(df=pl.concat_list("df", "df2"))
-                    .with_columns(R2=pl.lit(model.rsquared))
-                    .with_columns(Factor=pl.lit(factor_col))
-                    .select([
-                        "Factor", "F", "df", "PR(>F)", "R2"
-                    ])  # noqa: W605
-                ).head(1)
-            except Exception:
-                # Fallback in edge cases with single group etc.
-                factor_summary = pl.DataFrame({
-                    "Factor": [factor_col],
-                    "F": [np.nan],
-                    "df": [[0, 0]],
-                    "PR(>F)": [np.nan],
-                    "R2": [np.nan],
-                })
+            stats = _anova_one_way(y, X)
+            factor_summary = pl.DataFrame({
+                'Factor': [factor_col],
+                'F': [stats['F']],
+                'df': [[stats['df1'], stats['df2']]],
+                'PR(>F)': [stats['p']],
+                'R2': [stats['R2']],
+            })
             summary.append(factor_summary)
         summary = pl.concat(summary)
         summary = (
             summary.with_columns(
-                pl.when(pl.col("PR(>F)") < 0.05, pl.col("PR(>F)") > 0.01)
-                .then(pl.lit("* p < 0.05"))
-                .when(pl.col("PR(>F)") < 0.01, pl.col("PR(>F)") > 0.001)
-                .then(pl.lit("** p < 0.01"))
-                .when(pl.col("PR(>F)") < 0.001)
+                pl.when(pl.col("PR(>F)") < 0.001)
                 .then(pl.lit("*** p < 0.001"))
-                .otherwise(pl.lit("NS"))
-                .alias("Signif")
+                .when(pl.col("PR(>F)") < 0.01)
+                .then(pl.lit("** p < 0.01"))
+                .when(pl.col("PR(>F)") < 0.05)
+                .then(pl.lit("* p < 0.05"))
+                .otherwise(pl.lit("NS")).alias("Signif")
             )
             .select([
                 "Factor", "F", "df", "PR(>F)", "Signif", "R2"
@@ -884,9 +1548,7 @@ class BiberAnalyzer:
 
         Notes
         -----
-        This is largely a convenience function as most of its outputs
-        are produced by wrappers for sklearn. However,
-        variable contribution is adapted from the FactoMineR function
+        Variable contribution is adapted from the FactoMineR function
         [fviz_contrib](https://search.r-project.org/CRAN/refmans/factoextra/html/fviz_contrib.html).
 
         """
@@ -899,20 +1561,21 @@ class BiberAnalyzer:
                 [self.variables.columns[i] for i in zero_var_idx],
             )
 
-        # get number of components
-        n = min(df.shape)
+        n_samples, n_features = df.shape
+        n = min(n_samples, n_features)
 
-        pca = decomposition.PCA(n_components=n)
-        pca_result = pca.fit_transform(df)
+        U, S, Vt = np.linalg.svd(df, full_matrices=False)
+        U, Vt = _svd_flip(U, Vt, u_based_decision=False)
+        scores = U[:, :n] * S[:n]
         pca_df = pl.DataFrame(
-            pca_result, schema=["PC_" + str(i) for i in range(1, n + 1)]
+            scores, schema=["PC_" + str(i) for i in range(1, n + 1)]
         )
 
-        # Raw loadings (eigenvectors), shape: (features, components)
-        loadings = pca.components_.T
-        # Zero-variance features should not contribute to any component.
-        # Force their loadings to 0 to avoid arbitrary basis vectors
-        # in the null space producing 100% contribution on a late PC.
+        # Derive loadings so that standardized data
+        # satisfies df @ loadings = scores.
+        # This matches sklearn PCA's transform relationship and is robust to
+        # numerical quirks (e.g., zero-variance columns).
+        loadings, *_ = np.linalg.lstsq(df, scores, rcond=None)
         if zero_var_idx:
             loadings[zero_var_idx, :] = 0.0
         loadings_df = pl.DataFrame(
@@ -922,8 +1585,6 @@ class BiberAnalyzer:
             pl.all(),
         )
 
-        # Variable contribution for correlation PCA (FactoMineR):
-        # contrib[j, k] = 100 * loading[j, k]^2
         contrib = 100.0 * (loadings ** 2)
         if zero_var_idx:
             contrib[zero_var_idx, :] = 0.0
@@ -946,16 +1607,22 @@ class BiberAnalyzer:
                         pl.all()
                         )
 
-        ve = np.array(pca.explained_variance_ratio_).tolist()
-        ve = pl.DataFrame(
-            {'Dim': [
-                "PC_" + str(i) for i in range(1, len(ve) + 1)
-                ], 'VE (%)': ve}
-            )
-        ve = (ve
-              .with_columns(pl.col('VE (%)').mul(100))
-              .with_columns(pl.col('VE (%)').cum_sum().alias('VE (Total)'))
-              )
+        denom = max(n_samples - 1, 1)
+        explained_variance = (S[:n] ** 2) / denom
+        total_variance = explained_variance.sum() if explained_variance.size else 0.0  # noqa: E501
+        if total_variance == 0:
+            var_ratio = np.zeros_like(explained_variance)
+        else:
+            var_ratio = explained_variance / total_variance
+        ve = pl.DataFrame({
+            'Dim': ["PC_" + str(i) for i in range(1, n + 1)],
+            'VE (%)': var_ratio.tolist(),
+        })
+        ve = (
+            ve
+            .with_columns(pl.col('VE (%)').mul(100))
+            .with_columns(pl.col('VE (%)').cum_sum().alias('VE (Total)'))
+        )
 
         self.pca_coordinates = pca_df
         self.pca_variance_explained = ve

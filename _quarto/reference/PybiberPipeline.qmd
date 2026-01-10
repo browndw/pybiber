@@ -39,7 +39,12 @@ End-to-end convenience wrapper for common pybiber workflows.
 ### features { #pybiber.pipeline.PybiberPipeline.features }
 
 ```python
-pipeline.PybiberPipeline.features(tokens, normalize=True, force_ttr=False)
+pipeline.PybiberPipeline.features(
+    tokens,
+    normalize=True,
+    force_ttr=False,
+    mattr_window=100,
+)
 ```
 
 Compute Biber features from token-level parses.
@@ -68,6 +73,7 @@ pipeline.PybiberPipeline.run(
     return_tokens=False,
     normalize=True,
     force_ttr=False,
+    mattr_window=100,
 )
 ```
 
@@ -82,6 +88,7 @@ pipeline.PybiberPipeline.run_from_folder(
     return_tokens=False,
     normalize=True,
     force_ttr=False,
+    mattr_window=100,
 )
 ```
 

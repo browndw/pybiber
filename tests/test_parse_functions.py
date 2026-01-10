@@ -5,6 +5,7 @@ Test suite for pybiber.parse_functions module.
 import pytest
 import polars as pl
 from pybiber.parse_functions import biber, _biber_weight
+
 from .test_data import SAMPLE_TEXTS, EXPECTED_FEATURES
 
 
@@ -62,6 +63,53 @@ class TestBiberFunction:
         for val in ttr_values:
             if val is not None and not pl.Series([val]).is_null().item():
                 assert 0 <= val <= 1
+
+    def test_mattr_window_falls_back_to_shortest_doc(self):
+        """
+        If the requested MATTR window exceeds the shortest doc,
+        reduce it with a warning.
+        """
+        # Build a token table with 2 docs long enough
+        # to use MATTR (legacy rule: >200 tokens):
+        # - doc_a has 250 alphabetic tokens
+        # - doc_b has 300 alphabetic tokens
+        def _tok_rows(doc_id: str, n_tokens: int):
+            rows = []
+            for i in range(n_tokens):
+                tok = f"w{chr(97 + (i % 5))}"  # 5 alphabetic types repeated
+                rows.append(
+                    {
+                        "doc_id": doc_id,
+                        "sentence_id": 1,
+                        "token_id": i,
+                        "token": tok,
+                        "lemma": tok,
+                        "pos": "NOUN",
+                        "tag": "NN",
+                        "head_token_id": 0,
+                        "dep_rel": "ROOT",
+                    }
+                )
+            return rows
+
+        tokens = pl.DataFrame(
+            _tok_rows("doc_a", 250) + _tok_rows("doc_b", 300)
+            )
+
+        # Request a larger window than the minimum length (250)
+        with pytest.warns(UserWarning, match=r"Requested MATTR window \(400\) exceeds the shortest document length \(250\)"):  # noqa: E501
+            features = biber(
+                tokens, normalize=False, force_ttr=False, mattr_window=400
+                )
+
+        assert "f_43_type_token" in features.columns
+        assert features.shape[0] == 2
+
+        # Values should still be bounded
+        vals = features["f_43_type_token"].to_list()
+        for v in vals:
+            if v is not None and not pl.Series([v]).is_null().item():
+                assert 0 <= v <= 1
 
     def test_specific_feature_detection(self, nlp_model):
         """Test detection of specific linguistic features."""

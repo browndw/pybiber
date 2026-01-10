@@ -1,15 +1,23 @@
 # mda { #pybiber.BiberAnalyzer.mda }
 
 ```python
-BiberAnalyzer.mda(n_factors=3, cor_min=0.2, threshold=0.35)
+BiberAnalyzer.mda(
+    n_factors=3,
+    cor_min=0.2,
+    threshold=0.35,
+    ml_n_starts=5,
+    ml_random_state=0,
+)
 ```
 
 Execute Biber's multi-dimensional anlaysis.
 
 ## Parameters {.doc-section .doc-section-parameters}
 
-| Name      | Type   | Description                                                                          | Default   |
-|-----------|--------|--------------------------------------------------------------------------------------|-----------|
-| n_factors | int    | The number of factors to extract.                                                    | `3`       |
-| cor_min   | float  | The minimum correlation at which to drop variables.                                  | `0.2`     |
-| threshold | float  | The factor loading threshold (in absolute value) used to calculate dimension scores. | `0.35`    |
+| Name            | Type        | Description                                                                          | Default   |
+|-----------------|-------------|--------------------------------------------------------------------------------------|-----------|
+| n_factors       | int         | The number of factors to extract.                                                    | `3`       |
+| cor_min         | float       | The minimum correlation at which to drop variables.                                  | `0.2`     |
+| threshold       | float       | The factor loading threshold (in absolute value) used to calculate dimension scores. | `0.35`    |
+| ml_n_starts     | int         | Number of random uniqueness seeds for ML estimation (>=1).                           | `5`       |
+| ml_random_state | int \| None | Optional seed for reproducible ML restarts.                                          | `0`       |

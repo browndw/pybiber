@@ -5,7 +5,7 @@ Test suite for pybiber.biber_analyzer module.
 import pytest
 import numpy as np
 import polars as pl
-from pybiber.biber_analyzer import BiberAnalyzer, _get_eigenvalues, _promax
+from pybiber.biber_analyzer import BiberAnalyzer, _get_eigenvalues, _promax_r
 
 
 class TestBiberAnalyzer:
@@ -140,7 +140,7 @@ class TestUtilityFunctions:
             [0.1, 0.9]
         ])
 
-        rotated = _promax(loadings, m=4)
+        rotated = _promax_r(loadings, m=4)
 
         # Should return array with same shape
         assert rotated.shape == loadings.shape
@@ -153,7 +153,7 @@ class TestUtilityFunctions:
         """Test _promax with edge cases."""
         # Single factor
         single_factor = np.array([[0.8], [0.7], [0.9]])
-        rotated = _promax(single_factor, m=2)
+        rotated = _promax_r(single_factor, m=2)
 
         assert rotated.shape == single_factor.shape
 
@@ -162,7 +162,7 @@ class TestUtilityFunctions:
             [0.1, 0.05],
             [0.08, 0.12]
         ])
-        rotated = _promax(small_loadings, m=4)
+        rotated = _promax_r(small_loadings, m=4)
         assert rotated.shape == small_loadings.shape
 
 

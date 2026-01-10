@@ -244,6 +244,24 @@ This plot shows which linguistic features contribute most strongly to the first 
 
 ## Advanced Analysis Options
 
+### Customizing Feature Extraction
+
+The `biber()` function provides options for controlling lexical diversity metrics:
+
+#### Adjusting MATTR Window Size
+```{python}
+#| eval: false
+# Use a larger window for MATTR (moving-average type-token ratio)
+df_biber = pb.biber(df_spacy, mattr_window=150)
+
+# Force traditional type-token ratio instead of MATTR
+df_biber = pb.biber(df_spacy, force_ttr=True)
+```
+
+::: {.callout-note}
+By default, `biber()` uses MATTR (moving-average type-token ratio) with a window of 100 tokens, which is more robust to text length variation than simple TTR. The window size can be adjusted with the `mattr_window` parameter. If any document is shorter than the requested window, the window is automatically reduced to the shortest document length with a warning.
+:::
+
 ### Customizing the Analysis
 
 The `BiberAnalyzer` offers several customization options:

@@ -14,6 +14,7 @@ Regex patterns are precompiled once at import for speed.
 
 import re
 import logging
+import warnings
 from typing import Optional, Dict, Pattern
 
 import polars as pl
@@ -678,9 +679,10 @@ def _block_regex_features(tokens: pl.DataFrame) -> pl.DataFrame:
 
 
 def _block_derived_metrics(
-        tokens: pl.DataFrame,
-        ids: pl.DataFrame,
-        use_ttr: bool,
+    tokens: pl.DataFrame,
+    ids: pl.DataFrame,
+    use_ttr: bool,
+    mattr_window: int = 100,
 ) -> pl.DataFrame:
     """Compute derived lexical metrics together.
 
@@ -688,6 +690,8 @@ def _block_derived_metrics(
     - f_43_type_token (TTR or MATTR depending on use_ttr)
     - f_44_mean_word_length
     """
+    if mattr_window < 1:
+        raise ValueError("mattr_window must be >= 1")
     if not use_ttr:
         f43 = (
             tokens
@@ -708,12 +712,12 @@ def _block_derived_metrics(
             .select(["doc_id", "token"])
             .rolling(
                 pl.int_range(pl.len()).alias("index"),
-                period="100i",
+                period=f"{int(mattr_window)}i",
                 group_by="doc_id",
             )
             .agg(
-                pl.when(pl.len() == 100)
-                .then(pl.col("token").n_unique().truediv(100))
+                pl.when(pl.len() == int(mattr_window))
+                .then(pl.col("token").n_unique().truediv(int(mattr_window)))
                 .alias("f_43_type_token"),
             )
             .drop("index")
@@ -1144,7 +1148,8 @@ def _biber_weight(
 def biber(
     tokens: pl.DataFrame,
     normalize: Optional[bool] = True,
-    force_ttr: Optional[bool] = False
+    force_ttr: Optional[bool] = False,
+    mattr_window: int = 100,
 ) -> pl.DataFrame:
     """Extract Biber features from a parsed corpus.
 
@@ -1158,6 +1163,11 @@ def biber(
     force_ttr:
         Force the calcuation of type-token ratio
         rather than moving average type-token ratio.
+    mattr_window:
+        Window size (in tokens) for MATTR (moving-average TTR). If the shortest
+        document in the corpus has fewer than ``mattr_window`` alphabetic tokens
+        and ``force_ttr`` is False, the window is reduced to that minimum length
+        with a warning.
 
     Returns
     -------
@@ -1168,13 +1178,12 @@ def biber(
     Notes
     -----
     MATTR is the default as it is less sensitive than TTR
-    to variations in text lenghth. However, the
-    function will automatically use TTR if any of the
-    corpus texts are less than 200 words.
-    Thus, forcing TTR can be necessary when processing multiple
-    corpora that you want to be consistent.
+    to variations in text lenghth. For very short texts, MATTR depends on the
+    chosen window size; if any document is shorter than the requested window,
+    the window is reduced to the shortest document length (with a warning).
+    Set ``force_ttr=True`` to always compute simple TTR.
 
-    """
+    """  # noqa: E501
     doc_totals = (
         tokens
         .filter(
@@ -1184,21 +1193,48 @@ def biber(
         .len(name="doc_total")
         )
 
-    doc_len_min = (
-        tokens
-        .filter(pl.col("token")
-                .str.to_lowercase().str.contains("^[a-z]+$"))
-        ).group_by("doc_id", maintain_order=True
-                   ).agg(
-                       pl.col("token").len()
-                       ).min().get_column("token").item()
+    if mattr_window < 1:
+        raise ValueError("mattr_window must be >= 1")
 
-    if doc_len_min > 200 and force_ttr is False:
-        force_ttr = False
-        logger.info("Using MATTR for f_43_type_token")
+    # Minimum alphabetic-token length across docs.
+    # Polars reductions on empty inputs may return a single-row null result.
+    doc_len_min_df = (
+        tokens
+        .filter(pl.col("token").str.to_lowercase().str.contains("^[a-z]+$"))
+        .group_by("doc_id", maintain_order=True)
+        .agg(pl.col("token").len())
+        .min()
+    )
+    if not doc_len_min_df.height:
+        doc_len_min = 0
     else:
-        force_ttr = True
+        doc_len_min = doc_len_min_df.get_column("token").item()
+        doc_len_min = 0 if doc_len_min is None else int(doc_len_min)
+
+    # Legacy behavior: use TTR for short texts
+    # (<=200 alphabetic tokens), unless forced.
+    # MATTR window only matters when MATTR is used.
+    use_ttr = bool(force_ttr) or (doc_len_min <= 200)
+    effective_mattr_window = int(mattr_window)
+    if not use_ttr:
+        if doc_len_min < 1:
+            warnings.warn(
+                "No alphabetic tokens found; falling back to TTR for f_43_type_token.",  # noqa: E501
+                UserWarning,
+            )
+            use_ttr = True
+        elif doc_len_min < effective_mattr_window:
+            warnings.warn(
+                f"Requested MATTR window ({effective_mattr_window}) exceeds the shortest document length "  # noqa: E501
+                f"({doc_len_min}); using {doc_len_min} instead.",
+                UserWarning,
+            )
+            effective_mattr_window = int(doc_len_min)
+
+    if use_ttr:
         logger.info("Using TTR for f_43_type_token")
+    else:
+        logger.info("Using MATTR for f_43_type_token (window=%d)", effective_mattr_window)  # noqa: E501
 
     ids = tokens.select("doc_id").unique()
     regex_counts = _block_regex_features(tokens)
@@ -1312,7 +1348,12 @@ def biber(
     )
 
     # Derived metrics block (f_43, f_44)
-    _derived_block = _block_derived_metrics(tokens, ids, use_ttr=force_ttr)
+    _derived_block = _block_derived_metrics(
+        tokens,
+        ids,
+        use_ttr=use_ttr,
+        mattr_window=effective_mattr_window,
+    )
     f_43_type_token = _derived_block.select("f_43_type_token")
     f_44_mean_word_length = _derived_block.select("f_44_mean_word_length")
 

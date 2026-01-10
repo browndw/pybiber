@@ -1,25 +1,33 @@
 import numpy as np
-import warnings
 import polars as pl
 
-from pybiber.biber_analyzer import BiberAnalyzer, _promax
-from factor_analyzer import FactorAnalyzer
+from pybiber.biber_analyzer import (
+    BiberAnalyzer,
+    _promax_r,
+    _safe_standardize,
+    _ml_factor_loadings_from_corr,
+    _sort_loadings,
+    _varimax,
+)
 
 
-def old_mda(
+def reference_mda(
     feature_matrix: pl.DataFrame,
     n_factors: int = 3,
     cor_min: float = 0.2,
     threshold: float = 0.35,
 ):
-    """Legacy MDA implementation: returns dim_scores, loadings, group_means."""
+    """Reference NumPy pipeline mirroring the analyzer implementation."""
     variables = feature_matrix.select(pl.selectors.numeric())
 
     # filter out non-correlating variables
     X = variables.to_numpy()
-    m_cor = np.corrcoef(X, rowvar=False)
+    with np.errstate(divide="ignore", invalid="ignore"):
+        m_cor = np.corrcoef(X, rowvar=False)
     np.fill_diagonal(m_cor, 0)
-    abs_max = np.abs(m_cor).max(axis=0)
+    with np.errstate(invalid="ignore"):
+        abs_max = np.nanmax(np.abs(m_cor), axis=0)
+    abs_max = np.nan_to_num(abs_max, nan=0.0)
     keep = abs_max > cor_min
     if not keep.any():
         keep[:] = True
@@ -27,19 +35,23 @@ def old_mda(
         [c for c, k in zip(variables.columns, keep) if k]
     )
 
-    # scale variables (legacy: ddof=1)
+    # scale variables (ddof=1)
     x = m_trim.to_numpy()
-    m_z = (x - np.mean(x, axis=0)) / np.std(x, axis=0, ddof=1)
+    m_z, _ = _safe_standardize(x, ddof=1)
 
-    with warnings.catch_warnings():
-        warnings.simplefilter("ignore", category=FutureWarning)
-        fa = FactorAnalyzer(
-            n_factors=n_factors, rotation="varimax", method="ml"
-        )
-        fa.fit(m_trim.to_numpy())
-
-    # convert varimax to promax
-    promax_loadings = _promax(fa.loadings_)
+    n_factors = min(n_factors, m_trim.width)
+    corr_trim = np.corrcoef(m_trim.to_numpy(), rowvar=False)
+    corr_trim = np.nan_to_num(corr_trim, nan=0.0, posinf=0.0, neginf=0.0)
+    np.fill_diagonal(corr_trim, 1.0)
+    base_loadings = _ml_factor_loadings_from_corr(
+        corr_trim, n_factors=n_factors, n_starts=5, random_state=0
+    )
+    if n_factors > 1:
+        varimax_loadings = _varimax(base_loadings.copy(), normalize=True)
+        varimax_loadings = _sort_loadings(varimax_loadings)
+        promax_loadings = _promax_r(varimax_loadings)
+    else:
+        promax_loadings = base_loadings
 
     # aggregate dimension scores
     pos = (promax_loadings > threshold).T
@@ -101,8 +113,8 @@ def test_mda_dim_scores_compatibility():
     current_loadings = analyzer.mda_loadings
     current_group_means = analyzer.mda_group_means
 
-    # Legacy implementation
-    legacy_scores, legacy_loadings, legacy_group_means = old_mda(
+    # Reference implementation
+    legacy_scores, legacy_loadings, legacy_group_means = reference_mda(
         df, n_factors=3, cor_min=0.2, threshold=0.35
     )
 

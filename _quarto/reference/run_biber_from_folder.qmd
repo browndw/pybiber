@@ -11,6 +11,7 @@ pipeline.run_biber_from_folder(
     return_tokens=False,
     normalize=True,
     force_ttr=False,
+    mattr_window=100,
 )
 ```
 

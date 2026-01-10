@@ -1,6 +1,5 @@
 import numpy as np
 import polars as pl
-from sklearn import decomposition
 
 
 def _safe_standardize(x: np.ndarray, ddof: int = 1, eps: float = 1e-12):
@@ -12,17 +11,10 @@ def _safe_standardize(x: np.ndarray, ddof: int = 1, eps: float = 1e-12):
 
 
 def _compute_contrib(X: np.ndarray, n_components: int) -> np.ndarray:
-    """Compute variable contributions per component (FactoMineR style).
-
-    For standardized inputs, the contribution of variable j to component k is:
-    100 * (e_{jk}^2), where e_{jk} is the eigenvector loading (component axis)
-    for variable j on component k. In sklearn, components_ has shape
-    (n_components, n_features) and rows are unit-norm eigenvectors.
-    """
-    pca = decomposition.PCA(n_components=n_components)
-    pca.fit(X)
-    # components_: (k, p). Contribution matrix: (p, k)
-    contrib = 100.0 * (pca.components_ ** 2).T
+    """Compute variable contributions via NumPy SVD."""
+    _, _, Vt = np.linalg.svd(X, full_matrices=False)
+    components = Vt[:n_components]
+    contrib = 100.0 * (components ** 2).T
     return contrib
 
 
