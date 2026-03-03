@@ -217,12 +217,15 @@ def _block_lexical_membership(
             pl.col("gerunds_n").fill_null(strategy="zero"),
             pl.col("f_51_demonstratives").fill_null(strategy="zero"),
         ])
+        # Cast to Int64 before subtraction to prevent u32 underflow
+        # (same pattern as f_23_wh_clause fix for issue #5).
         .with_columns(
-            (
-                pl.col("f_16_other_nouns")
-                - pl.col("gerunds_n")
-                - pl.col("f_14_nominalizations")
-            ).alias("f_16_other_nouns")
+            pl.max_horizontal(
+                pl.col("f_16_other_nouns").cast(pl.Int64)
+                - pl.col("gerunds_n").cast(pl.Int64)
+                - pl.col("f_14_nominalizations").cast(pl.Int64),
+                pl.lit(0),
+            ).cast(pl.UInt32).alias("f_16_other_nouns")
         )
         .sort("doc_id", descending=False)
     )
@@ -544,21 +547,18 @@ def _block_clause_embedding(
             pl.col("f_38_other_adv_sub").fill_null(strategy="zero"),
             pl.col("f_60_that_deletion").fill_null(strategy="zero"),
         ])
-        # Guard: avoid double-counting WH clauses and WH relatives
+        # Guard: avoid double-counting WH clauses and WH relatives.
+        # Cast to Int64 before subtraction to prevent u32 underflow when
+        # f_31 + f_32 > f_23 (the guard "> 0" alone is ineffective for
+        # unsigned types because the wrapped value is still positive).
         .with_columns(
-            (
-                pl.col("f_23_wh_clause")
-                - pl.col("f_31_wh_subj")
-                - pl.col("f_32_wh_obj")
-            ).alias("_f23_adj")
+            pl.max_horizontal(
+                pl.col("f_23_wh_clause").cast(pl.Int64)
+                - pl.col("f_31_wh_subj").cast(pl.Int64)
+                - pl.col("f_32_wh_obj").cast(pl.Int64),
+                pl.lit(0),
+            ).cast(pl.UInt32).alias("f_23_wh_clause")
         )
-        .with_columns(
-            pl.when(pl.col("_f23_adj") > 0)
-            .then(pl.col("_f23_adj"))
-            .otherwise(0)
-            .alias("f_23_wh_clause")
-        )
-        .drop("_f23_adj")
         .sort("doc_id", descending=False)
     )
 
