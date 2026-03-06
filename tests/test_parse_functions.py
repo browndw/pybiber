@@ -181,6 +181,123 @@ class TestBiberFunction:
             set(doc_ids_parsed.to_list())
         )
 
+    def test_wh_question_not_counted_in_declaratives(self, nlp_model):
+        """Declaratives with WH forms should not inflate f_13_wh_question."""
+        corpus = pl.DataFrame({
+            "doc_id": ["d1", "d2"],
+            "text": [
+                "These error precursors are unfavorable conditions that increase the probability of human errors while performing specific actions.",  # noqa: E501
+                "Unfortunately, the same steel-wheel-on-steel-rail construction that provides for low rolling friction also severely limits braking capabilities, especially in heavy freight trains that can take over a kilometer to stop when traveling at full speed.",  # noqa: E501
+            ],
+        })
+
+        from pybiber.parse_utils import spacy_parse
+
+        parsed = spacy_parse(corpus, nlp_model, n_process=1, batch_size=10)
+        features = biber(parsed, normalize=False, force_ttr=True)
+
+        counts = (
+            features
+            .select(["doc_id", "f_13_wh_question"])
+            .sort("doc_id")
+            .get_column("f_13_wh_question")
+            .to_list()
+        )
+        assert counts == [0, 0]
+
+    def test_wh_question_no_cross_doc_sentence_id_leakage(self):
+        """Question marks in one doc should not trigger f_13 in another doc."""
+        tokens = pl.DataFrame({
+            "doc_id": ["q_doc", "q_doc", "q_doc", "q_doc",
+                       "d_doc", "d_doc", "d_doc", "d_doc"],
+            "sentence_id": pl.Series(
+                [1, 1, 1, 1, 1, 1, 1, 1],
+                dtype=pl.UInt32,
+            ),
+            "token_id": [0, 1, 2, 3, 0, 1, 2, 3],
+            "token": [
+                "When", "are", "you", "?", "Who", "knows", "the", "answer"
+            ],
+            "lemma": [
+                "when", "be", "you", "?", "who", "know", "the", "answer"
+            ],
+            "pos": [
+                "SCONJ", "AUX", "PRON", "PUNCT", "PRON", "VERB", "DET", "NOUN"
+            ],
+            "tag": ["WRB", "VBP", "PRP", ".", "WP", "VBZ", "DT", "NN"],
+            "head_token_id": [1, 1, 1, 1, 1, 1, 3, 1],
+            "dep_rel": [
+                "advmod", "aux", "nsubj", "punct",
+                "nsubj", "ROOT", "det", "obj",
+            ],
+        })
+
+        features = biber(tokens, normalize=False, force_ttr=True)
+        out = features.select(["doc_id", "f_13_wh_question"]).sort("doc_id")
+
+        expected = {
+            "d_doc": 0,
+            "q_doc": 1,
+        }
+        for row in out.iter_rows(named=True):
+            assert row["f_13_wh_question"] == expected[row["doc_id"]]
+
+    def test_f19_be_main_verb_strict_mode_toggle(self):
+        """strict_be_main_verb should gate embedded non-aux be counts."""
+        tokens = pl.DataFrame({
+            "doc_id": ["root_be", "embedded_be", "aux_be", "nonfinite_be"],
+            "sentence_id": pl.Series([1, 1, 1, 1], dtype=pl.UInt32),
+            "token_id": [0, 0, 0, 0],
+            "token": ["is", "is", "is", "being"],
+            "lemma": ["be", "be", "be", "be"],
+            "pos": ["AUX", "AUX", "AUX", "AUX"],
+            "tag": ["VBZ", "VBZ", "VBZ", "VBG"],
+            "head_token_id": [0, 1, 1, 1],
+            "dep_rel": ["ROOT", "ccomp", "aux", "ccomp"],
+        })
+
+        features_compat = biber(
+            tokens,
+            normalize=False,
+            force_ttr=True,
+            strict_be_main_verb=False,
+        )
+        features_strict = biber(
+            tokens,
+            normalize=False,
+            force_ttr=True,
+            strict_be_main_verb=True,
+        )
+
+        compat = {
+            r["doc_id"]: r["f_19_be_main_verb"]
+            for r in (
+                features_compat
+                .select(["doc_id", "f_19_be_main_verb"])
+                .iter_rows(named=True)
+            )
+        }
+        strict = {
+            r["doc_id"]: r["f_19_be_main_verb"]
+            for r in (
+                features_strict
+                .select(["doc_id", "f_19_be_main_verb"])
+                .iter_rows(named=True)
+            )
+        }
+
+        # Compatibility mode: finite non-aux be counts (root + embedded).
+        assert compat["root_be"] == 1
+        assert compat["embedded_be"] == 1
+        assert compat["aux_be"] == 0
+        assert compat["nonfinite_be"] == 0
+
+        # Strict mode: only finite root be counts.
+        assert strict["root_be"] == 1
+        assert strict["embedded_be"] == 0
+        assert strict["aux_be"] == 0
+        assert strict["nonfinite_be"] == 0
+
 
 class TestBiberWeighting:
     """Test the _biber_weight function for different weighting schemes."""
