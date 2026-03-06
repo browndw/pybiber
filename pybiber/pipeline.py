@@ -109,6 +109,7 @@ class PybiberPipeline:
         normalize: Optional[bool] = True,
         force_ttr: Optional[bool] = False,
         mattr_window: int = 100,
+        strict_be_main_verb: bool = True,
     ) -> pl.DataFrame:
         """Compute Biber features from token-level parses."""
         return biber(
@@ -116,6 +117,7 @@ class PybiberPipeline:
             normalize=normalize,
             force_ttr=force_ttr,
             mattr_window=mattr_window,
+            strict_be_main_verb=strict_be_main_verb,
         )
 
     # ---- End-to-end helpers ----
@@ -127,6 +129,7 @@ class PybiberPipeline:
         normalize: Optional[bool] = True,
         force_ttr: Optional[bool] = False,
         mattr_window: int = 100,
+        strict_be_main_verb: bool = True,
     ) -> Union[pl.DataFrame, Tuple[pl.DataFrame, pl.DataFrame]]:
         """Read, parse, and compute features from a folder of .txt files."""
         corpus = (
@@ -140,6 +143,7 @@ class PybiberPipeline:
             normalize=normalize,
             force_ttr=force_ttr,
             mattr_window=mattr_window,
+            strict_be_main_verb=strict_be_main_verb,
         )
         return (features_df, tokens) if return_tokens else features_df
 
@@ -150,6 +154,7 @@ class PybiberPipeline:
         normalize: Optional[bool] = True,
         force_ttr: Optional[bool] = False,
         mattr_window: int = 100,
+        strict_be_main_verb: bool = True,
     ) -> Union[pl.DataFrame, Tuple[pl.DataFrame, pl.DataFrame]]:
         """Parse and compute features from an in-memory corpus DataFrame."""
         tokens = self.parse(corpus)
@@ -158,6 +163,7 @@ class PybiberPipeline:
             normalize=normalize,
             force_ttr=force_ttr,
             mattr_window=mattr_window,
+            strict_be_main_verb=strict_be_main_verb,
         )
         return (features_df, tokens) if return_tokens else features_df
 
@@ -180,6 +186,7 @@ def run_biber_from_folder(
     normalize: Optional[bool] = True,
     force_ttr: Optional[bool] = False,
     mattr_window: int = 100,
+    strict_be_main_verb: bool = True,
 ) -> Union[pl.DataFrame, Tuple[pl.DataFrame, pl.DataFrame]]:
     """One-liner: read -> parse -> biber() from a folder of .txt files."""
     pipeline = PybiberPipeline(
@@ -197,6 +204,7 @@ def run_biber_from_folder(
         normalize=normalize,
         force_ttr=force_ttr,
         mattr_window=mattr_window,
+        strict_be_main_verb=strict_be_main_verb,
     )
 
 
@@ -211,6 +219,7 @@ def run_biber(
     normalize: Optional[bool] = True,
     force_ttr: Optional[bool] = False,
     mattr_window: int = 100,
+    strict_be_main_verb: bool = True,
 ) -> Union[pl.DataFrame, Tuple[pl.DataFrame, pl.DataFrame]]:
     """One-liner: parse -> biber() from an in-memory corpus DataFrame."""
     pipeline = PybiberPipeline(
@@ -227,4 +236,5 @@ def run_biber(
         normalize=normalize,
         force_ttr=force_ttr,
         mattr_window=mattr_window,
+        strict_be_main_verb=strict_be_main_verb,
     )
