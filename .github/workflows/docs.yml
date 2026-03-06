@@ -32,7 +32,8 @@ jobs:
           # Install project and tools needed for docs
           pip install -e .
           # Pin a compatible quartodoc/griffe pair to avoid parser API drift.
-          pip install "quartodoc==0.9.1" "griffe>=1.5,<2" spacy jupyter nbformat
+          # quartodoc 0.9.1 expects Griffe's pre-1.0 API surface.
+          pip install "quartodoc==0.9.1" "griffe==0.49.0" spacy jupyter nbformat
           python -m spacy download en_core_web_sm
 
       - name: Set up Quarto
