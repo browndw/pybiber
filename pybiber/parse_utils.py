@@ -116,8 +116,10 @@ class TextPreprocessor:
         Normalize unicode characters and convert to ASCII when possible.
 
         Applies NFKD (compatibility decomposition) normalization and
-        converts to ASCII, removing characters that can't be represented.
-        This helps standardize text from different sources.
+        converts to ASCII, removing characters that cannot be represented.
+        Structural punctuation that acts as token boundaries (for example,
+        em/en dashes) is first mapped to ASCII separators to avoid accidental
+        word concatenation during ASCII conversion.
 
         Args:
             text: Input text that may contain non-ASCII unicode characters.
@@ -129,6 +131,17 @@ class TextPreprocessor:
             >>> TextPreprocessor.normalize_unicode("café naïve")
             'cafe naive'
         """
+        replacements = {
+            "\u2013": " - ",  # En dash
+            "\u2014": " - ",  # Em dash
+            "\u2015": " - ",  # Horizontal bar
+            "\u2212": " - ",  # Minus sign
+            "\u2026": "...",  # Ellipsis
+        }
+
+        for old, new in replacements.items():
+            text = text.replace(old, new)
+
         return (
             unicodedata.normalize("NFKD", text)
             .encode("ascii", errors="ignore")
