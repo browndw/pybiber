@@ -39,6 +39,29 @@ class TestTextProcessingUtilities:
         expected = '"hello"'
         assert TextPreprocessor.replace_curly_quotes(text) == expected
 
+    def test_normalize_unicode_preserves_dash_boundaries(self):
+        """Unicode dashes should not collapse neighboring words."""
+        text = "simultaneously\u2014including"
+        normalized = TextPreprocessor.normalize_unicode(text)
+        assert "simultaneouslyincluding" not in normalized
+        assert "simultaneously" in normalized
+        assert "including" in normalized
+
+    def test_preprocess_corpus_regression_dash_join(self):
+        """Regression: em dashes should not merge adjacent tokens."""
+        df = pl.DataFrame({
+            "doc_id": ["d1"],
+            "text": [
+                "Moreover, music engages systems simultaneously\u2014including those mediating perception."  # noqa: E501
+            ],
+        })
+
+        processed = TextPreprocessor.preprocess_corpus(df)
+        out = processed.get_column("text").item()
+        assert "simultaneouslyincluding" not in out
+        assert "simultaneously" in out
+        assert "including" in out
+
     def test_split_docs(self):
         """Test _split_docs splits documents appropriately."""
         text = "First sentence. Second sentence! Third question? Fourth."
