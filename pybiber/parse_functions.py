@@ -586,22 +586,28 @@ def _block_sentence_level(
     Currently includes:
     - f_13_wh_question
     """
+    # Conservative WH-question heuristic aligned to pseudobibeR intent:
+    #   1) current token is a WH-form (non-determiner),
+    #   2) next token dependency is auxiliary,
+    #   3) token appears at sentence start or after punctuation.
+    #
+    # This avoids broad sentence-level OR logic that can overcount
+    # declaratives and avoids cross-document leakage via sentence_id lists.
     f13 = (
         tokens
-        .filter((pl.col("tag").str.contains("^W")) & (pl.col("pos") != "DET"))
+        .with_columns(
+            pl.int_range(pl.len())
+            .over(["doc_id", "sentence_id"])
+            .alias("_sent_tok_idx")
+        )
         .filter(
-            pl.col("sentence_id").is_in(
-                tokens.filter(pl.col("token") == "?").get_column("sentence_id")
-            )
-            | (pl.col("dep_lag_-1") == "aux")
-            | ((pl.col("token_id") < 3) & (pl.col("pos_lag_1") == "AUX"))
-            | (
-                pl.col("sentence_id").is_in(
-                    tokens
-                    .filter(pl.col("pos") == "AUX")
-                    .get_column("sentence_id")
-                )
-                & (~pl.col("dep_lag_1").is_in(["ccomp", "advcl"]))
+            (pl.col("tag").str.contains("^W"))
+            & (pl.col("pos") != "DET")
+            & (pl.col("dep_lag_-1") == "aux")
+            & (
+                (pl.col("pos_lag_1") == "PUNCT")
+                | (pl.col("pos_lag_2") == "PUNCT")
+                | (pl.col("_sent_tok_idx") <= 1)
             )
         )
         .group_by("doc_id", maintain_order=True)
@@ -781,8 +787,9 @@ def _block_derived_metrics(
 
 
 def _block_passive_voice(
-        tokens: pl.DataFrame,
-        ids: pl.DataFrame
+    tokens: pl.DataFrame,
+    ids: pl.DataFrame,
+    strict_be_main_verb: bool = False,
 ) -> pl.DataFrame:
     """Compute passive and stative verb features together.
 
@@ -823,12 +830,20 @@ def _block_passive_voice(
         .len(name="f_18_by_passives")
     )
 
+    # Biber-style compatibility mode counts finite non-auxiliary "be"
+    # constructions, including embedded predicative clauses.
+    # Strict mode limits counts to finite sentence roots.
+    f19_filter = (
+        (pl.col("lemma") == "be")
+        & (pl.col("tag").is_in(["VBD", "VBP", "VBZ"]))
+        & (~pl.col("dep_rel").str.contains("aux"))
+    )
+    if strict_be_main_verb:
+        f19_filter = f19_filter & (pl.col("dep_rel") == "ROOT")
+
     f19 = (
         tokens
-        .filter(
-            (pl.col("lemma") == "be")
-            & (~pl.col("dep_rel").str.contains("aux"))
-        )
+        .filter(f19_filter)
         .group_by("doc_id", maintain_order=True)
         .len(name="f_19_be_main_verb")
     )
@@ -1150,6 +1165,7 @@ def biber(
     normalize: Optional[bool] = True,
     force_ttr: Optional[bool] = False,
     mattr_window: int = 100,
+    strict_be_main_verb: bool = True,
 ) -> pl.DataFrame:
     """Extract Biber features from a parsed corpus.
 
@@ -1168,6 +1184,11 @@ def biber(
         document in the corpus has fewer than ``mattr_window`` alphabetic tokens
         and ``force_ttr`` is False, the window is reduced to that minimum length
         with a warning.
+    strict_be_main_verb:
+        If True, count ``f_19_be_main_verb`` only when finite ``be`` is the
+        sentence root (``dep_rel == 'ROOT'``). If False, use
+        compatibility behavior that counts finite non-auxiliary ``be``
+        constructions, including embedded predicatives.
 
     Returns
     -------
@@ -1333,7 +1354,11 @@ def biber(
     )
 
     # Passive voice and stative verb features
-    _passive_block = _block_passive_voice(tokens, ids)
+    _passive_block = _block_passive_voice(
+        tokens,
+        ids,
+        strict_be_main_verb=strict_be_main_verb,
+    )
     f_17_agentless_passives = _passive_block.select("f_17_agentless_passives")
     f_18_by_passives = _passive_block.select("f_18_by_passives")
     f_19_be_main_verb = _passive_block.select("f_19_be_main_verb")
