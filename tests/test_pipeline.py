@@ -42,3 +42,19 @@ def test_pipeline_run_returns_features_and_tokens(sample_corpus, nlp_model):
     assert dtype not in (pl.Boolean,), (
         f"unexpected dtype for sentence_id: {dtype}"
     )
+
+
+def test_pipeline_run_accepts_strict_be_main_verb(sample_corpus, nlp_model):
+    pipeline = PybiberPipeline(
+        nlp=nlp_model, disable_ner=True, n_process=1, batch_size=8
+    )
+
+    feats = pipeline.run(
+        sample_corpus,
+        normalize=False,
+        force_ttr=True,
+        strict_be_main_verb=True,
+    )
+
+    assert "doc_id" in feats.columns
+    assert "f_19_be_main_verb" in feats.columns
