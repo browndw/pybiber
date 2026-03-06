@@ -4,6 +4,15 @@ All notable changes to this project will be documented in this file.
 
 The format is based on Keep a Changelog, and this project adheres to Semantic Versioning.
 
+## [0.3.1] - 2026-03-06
+
+- Fix: Preserved token boundaries during unicode normalization by mapping structural punctuation (for example, em/en dashes) to ASCII separators before ASCII encoding; this prevents unintended joins such as `simultaneouslyincluding` while preserving accent normalization (for example, `cafe` from `cafe`).
+- Fix: Tightened `f_13_wh_question` detection logic to reduce false positives in declarative sentences and avoid sentence-level leakage patterns; aligned the heuristic with WH + auxiliary + sentence-start/punctuation context.
+- Adjustment: Added configurable `strict_be_main_verb` handling for `f_19_be_main_verb` in `biber()` and pipeline helpers; strict mode now defaults on and counts only finite `be` sentence roots, while compatibility mode (`strict_be_main_verb=False`) counts finite non-auxiliary `be` constructions (including embedded predicatives).
+- Defaults: Changed `strict_be_main_verb` default to `True` across `biber()` and pipeline convenience methods for more intuitive main-verb behavior out of the box.
+- Tests: Added regression tests for dash-boundary normalization and for WH-question overcounting, including negative declarative examples and a cross-document `sentence_id` leakage guard.
+- Tests: Added regression coverage for `f_19_be_main_verb` strict vs compatibility behavior and pipeline passthrough of `strict_be_main_verb`.
+
 ## [0.3.0] - 2026-01-10
 
 - Features: Added configurable MATTR window size via `mattr_window` for `biber()` and pipeline helpers; if the requested window exceeds the shortest document length, the window is reduced to the shortest length with a warning.
